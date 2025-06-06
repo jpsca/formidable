@@ -1,3 +1,8 @@
+"""
+Formable
+Copyright (c) 2025 Juan-Pablo Scaletti
+"""
+
 import pytest
 
 from formidable.parser import parse, parse_key

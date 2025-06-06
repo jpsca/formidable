@@ -5,10 +5,11 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 
 import typing as t
 
+from .. import errors as err
+
 
 if t.TYPE_CHECKING:
     from ..form import Form
-
 
 
 class Field:
@@ -18,24 +19,22 @@ class Field:
     default: t.Any = None
     value: t.Any = None
     error: str | dict[str, t.Any] | None = None
+    error_args: dict[str, t.Any] | None = None
     messages: dict[str, str]
-
-    ERROR_INVALID = "invalid"
-    ERROR_REQUIRED = "required"
 
     def __init__(self, *, required: bool = True, default: t.Any = None):
         """
         Base class for all form fields.
 
         Arguments:
-        - required: Whether the field is required. Defaults to True.
-        - default: Default value for the field. Defaults to None.
+
+        - required: Whether the field is required. Defaults to `True`.
+        - default: Default value for the field. Defaults to `None`.
 
         """
         self.required = required
         self.default = default
         self.value = self.default_value
-        self.error = None
         self.messages = {}
 
     def __repr__(self):
@@ -44,7 +43,6 @@ class Field:
             f"value={self.value!r}",
             f"default={self.default!r}",
             f"error={self.error!r}",
-
         ]
         return f"{self.__class__.__name__}({', '.join(attrs)})"
 
@@ -77,14 +75,16 @@ class Field:
         self.name_format = name_format
 
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):
-        self.error =  None
+        self.error = None
+        self.error_args = None
+
         value = objvalue if reqvalue is None else reqvalue
         if value is None:
             value = self.default_value
         try:
             self.value = self.to_python(value)
         except (ValueError, TypeError):
-            self.error = self.ERROR_INVALID
+            self.error = err.INVALID
             self.value = self.default_value
 
     def to_python(self, value: t.Any) -> t.Any:
@@ -100,7 +100,7 @@ class Field:
         if self.error is not None:
             return False
         if self.required and self.value is None:
-            self.error = self.ERROR_REQUIRED
+            self.error = err.REQUIRED
             return False
         return True
 

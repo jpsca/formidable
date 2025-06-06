@@ -43,3 +43,8 @@ class ObjectWrapper:
                 setattr(self.source, key, value)
 
         return self.source
+
+    def delete(self) -> t.Any:
+        if not self.is_dict:
+            return self.source.delete()
+        return self.source.clear()

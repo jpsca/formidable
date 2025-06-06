@@ -4,7 +4,7 @@ requires = ["setuptools"]
 
 [project]
 name = "formidable"
-version = "0.1"
+version = "0.2"
 description = "HTTP forms"
 authors = [
   {name = "Juan-Pablo Scaletti", email = "juanpablo@jpscaletti.com"},

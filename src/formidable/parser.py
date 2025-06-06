@@ -33,7 +33,9 @@ def parse_key(key: str) -> list[str | int | None]:
     return parsed
 
 
-def insert(parsed_key: list[str | int | None], value: t.Any, target: dict[str, t.Any]) -> None:
+def insert(
+    parsed_key: list[str | int | None], value: t.Any, target: dict[str, t.Any]
+) -> None:
     last_index = len(parsed_key) - 1
     ref: dict[str, t.Any] | list[t.Any] = target
 
@@ -71,7 +73,6 @@ def parse(reqdata: dict[str, t.Any]) -> dict[str, t.Any]:
             values = [values]
         parsed_key = parse_key(key)
         for value in values:
-          insert(parsed_key, value, result)
+            insert(parsed_key, value, result)
 
     return result
-

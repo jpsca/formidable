@@ -7,8 +7,28 @@ from .base import Field
 
 
 class BooleanField(Field):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    FALSE_VALUES = ("false", "0", "no")
+
+    def __init__(self, *, default: bool | str | None = None):
+        """
+        A field that represents a boolean value.
+
+        Boolean fields are treated specially because of how browsers handle checkboxes:
+
+        - If not checked: the browser doesn't send the field at all.
+        - If checked: It sends the "value" attribute, but this is optional, so it could
+          send an empty string instead.
+
+        For these reasons:
+
+        - A missing field (a `None` value) will become `False`.
+        - A string value in the `FALSE_VALUES` tuple (case-insensitive) will become `False`.
+        - Any other value, including an empty string, will become `True`.
+
+        """
+        if default is not None and not isinstance(default, bool):
+            default = self.to_python(default)
+        super().__init__(default=default)
 
     def to_python(self, value: str | bool | None) -> bool:
         """
@@ -20,8 +40,6 @@ class BooleanField(Field):
             return value
         if isinstance(value, str):
             value = value.lower().strip()
-            if value in ("true", "1", "yes"):
-                return True
-            elif value in ("", "false", "0", "no"):
+            if value in self.FALSE_VALUES:
                 return False
-        raise ValueError(f"Invalid boolean value: {value}")
+        return True
