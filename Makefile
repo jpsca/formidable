@@ -16,7 +16,7 @@ types:
 
 .PHONY: coverage
 coverage:
-	uv run pytest --cov-config=pyproject.toml --cov-report html --cov src tests
+	uv run pytest --cov-report html --cov src tests
 
 .PHONY: tox
 tox:

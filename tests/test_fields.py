@@ -11,6 +11,45 @@ import formidable as f
 from formidable import errors as err
 
 
+@pytest.mark.parametrize(
+  "FieldType",
+    [
+        f.DateField,
+        f.DateTimeField,
+        f.IntegerField,
+        f.FloatField,
+        f.TimeField,
+    ]
+)
+def test_required(FieldType):
+    field = FieldType()
+    field.set(None)
+    field.validate()
+    assert field.error == err.REQUIRED
+
+    field = FieldType(required=False)
+    field.set(None)
+    field.validate()
+    assert field.error is None
+
+
+@pytest.mark.parametrize(
+  "FieldType,value",
+    [
+        (f.DateField, "not a date"),
+        (f.DateTimeField, "not a datetime"),
+        (f.IntegerField, "not an int"),
+        (f.FloatField, "not a float"),
+        (f.TimeField, "not a time"),
+    ]
+)
+def test_invalid(FieldType, value):
+    field = FieldType()
+    field.set(value)
+    field.validate()
+    assert field.error == err.INVALID
+
+
 def test_text_field():
     class TestForm(f.Form):
         fullname = f.TextField()
@@ -85,7 +124,7 @@ def test_boolean_field():
 
     form = TestForm(
         {
-            "admin": ["1"],
+            "admin": [""],
             "alien": ["false"],
         }
     )
@@ -294,42 +333,3 @@ def test_formset_field():
             {"name": "JavaScript", "level": 3},
         ]
     }
-
-
-@pytest.mark.parametrize(
-  "FieldType",
-    [
-        f.DateField,
-        f.DateTimeField,
-        f.IntegerField,
-        f.FloatField,
-        f.TimeField,
-    ]
-)
-def test_required(FieldType):
-    field = FieldType()
-    field.set(None)
-    field.validate()
-    assert field.error == err.REQUIRED
-
-    field = FieldType(required=False)
-    field.set(None)
-    field.validate()
-    assert field.error is None
-
-
-@pytest.mark.parametrize(
-  "FieldType,value",
-    [
-        (f.DateField, "not a date"),
-        (f.DateTimeField, "not a datetime"),
-        (f.IntegerField, "not an int"),
-        (f.FloatField, "not a float"),
-        (f.TimeField, "not a time"),
-    ]
-)
-def test_invalid(FieldType, value):
-    field = FieldType()
-    field.set(value)
-    field.validate()
-    assert field.error == err.INVALID

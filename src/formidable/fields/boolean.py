@@ -27,7 +27,7 @@ class BooleanField(Field):
 
         """
         if default is not None and not isinstance(default, bool):
-            default = self.to_python(default)
+            raise ValueError("`default` must be a boolean or `None`")
         super().__init__(default=default)
 
     def to_python(self, value: str | bool | None) -> bool:

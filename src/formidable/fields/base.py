@@ -91,7 +91,9 @@ class Field:
         """
         Convert the value to a Python type.
         """
-        return value
+        raise NotImplementedError(
+            f"{self.__class__.__name__}.to_python() must be implemented"
+        )
 
     def validate(self) -> bool:
         """
