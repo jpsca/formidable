@@ -3,13 +3,19 @@ Formable
 Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
-from .base import Field
+from .base import Field, TCustomValidator
 
 
 class BooleanField(Field):
     FALSE_VALUES = ("false", "0", "no")
 
-    def __init__(self, *, default: bool | str | None = None):
+    def __init__(
+        self,
+        *,
+        default: bool | str | None = None,
+        before: list[TCustomValidator] | None = None,
+        after: list[TCustomValidator] | None = None,
+    ):
         """
         A field that represents a boolean value.
 
@@ -25,10 +31,15 @@ class BooleanField(Field):
         - A string value in the `FALSE_VALUES` tuple (case-insensitive) will become `False`.
         - Any other value, including an empty string, will become `True`.
 
+        Args:
+            default: Default value for the field. Defaults to `None`.
+            before: List of custom validators to run before setting the value.
+            after: List of custom validators to run after setting the value.
+
         """
         if default is not None and not isinstance(default, bool):
             raise ValueError("`default` must be a boolean or `None`")
-        super().__init__(default=default)
+        super().__init__(default=default, before=before, after=after)
 
     def to_python(self, value: str | bool | None) -> bool:
         """

@@ -16,7 +16,7 @@ def test_ignore_data_and_skip_validation_if_deleted():
         "age": ["whatever"],
     })
 
-    assert form.validate() is False
+    assert form.validate() is True
 
     data = form.save()
     print(data)

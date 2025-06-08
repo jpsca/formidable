@@ -12,6 +12,9 @@ if t.TYPE_CHECKING:
     from ..form import Form
 
 
+TCustomValidator = t.Callable[[t.Any], t.Any]  # Type for a validator function
+
+
 class Field:
     parent: "Form | None" = None
     name_format: str = "{name}"
@@ -21,21 +24,33 @@ class Field:
     error: str | dict[str, t.Any] | None = None
     error_args: dict[str, t.Any] | None = None
     messages: dict[str, str]
+    before: list[TCustomValidator]
+    after: list[TCustomValidator]
 
-    def __init__(self, *, required: bool = True, default: t.Any = None):
+    def __init__(
+        self,
+        *,
+        required: bool = True,
+        default: t.Any = None,
+        before: list[TCustomValidator] | None = None,
+        after: list[TCustomValidator] | None = None,
+    ):
         """
         Base class for all form fields.
 
-        Arguments:
-
-        - required: Whether the field is required. Defaults to `True`.
-        - default: Default value for the field. Defaults to `None`.
+        Args:
+            required: Whether the field is required. Defaults to `True`.
+            default: Default value for the field. Defaults to `None`.
+            before: List of custom validators to run before setting the value.
+            after: List of custom validators to run after setting the value.
 
         """
         self.required = required
         self.default = default
         self.value = self.default_value
         self.messages = {}
+        self.before = before if before is not None else []
+        self.after = after if after is not None else []
 
     def __repr__(self):
         attrs = [
@@ -81,11 +96,24 @@ class Field:
         value = objvalue if reqvalue is None else reqvalue
         if value is None:
             value = self.default_value
+
+        for validator in self.before:
+            try:
+                value = validator(value)
+            except ValueError as e:
+                self.error = e.args[0] if e.args else err.INVALID
+                self.error_args = e.args[1] if len(e.args) > 1 else None
+                return
+
         try:
             self.value = self.to_python(value)
         except (ValueError, TypeError):
             self.error = err.INVALID
             self.value = self.default_value
+            return
+
+        if self.required and self.value is None:
+            self.error = err.REQUIRED
 
     def to_python(self, value: t.Any) -> t.Any:
         """
@@ -97,13 +125,26 @@ class Field:
 
     def validate(self) -> bool:
         """
-        Validate the value of the field.
         """
         if self.error is not None:
             return False
-        if self.required and self.value is None:
-            self.error = err.REQUIRED
+
+        self.validate_value()
+
+        if self.error:
             return False
+
+        for validator in self.after:
+            try:
+                self.value = validator(self.value)
+            except ValueError as e:
+                self.error = e.args[0] if e.args else err.INVALID
+                self.error_args = e.args[1] if len(e.args) > 1 else None
+                return False
+
+        return True
+
+    def validate_value(self) -> bool:
         return True
 
     def save(self) -> t.Any:

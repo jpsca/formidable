@@ -8,7 +8,7 @@ import re
 import typing as t
 
 from .. import errors as err
-from .base import Field
+from .base import Field, TCustomValidator
 
 
 class TimeField(Field):
@@ -36,22 +36,25 @@ class TimeField(Field):
         past_time: bool = False,
         future_time: bool = False,
         offset: int | float = 0,
+        before: list[TCustomValidator] | None = None,
+        after: list[TCustomValidator] | None = None,
         _utcnow: datetime.datetime | None = None,
     ):
         """
         A field that represents a time value.
 
-        Arguments:
-
-        - required: Whether the field is required. Defaults to `True`.
-        - default: Default value for the field. Defaults to `None`.
-        - after_time: A time that the field value must be after. Defaults to `None`.
-        - before_time: A time that the field value must be before. Defaults to `None`.\
-        - past_time: Whether the time must be in the past. Defaults to `False`.
-        - future_time: Whether the time must be in the future. Defaults to `False`.
-        - offset:
+        Args:
+            required: Whether the field is required. Defaults to `True`.
+            default: Default value for the field. Defaults to `None`.
+            after_time: A time that the field value must be after. Defaults to `None`.
+            before_time: A time that the field value must be before. Defaults to `None`.\
+            past_time: Whether the time must be in the past. Defaults to `False`.
+            future_time: Whether the time must be in the future. Defaults to `False`.
+            offset:
             Timezone offset in hours (floats are allowed) for calculating "now" when
             `past_time` or `future_time` are used. Defaults to `0` (UTC timezone).
+            before: List of custom validators to run before setting the value.
+            after: List of custom validators to run after setting the value.
 
         """
         self.format = format
@@ -73,7 +76,13 @@ class TimeField(Field):
 
         if default is not None and isinstance(default, str):
             default = self.to_python(default)
-        super().__init__(required=required, default=default)
+
+        super().__init__(
+            required=required,
+            default=default,
+            before=before,
+            after=after,
+        )
 
     def to_python(self, value: str | datetime.time | None) -> datetime.time | None:
         """
@@ -128,14 +137,10 @@ class TimeField(Field):
         except (ValueError, TypeError):
             raise ValueError(f"Invalid time value: {value}") from None
 
-    def validate(self):
+    def validate_value(self) -> bool:
         """
         Validate the field value against the defined constraints.
         """
-        super().validate()
-        if self.error:
-            return False
-
         if self.after_time and self.value <= self.after_time:
             self.error = err.AFTER_TIME
             self.error_args = {"after_time": self.after_time}

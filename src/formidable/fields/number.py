@@ -4,7 +4,7 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 from .. import errors as err
-from .base import Field
+from .base import Field, TCustomValidator
 
 
 class NumberField(Field):
@@ -18,19 +18,22 @@ class NumberField(Field):
         lt: int | float | None = None,
         lte: int | float | None = None,
         multiple_of: int | float | None = None,
+        before: list[TCustomValidator] | None = None,
+        after: list[TCustomValidator] | None = None,
     ):
         """
         A field that represents a number with optional constraints.
 
-        Arguments:
-
-        - required: Whether the field is required. Defaults to `True`.
-        - default: Default value for the field. Defaults to `None`.
-        - gt: Value must be greater than this. Defaults to `None`.
-        - gte: Value must be greater than or equal to this. Defaults to `None`.
-        - lt: Value must be less than this. Defaults to `None`.
-        - lte: Value must be less than or equal to this. Defaults to `None`.
-        - multiple_of: Value must be a multiple of this. Defaults to `None`.
+        Args:
+            required: Whether the field is required. Defaults to `True`.
+            default: Default value for the field. Defaults to `None`.
+            gt: Value must be greater than this. Defaults to `None`.
+            gte: Value must be greater than or equal to this. Defaults to `None`.
+            lt: Value must be less than this. Defaults to `None`.
+            lte: Value must be less than or equal to this. Defaults to `None`.
+            multiple_of: Value must be a multiple of this. Defaults to `None`.
+            before: List of custom validators to run before setting the value.
+            after: List of custom validators to run after setting the value.
 
         """
         if gt is not None and not isinstance(gt, (int, float)):
@@ -55,16 +58,18 @@ class NumberField(Field):
 
         if default is not None and not isinstance(default, (int, float)):
             raise ValueError("`default` must be an integer, float or `None`")
-        super().__init__(required=required, default=default)
 
-    def validate(self):
+        super().__init__(
+            required=required,
+            default=default,
+            before=before,
+            after=after,
+        )
+
+    def validate_value(self) -> bool:
         """
         Validate the field value against the defined constraints.
         """
-        super().validate()
-        if self.error:
-            return False
-
         if self.gt is not None and self.value <= self.gt:
             self.error = err.GT
             self.error_args = {"gt": self.gt}

@@ -6,7 +6,7 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 import re
 
 from .. import errors as err
-from .base import Field
+from .base import Field, TCustomValidator
 
 
 class TextField(Field):
@@ -19,19 +19,22 @@ class TextField(Field):
         min_length: int | None = None,
         max_length: int | None = None,
         pattern: str | None = None,
+        before: list[TCustomValidator] | None = None,
+        after: list[TCustomValidator] | None = None,
     ):
         """
         A text field for forms.
         This field is used to capture text input from users.
 
-        Arguments:
-
-        - required: Whether the field is required. Defaults to `True`.
-        - default: Default value for the field. Defaults to `None`.
-        - strip: Whether to strip whitespace from the text. Defaults to `True`.
-        - min_length: Minimum length of the text. Defaults to `None `(no minimum).
-        - max_length: Maximum length of the text. Defaults to `None` (no maximum).
-        - pattern: A regex pattern that the string must match. Defaults to `None`.
+        Args:
+            required: Whether the field is required. Defaults to `True`.
+            default: Default value for the field. Defaults to `None`.
+            strip: Whether to strip whitespace from the text. Defaults to `True`.
+            min_length: Minimum length of the text. Defaults to `None `(no minimum).
+            max_length: Maximum length of the text. Defaults to `None` (no maximum).
+            pattern: A regex pattern that the string must match. Defaults to `None`.
+            before: List of custom validators to run before setting the value.
+            after: List of custom validators to run after setting the value.
 
         """
         self.strip = strip
@@ -52,7 +55,13 @@ class TextField(Field):
         self.pattern = pattern
 
         default = str(default) if default is not None else None
-        super().__init__(required=required, default=default)
+
+        super().__init__(
+            required=required,
+            default=default,
+            before=before,
+            after=after,
+        )
 
     def to_python(self, value: str | None) -> str | None:
         """
@@ -65,14 +74,10 @@ class TextField(Field):
             value = value.strip()
         return value
 
-    def validate(self):
+    def validate_value(self) -> bool:
         """
         Validate the field value against the defined constraints.
         """
-        super().validate()
-        if self.error:
-            return False
-
         if self.min_length is not None and len(self.value) < self.min_length:
             self.error = err.MIN_LENGTH
             self.error_args = {"min_length": self.min_length}

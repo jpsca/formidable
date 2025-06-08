@@ -26,12 +26,11 @@ class FormSet(Field):
         """
         A field that represents a set of forms, allowing for dynamic addition and removal of forms.
 
-        Arguments:
-
-        - form_cls: The class of the form to be used as a sub-form.
-        - min_items: Minimum number of form in the set. Defaults to None (no minimum).
-        - max_items: Maximum number of form in the set. Defaults to None (no maximum).
-        - default: Default value for the field. Defaults to `None`.
+        Args:
+            form_cls: The class of the form to be used as a sub-form.
+            min_items: Minimum number of form in the set. Defaults to None (no minimum).
+            max_items: Maximum number of form in the set. Defaults to None (no maximum).
+            default: Default value for the field. Defaults to `None`.
 
         """
         self.form_cls = form_cls
@@ -96,13 +95,10 @@ class FormSet(Field):
                 results.append(result)
         return results
 
-    def validate(self):
+    def validate_value(self) -> bool:
         """
         Validate the field value against the defined constraints.
         """
-        if self.error is not None:
-            return False
-
         if self.min_items is not None and len(self.forms) < self.min_items:
             self.error = err.MIN_ITEMS
             self.error_args = {"min_items": self.min_items}

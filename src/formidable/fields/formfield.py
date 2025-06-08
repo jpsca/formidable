@@ -24,11 +24,10 @@ class FormField(Field):
         """
         A field that represents a single sub-form.
 
-        Arguments:
-
-        - form_cls: The class of the form to be used as a sub-form.
-        - required: Whether the field is required. Defaults to `True`.
-        - default: Default value for the field. Defaults to `None`.
+        Args:
+            form_cls: The class of the form to be used as a sub-form.
+            required: Whether the field is required. Defaults to `True`.
+            default: Default value for the field. Defaults to `None`.
 
         """
         self.form = form_cls()
@@ -54,7 +53,7 @@ class FormField(Field):
 
         self.form._set(reqvalue, objvalue)
 
-    def validate(self) -> bool:
+    def validate_value(self) -> bool:
         valid = self.form.validate()
         if not valid:
             self.error = self.form.get_errors()

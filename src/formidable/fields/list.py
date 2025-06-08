@@ -6,7 +6,7 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 import typing as t
 
 from .. import errors as err
-from .base import Field
+from .base import Field, TCustomValidator
 
 
 class ListField(Field):
@@ -18,17 +18,20 @@ class ListField(Field):
         default: list | None = None,
         min_items: int | None = None,
         max_items: int | None = None,
+        before: list[TCustomValidator] | None = None,
+        after: list[TCustomValidator] | None = None,
     ):
         """
         A field that represents a list of items.
 
-        Arguments:
-
-        - type: The type of items in the list. Defaults to `None` (no casting).
-        - required: Whether the field is required. Defaults to `True`.
-        - default: Default value for the field. Defaults to `[]`.
-        - min_items: Minimum number of items in the list. Defaults to None (no minimum).
-        - max_items: Maximum number of items in the list. Defaults to None (no maximum).
+        Args:
+            type: The type of items in the list. Defaults to `None` (no casting).
+            required: Whether the field is required. Defaults to `True`.
+            default: Default value for the field. Defaults to `[]`.
+            min_items: Minimum number of items in the list. Defaults to None (no minimum).
+            max_items: Maximum number of items in the list. Defaults to None (no maximum).
+            before: List of custom validators to run before setting the value.
+            after: List of custom validators to run after setting the value.
 
         """
         self.type = type
@@ -44,7 +47,13 @@ class ListField(Field):
         default = default if default is not None else []
         if not isinstance(default, list):
             raise ValueError("`default` must be a list or `None`")
-        super().__init__(required=required, default=default)
+
+        super().__init__(
+            required=required,
+            default=default,
+            before=before,
+            after=after,
+        )
 
     def set_name_format(self, name_format: str):
         self.name_format = f"{name_format}[]"
@@ -62,14 +71,10 @@ class ListField(Field):
                 return [self.type(value)]
         return value
 
-    def validate(self):
+    def validate_value(self) -> bool:
         """
         Validate the field value against the defined constraints.
         """
-        super().validate()
-        if self.error:
-            return False
-
         if not isinstance(self.value, list):
             self.error = err.INVALID
             return False
