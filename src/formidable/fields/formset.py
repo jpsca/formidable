@@ -27,10 +27,14 @@ class FormSet(Field):
         A field that represents a set of forms, allowing for dynamic addition and removal of forms.
 
         Args:
-            form_cls: The class of the form to be used as a sub-form.
-            min_items: Minimum number of form in the set. Defaults to None (no minimum).
-            max_items: Maximum number of form in the set. Defaults to None (no maximum).
-            default: Default value for the field. Defaults to `None`.
+            form_cls:
+                The class of the form to be used as a sub-form.
+            min_items:
+                Minimum number of form in the set. Defaults to None (no minimum).
+            max_items:
+                Maximum number of form in the set. Defaults to None (no maximum).
+            default:
+                Default value for the field. Defaults to `None`.
 
         """
         self.form_cls = form_cls

@@ -6,6 +6,7 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 import datetime
 import re
 import typing as t
+from collections.abc import Iterable
 
 from .. import errors as err
 from .base import Field, TCustomValidator
@@ -36,25 +37,39 @@ class TimeField(Field):
         past_time: bool = False,
         future_time: bool = False,
         offset: int | float = 0,
-        before: list[TCustomValidator] | None = None,
-        after: list[TCustomValidator] | None = None,
+        before: Iterable[TCustomValidator] | None = None,
+        after: Iterable[TCustomValidator] | None = None,
+        one_of: Iterable[str] | None = None,
+        messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
     ):
         """
         A field that represents a time value.
 
         Args:
-            required: Whether the field is required. Defaults to `True`.
-            default: Default value for the field. Defaults to `None`.
-            after_time: A time that the field value must be after. Defaults to `None`.
-            before_time: A time that the field value must be before. Defaults to `None`.\
-            past_time: Whether the time must be in the past. Defaults to `False`.
-            future_time: Whether the time must be in the future. Defaults to `False`.
+            required:
+                Whether the field is required. Defaults to `True`.
+            default:
+                Default value for the field. Defaults to `None`.
+            after_time:
+                A time that the field value must be after. Defaults to `None`.
+            before_time:
+                A time that the field value must be before. Defaults to `None`.\
+            past_time:
+                Whether the time must be in the past. Defaults to `False`.
+            future_time:
+                Whether the time must be in the future. Defaults to `False`.
             offset:
-            Timezone offset in hours (floats are allowed) for calculating "now" when
-            `past_time` or `future_time` are used. Defaults to `0` (UTC timezone).
-            before: List of custom validators to run before setting the value.
-            after: List of custom validators to run after setting the value.
+                Timezone offset in hours (floats are allowed) for calculating "now" when
+                `past_time` or `future_time` are used. Defaults to `0` (UTC timezone).
+            before:
+                List of custom validators to run before setting the value.
+            after:
+                List of custom validators to run after setting the value.
+            one_of:
+                List of values that the field value must be one of. Defaults to `None`.
+            messages:
+                Overrides of the error messages, specifically for this field.
 
         """
         self.format = format
@@ -74,6 +89,10 @@ class TimeField(Field):
         # For easier testing
         self._utcnow = _utcnow
 
+        if one_of is not None and not isinstance(one_of, list):
+            raise ValueError("`one_of` must be a list or `None`")
+        self.one_of = one_of
+
         if default is not None and isinstance(default, str):
             default = self.to_python(default)
 
@@ -82,6 +101,7 @@ class TimeField(Field):
             default=default,
             before=before,
             after=after,
+            messages=messages,
         )
 
     def to_python(self, value: str | datetime.time | None) -> datetime.time | None:
@@ -162,6 +182,11 @@ class TimeField(Field):
 
         if self.future_time and self.value <= now:
             self.error = err.FUTURE_TIME
+            return False
+
+        if self.one_of and self.value not in self.one_of:
+            self.error = err.NOT_ONE_OF
+            self.error_args = {"one_of": self.one_of}
             return False
 
         return True

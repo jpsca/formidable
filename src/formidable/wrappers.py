@@ -42,8 +42,10 @@ class ObjectManager:
         Create a new instance of the model class with the provided data.
 
         Args:
-            model_cls: The class of the model to create.
-            data: A dictionary containing the data to initialize the model.
+            model_cls:
+                The class of the model to create.
+            data:
+                A dictionary containing the data to initialize the model.
 
         Returns:
             An instance of the model class initialized with the provided data.
@@ -57,8 +59,10 @@ class ObjectManager:
         Update an existing object with the provided data.
 
         Args:
-            object: The object to update.
-            data: A dictionary containing the data to update the object with.
+            object:
+                The object to update.
+            data:
+                A dictionary containing the data to update the object with.
 
         Returns:
             The updated object.
@@ -77,7 +81,8 @@ class ObjectManager:
         Delete the provided object.
 
         Args:
-            object: The object to delete.
+            object:
+                The object to delete.
 
         Returns:
             The result of the deletion operation, which may vary based on the ORM used.

@@ -4,6 +4,7 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import typing as t
+from collections.abc import Iterable
 
 from .. import errors as err
 
@@ -24,30 +25,39 @@ class Field:
     error: str | dict[str, t.Any] | None = None
     error_args: dict[str, t.Any] | None = None
     messages: dict[str, str]
-    before: list[TCustomValidator]
-    after: list[TCustomValidator]
+    messages_overrides: dict[str, str]
+    before: Iterable[TCustomValidator]
+    after: Iterable[TCustomValidator]
 
     def __init__(
         self,
         *,
         required: bool = True,
         default: t.Any = None,
-        before: list[TCustomValidator] | None = None,
-        after: list[TCustomValidator] | None = None,
+        before: Iterable[TCustomValidator] | None = None,
+        after: Iterable[TCustomValidator] | None = None,
+        messages: dict[str, str] | None = None,
     ):
         """
         Base class for all form fields.
 
         Args:
-            required: Whether the field is required. Defaults to `True`.
-            default: Default value for the field. Defaults to `None`.
-            before: List of custom validators to run before setting the value.
-            after: List of custom validators to run after setting the value.
+            required:
+                Whether the field is required. Defaults to `True`.
+            default:
+                Default value for the field. Defaults to `None`.
+            before:
+                List of custom validators to run before setting the value.
+            after:
+                List of custom validators to run after setting the value.
+            messages:
+                Overrides of the error messages, specifically for this field.
 
         """
         self.required = required
         self.default = default
         self.value = self.default_value
+        self.messages_overrides = messages if messages is not None else {}
         self.messages = {}
         self.before = before if before is not None else []
         self.after = after if after is not None else []
@@ -70,9 +80,11 @@ class Field:
         """
         Returns the error message for the field, if any.
         """
-        if not isinstance(self.error, str):
+        if self.error is None or not isinstance(self.error, str):
             return ""
-        return self.messages.get(self.error, self.error)
+        tmpl = self.messages.get(self.error, self.error)
+        args = {**(self.error_args or {}), "name": self.field_name}
+        return tmpl.format(**args)
 
     @property
     def default_value(self) -> t.Any:
@@ -84,7 +96,7 @@ class Field:
         return self.default
 
     def set_messages(self, messages: dict[str, str]):
-        self.messages = messages
+        self.messages = {**messages, **self.messages_overrides}
 
     def set_name_format(self, name_format: str):
         self.name_format = name_format

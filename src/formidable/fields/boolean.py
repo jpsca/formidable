@@ -3,6 +3,8 @@ Formable
 Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
+from collections.abc import Iterable
+
 from .base import Field, TCustomValidator
 
 
@@ -13,8 +15,9 @@ class BooleanField(Field):
         self,
         *,
         default: bool | str | None = None,
-        before: list[TCustomValidator] | None = None,
-        after: list[TCustomValidator] | None = None,
+        before: Iterable[TCustomValidator] | None = None,
+        after: Iterable[TCustomValidator] | None = None,
+        messages: dict[str, str] | None = None,
     ):
         """
         A field that represents a boolean value.
@@ -32,14 +35,24 @@ class BooleanField(Field):
         - Any other value, including an empty string, will become `True`.
 
         Args:
-            default: Default value for the field. Defaults to `None`.
-            before: List of custom validators to run before setting the value.
-            after: List of custom validators to run after setting the value.
+            default:
+                Default value for the field. Defaults to `None`.
+            before:
+                List of custom validators to run before setting the value.
+            after:
+                List of custom validators to run after setting the value.
+            messages:
+                Overrides of the error messages, specifically for this field.
 
         """
         if default is not None and not isinstance(default, bool):
             raise ValueError("`default` must be a boolean or `None`")
-        super().__init__(default=default, before=before, after=after)
+        super().__init__(
+            default=default,
+            before=before,
+            after=after,
+            messages=messages,
+        )
 
     def to_python(self, value: str | bool | None) -> bool:
         """

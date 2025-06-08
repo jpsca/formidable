@@ -5,6 +5,7 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 
 import datetime
 import typing as t
+from collections.abc import Iterable
 
 from .. import errors as err
 from .base import Field, TCustomValidator
@@ -22,26 +23,41 @@ class DateField(Field):
         past_date: bool = False,
         future_date: bool = False,
         offset: int | float = 0,
-        before: list[TCustomValidator] | None = None,
-        after: list[TCustomValidator] | None = None,
+        before: Iterable[TCustomValidator] | None = None,
+        after: Iterable[TCustomValidator] | None = None,
+        one_of: Iterable[t.Any] | None = None,
+        messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
     ):
         """
         A field that represents a date.
 
         Args:
-            format: The format of the date string. Defaults to '%Y-%m-%d'.
-            required: Whether the field is required. Defaults to `True`.
-            default: Default value for the field. Defaults to `None`.
-            after_date: A date that the field value must be after. Defaults to `None`.
-            before_date: A date that the field value must be before. Defaults to `None`.\
-            past_date: Whether the date must be in the past. Defaults to `False`.
-            future_date: Whether the date must be in the future. Defaults to `False`.
+            format:
+                The format of the date string. Defaults to '%Y-%m-%d'.
+            required:
+                Whether the field is required. Defaults to `True`.
+            default:
+                Default value for the field. Defaults to `None`.
+            after_date:
+                A date that the field value must be after. Defaults to `None`.
+            before_date:
+                A date that the field value must be before. Defaults to `None`.
+            past_date:
+                Whether the date must be in the past. Defaults to `False`.
+            future_date:
+                Whether the date must be in the future. Defaults to `False`.
             offset:
                 Timezone offset in hours (floats are allowed) for calculating "today" when
                 `past_date` or `future_date` are used. Defaults to `0` (UTC timezone).
-            before: List of custom validators to run before setting the value.
-            after: List of custom validators to run after setting the value.
+            before:
+                List of custom validators to run before setting the value.
+            after:
+                List of custom validators to run after setting the value.
+            one_of:
+                List of values that the field value must be one of. Defaults to `None`.
+            messages:
+                Overrides of the error messages, specifically for this field.
 
         """
         self.format = format
@@ -61,6 +77,10 @@ class DateField(Field):
         # For easier testing
         self._utcnow = _utcnow
 
+        if one_of is not None and not isinstance(one_of, list):
+            raise ValueError("`one_of` must be a list or `None`")
+        self.one_of = one_of
+
         if default is not None and isinstance(default, str):
             default = self.to_python(default)
 
@@ -69,6 +89,7 @@ class DateField(Field):
             default=default,
             before=before,
             after=after,
+            messages=messages,
         )
 
     def to_python(self, value: str | datetime.date | None) -> datetime.date | None:
@@ -107,6 +128,11 @@ class DateField(Field):
             self.error = err.FUTURE_DATE
             return False
 
+        if self.one_of and self.value not in self.one_of:
+            self.error = err.NOT_ONE_OF
+            self.error_args = {"one_of": self.one_of}
+            return False
+
         return True
 
 
@@ -122,25 +148,37 @@ class DateTimeField(Field):
         past_date: bool = False,
         future_date: bool = False,
         offset: int | float = 0,
-        before: list[TCustomValidator] | None = None,
-        after: list[TCustomValidator] | None = None,
+        before: Iterable[TCustomValidator] | None = None,
+        after: Iterable[TCustomValidator] | None = None,
+        one_of: Iterable[t.Any] | None = None,
+        messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
     ):
         """
         A field that represents a datetime.
 
-        Arguments:
-
-        - format: The format of the date string. Defaults to '%Y-%m-%d'.
-        - required: Whether the field is required. Defaults to `True`.
-        - default: Default value for the field. Defaults to `None`.
-        - after_date: A date that the field value must be after. Defaults to `None`.
-        - before_date: A date that the field value must be before. Defaults to `None`.\
-        - past_date: Whether the date must be in the past. Defaults to `False`.
-        - future_date: Whether the date must be in the future. Defaults to `False`.
-        - offset:
-            Timezone offset in hours (floats are allowed) for calculating "now" when
-            `past_date` or `future_date` are used. Defaults to `0` (UTC timezone).
+        Args:
+            format:
+                The format of the date string. Defaults to '%Y-%m-%d'.
+            required:
+                Whether the field is required. Defaults to `True`.
+            default:
+                Default value for the field. Defaults to `None`.
+            after_date:
+                A date that the field value must be after. Defaults to `None`.
+            before_date:
+                A date that the field value must be before. Defaults to `None`.\
+            past_date:
+                Whether the date must be in the past. Defaults to `False`.
+            future_date:
+                Whether the date must be in the future. Defaults to `False`.
+            offset:
+                Timezone offset in hours (floats are allowed) for calculating "now" when
+                `past_date` or `future_date` are used. Defaults to `0` (UTC timezone).
+            one_of:
+                List of values that the field value must be one of. Defaults to `None`.
+            messages:
+                Overrides of the error messages, specifically for this field.a
 
         """
         self.format = format
@@ -160,6 +198,10 @@ class DateTimeField(Field):
         # For easier testing
         self._utcnow = _utcnow
 
+        if one_of is not None and not isinstance(one_of, list):
+            raise ValueError("`one_of` must be a list or `None`")
+        self.one_of = one_of
+
         if default is not None and isinstance(default, str):
             default = self.to_python(default)
 
@@ -168,6 +210,7 @@ class DateTimeField(Field):
             default=default,
             before=before,
             after=after,
+            messages=messages,
         )
 
     def to_python(self, value: str | datetime.datetime | None) -> datetime.datetime | None:
@@ -203,6 +246,11 @@ class DateTimeField(Field):
             return False
         if self.future_date and self.value <= now:
             self.error = err.FUTURE_DATE
+            return False
+
+        if self.one_of and self.value not in self.one_of:
+            self.error = err.NOT_ONE_OF
+            self.error_args = {"one_of": self.one_of}
             return False
 
         return True

@@ -5,6 +5,7 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 
 INVALID = "invalid"
 REQUIRED = "required"
+NOT_ONE_OF = "not_one_of"
 
 GT = "gt"
 GTE = "gte"
@@ -32,6 +33,7 @@ FUTURE_TIME = "future_time"
 MESSAGES = {
     INVALID: "Invalid value for '{name}'",
     REQUIRED: "Field '{name}' is required",
+    NOT_ONE_OF: "'{name}' must be one of {one_of}",
 
     GT: "'{name}' must be greater than {gt}",
     GTE: "'{name}' must be greater or equal than {gte}",

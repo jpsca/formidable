@@ -25,9 +25,12 @@ class FormField(Field):
         A field that represents a single sub-form.
 
         Args:
-            form_cls: The class of the form to be used as a sub-form.
-            required: Whether the field is required. Defaults to `True`.
-            default: Default value for the field. Defaults to `None`.
+            form_cls:
+                The class of the form to be used as a sub-form.
+            required:
+                Whether the field is required. Defaults to `True`.
+            default:
+                Default value for the field. Defaults to `None`.
 
         """
         self.form = form_cls()

@@ -4,6 +4,7 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import typing as t
+from collections.abc import Iterable
 
 from .. import errors as err
 from .base import Field, TCustomValidator
@@ -18,20 +19,33 @@ class ListField(Field):
         default: list | None = None,
         min_items: int | None = None,
         max_items: int | None = None,
-        before: list[TCustomValidator] | None = None,
-        after: list[TCustomValidator] | None = None,
+        before: Iterable[TCustomValidator] | None = None,
+        after: Iterable[TCustomValidator] | None = None,
+        one_of: Iterable[t.Any] | None = None,
+        messages: dict[str, str] | None = None,
     ):
         """
         A field that represents a list of items.
 
         Args:
-            type: The type of items in the list. Defaults to `None` (no casting).
-            required: Whether the field is required. Defaults to `True`.
-            default: Default value for the field. Defaults to `[]`.
-            min_items: Minimum number of items in the list. Defaults to None (no minimum).
-            max_items: Maximum number of items in the list. Defaults to None (no maximum).
-            before: List of custom validators to run before setting the value.
-            after: List of custom validators to run after setting the value.
+            type:
+                The type of items in the list. Defaults to `None` (no casting).
+            required:
+                Whether the field is required. Defaults to `True`.
+            default:
+                Default value for the field. Defaults to `[]`.
+            min_items:
+                Minimum number of items in the list. Defaults to None (no minimum).
+            max_items:
+                Maximum number of items in the list. Defaults to None (no maximum).
+            before:
+                List of custom validators to run before setting the value.
+            after:
+                List of custom validators to run after setting the value.
+            one_of:
+                List of values that the field value must be one of. Defaults to `None`.
+            messages:
+                Overrides of the error messages, specifically for this field.
 
         """
         self.type = type
@@ -44,6 +58,10 @@ class ListField(Field):
             raise ValueError("`max_items` must be a positive integer")
         self.max_items = max_items
 
+        if one_of is not None and not isinstance(one_of, list):
+            raise ValueError("`one_of` must be a list or `None`")
+        self.one_of = one_of
+
         default = default if default is not None else []
         if not isinstance(default, list):
             raise ValueError("`default` must be a list or `None`")
@@ -53,6 +71,7 @@ class ListField(Field):
             default=default,
             before=before,
             after=after,
+            messages=messages,
         )
 
     def set_name_format(self, name_format: str):
@@ -88,5 +107,12 @@ class ListField(Field):
             self.error = err.MAX_ITEMS
             self.error_args = {"max_items": self.max_items}
             return False
+
+        if self.one_of:
+            for value in self.value:
+                if value not in self.one_of:
+                    self.error = err.NOT_ONE_OF
+                    self.error_args = {"one_of": self.one_of}
+                    return False
 
         return True

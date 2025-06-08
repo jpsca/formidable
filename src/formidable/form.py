@@ -117,6 +117,13 @@ class Form():
             return self.validate()
         return self._valid
 
+    @property
+    def is_invalid(self) -> bool:
+        """
+        Returns whether the form is invalid.
+        """
+        return not self.is_valid
+
     def get_errors(self) -> dict[str, str]:
         """
         Returns a dictionary of field names and their error messages.
@@ -138,10 +145,7 @@ class Form():
             if field.error is not None:
                 valid = False
 
-        try:
-            self.on_after_validation()
-        except ValueError:
-            valid = False
+        valid = self.on_after_validation()
 
         self._valid = valid
         return valid
@@ -169,17 +173,17 @@ class Form():
 
         return data
 
-    def on_after_validation(self) -> None:
+    def on_after_validation(self) -> bool:
         """
         Hook method called after validation.
         Can be overridden to modify the field values or errors
         before saving.
 
-        Raises:
-            ValueError: If the data is not valid.
+        Returns:
+            Whether the form is valid after the custom validation.
 
         """
-        pass
+        return True
 
     # Private methods
 
