@@ -7,7 +7,7 @@ import typing as t
 
 
 class ObjectManager:
-    def __init__(self, model_cls: t.Any = None, object: t.Any = None):
+    def __init__(self, *, orm_cls: t.Any = None, object: t.Any = None):
         """
         A utility class for wrapping ORM objects and providing a consistent interface
         for creatimg, accessing atttributes, updating, and deleting objects.
@@ -18,13 +18,9 @@ class ObjectManager:
                 implementation or a regular dict.
 
         """
-        self.model_cls = model_cls
+        self.orm_cls = orm_cls
         self.object = None if object is None else object
         self.is_dict = isinstance(self.object, dict)
-
-    def __bool__(self) -> bool:
-        """Check if the wrapped object exists."""
-        return self.object is None
 
     def exists(self) -> bool:
         """Check if the wrapped object exists."""
@@ -37,13 +33,39 @@ class ObjectManager:
             return self.object.get(name, default)
         return getattr(self.object, name, default)
 
+    def save(self, data: dict[str, t.Any]) -> t.Any:
+        """
+        Save the provided data to the wrapped object.
+
+        Args:
+            data:
+                A dictionary containing the data to save to the object.
+
+        Returns:
+            - If there is no wrapped object, and `orm_cls` is set, it creates
+              a new instance and returns it.
+            - If the wrapped object is an ORM model, calls `self.update()` to
+              update its attributes and returns the updated object.
+            - If the wrapped object is a dictionary, it updates the dictionary
+              with the new data and returns the updated dictionary.
+            - Otherwise, it just returns the new data.
+
+        """
+        if self.object is None and self.orm_cls is not None:
+            return self.create(data)
+        elif self.object is not None:
+            if self.is_dict:
+                return {**self.object, **data}
+            else:
+                return self.update(data)
+        else:
+            return data
+
     def create(self, data: dict[str, t.Any]) -> t.Any:
         """
         Create a new instance of the model class with the provided data.
 
         Args:
-            model_cls:
-                The class of the model to create.
             data:
                 A dictionary containing the data to initialize the model.
 
@@ -51,16 +73,14 @@ class ObjectManager:
             An instance of the model class initialized with the provided data.
 
         """
-        assert self.model_cls is not None
-        return self.model_cls.create(**data)
+        assert self.orm_cls is not None
+        return self.orm_cls.create(**data)
 
     def update(self, data: dict[str, t.Any]) -> t.Any:
         """
         Update an existing object with the provided data.
 
         Args:
-            object:
-                The object to update.
             data:
                 A dictionary containing the data to update the object with.
 
@@ -69,27 +89,17 @@ class ObjectManager:
 
         """
         assert self.object is not None
-        if self.is_dict:
-            self.object.update(data)
-        else:
-            for key, value in data.items():
-                setattr(self.object, key, value)
+        for key, value in data.items():
+            setattr(self.object, key, value)
         return self.object
 
     def delete(self) -> t.Any:
         """
         Delete the provided object.
 
-        Args:
-            object:
-                The object to delete.
-
         Returns:
             The result of the deletion operation, which may vary based on the ORM used.
 
         """
         assert self.object is not None
-        if self.is_dict:
-            return self.object.clear()
-        else:
-            return self.object.delete_instance()
+        return self.object.delete_instance()

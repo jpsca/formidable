@@ -23,7 +23,7 @@ from formidable.parser import parse, parse_key
         ("mixed[0][]", ["mixed", "0", None]),
     ],
 )
-def test_parse_key_various(input_key, expected):
+def test_parse_key(input_key, expected):
     assert parse_key(input_key) == expected
 
 

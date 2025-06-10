@@ -3,8 +3,10 @@ Formable
 Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
+import typing as t
 from collections.abc import Iterable
 
+from .. import errors as err
 from .base import Field, TCustomValidator
 
 
@@ -53,6 +55,24 @@ class BooleanField(Field):
             after=after,
             messages=messages,
         )
+
+    def set(self, reqvalue: t.Any, objvalue: t.Any = None):
+        self.error = None
+        self.error_args = None
+
+        value = objvalue if reqvalue is None else reqvalue
+        if value is None:
+            value = self.default_value
+
+        for validator in self.before:
+            try:
+                value = validator(value)
+            except ValueError as e:
+                self.error = e.args[0] if e.args else err.INVALID
+                self.error_args = e.args[1] if len(e.args) > 1 else None
+                return
+
+        self.value = self.to_python(value)
 
     def to_python(self, value: str | bool | None) -> bool:
         """

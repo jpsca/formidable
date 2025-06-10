@@ -10,7 +10,7 @@ from formidable import errors as err
 
 
 def test_validate_min_length():
-    field = f.TextField(min_length=5)
+    field = f.TextField(min_length=5, required=False)
 
     field.set("1234")
     field.validate()
@@ -28,7 +28,7 @@ def test_invalid_min_length():
 
 
 def test_validate_max_length():
-    field = f.TextField(max_length=5)
+    field = f.TextField(max_length=5, required=False)
 
     field.set("123456")
     field.validate()
@@ -50,7 +50,7 @@ def test_invalid_max_length():
 
 
 def test_validate_pattern():
-    field = f.TextField(pattern=r"^\d{3}-\d{2}-\d{4}$")
+    field = f.TextField(pattern=r"^\d{3}-\d{2}-\d{4}$", required=False)
 
     field.set("123-45-6789")
     field.validate()

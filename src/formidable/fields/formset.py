@@ -14,20 +14,34 @@ if t.TYPE_CHECKING:
     from ..form import Form
 
 
+def get_pk(obj: t.Any, pk: str) -> t.Any:  # pragma: no cover
+    """
+    Helper function to get the primary key from an object.
+    """
+    if isinstance(obj, dict):
+        value = obj.get(pk, None)
+    else:
+        value = getattr(obj, pk, None)
+    if value is None:
+        return None
+    return str(value)
+
+
 class FormSet(Field):
     def __init__(
         self,
-        form_cls: "type[Form]",
+        FormClass: "type[Form]",
         *,
         min_items: int | None = None,
         max_items: int | None = None,
         default: dict | None = None,
+        allow_delete: bool = True,
     ):
         """
         A field that represents a set of forms, allowing for dynamic addition and removal of forms.
 
         Args:
-            form_cls:
+            FormClass:
                 The class of the form to be used as a sub-form.
             min_items:
                 Minimum number of form in the set. Defaults to None (no minimum).
@@ -35,12 +49,17 @@ class FormSet(Field):
                 Maximum number of form in the set. Defaults to None (no maximum).
             default:
                 Default value for the field. Defaults to `None`.
+            allow_delete:
+                Whether the form allows deletion of objects.
+                If set to `True`, the form will delete objects of form when the "_deleted"
+                field is present. Defaults to `True`.
 
         """
-        self.form_cls = form_cls
-        self.new_form = form_cls()
+        self.FormClass = FormClass
+        self.new_form = FormClass()
+
         self.forms = []
-        self.pk = getattr(form_cls.Meta, "pk", "id")
+        self.pk = getattr(self.new_form.Meta, "pk", "id")
 
         if min_items is not None and (not isinstance(min_items, int) or min_items < 0):
             raise ValueError("`min_items` must be a positive integer")
@@ -50,20 +69,35 @@ class FormSet(Field):
             raise ValueError("`max_items` must be a positive integer")
         self.max_items = max_items
 
+        self.allow_delete = bool(allow_delete)
+
         if default is not None and not isinstance(default, dict):
             raise ValueError("`default` must be a dictionary or `None`")
-        super().__init__(required=bool(min_items), default=default)
+
+        super().__init__(
+            required=bool(min_items),
+            default=default,
+            messages={**self.new_form._messages}
+        )
+        self.set_name_format(self.name_format)
 
     def set_name_format(self, name_format: str):
         self.name_format = f"{name_format}[NEW_INDEX]"
         self.sub_name_format = f"{self.name}[{{name}}]"
         self.new_form._set_name_format(self.sub_name_format)
 
+    def set_messages(self, messages: dict[str, str]):
+        super().set_messages(messages)
+        self.new_form._set_messages(self.messages)
+
     def set(
         self,
         reqvalue: dict[str, t.Any] | None = None,
         objvalue: Iterable[t.Any] | None = None,
     ):
+        self.error = None
+        self.error_args = None
+
         reqvalue = reqvalue or {}
         assert isinstance(reqvalue, dict), "reqvalue must be a dictionary"
         objvalue = objvalue or []
@@ -71,21 +105,35 @@ class FormSet(Field):
         if not (reqvalue or objvalue):
             reqvalue = self.default_value or {}
 
-        self.error = None
+        self.forms = []
+        pks_used = set()
+
         if reqvalue:
-            objects = {getattr(obj, self.pk): obj for obj in objvalue}
+            objects = {get_pk(obj, self.pk): obj for obj in objvalue}
             for pk, data in reqvalue.items():
                 name_format = self.sub_name_format.replace("NEW_INDEX", pk)
-                form = self.form_cls(
-                    data, object=objects.get(pk), name_format=name_format
+                form = self.FormClass(
+                    data,
+                    object=objects.get(pk),
+                    name_format=name_format,
+                    messages=self.messages,
                 )
+                form._allow_delete = self.allow_delete
                 self.forms.append(form)
+                pks_used.add(pk)
 
-        else:
+        if objvalue:
             for obj in objvalue:
-                pk = getattr(obj, self.pk)
+                pk = get_pk(obj, self.pk)
+                if pk in pks_used:
+                    continue
                 name_format = self.sub_name_format.replace("NEW_INDEX", str(pk))
-                form = self.form_cls(object=obj, name_format=name_format)
+                form = self.FormClass(
+                    object=obj,
+                    name_format=name_format,
+                    messages=self.messages,
+                )
+                form._allow_delete = self.allow_delete
                 self.forms.append(form)
 
     def save(self) -> list[t.Any]:

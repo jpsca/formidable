@@ -27,6 +27,11 @@ def test_required(FieldType):
     field.validate()
     assert field.error == err.REQUIRED
 
+    field = FieldType()
+    field.set("")
+    field.validate()
+    assert field.error == err.REQUIRED
+
     field = FieldType(required=False)
     field.set(None)
     field.validate()
@@ -293,6 +298,41 @@ def test_form_field():
     }
 
 
+def test_form_field_object():
+    class AddressForm(f.Form):
+        street = f.TextField()
+        city = f.TextField()
+
+    class TestForm(f.Form):
+        address = f.FormField(AddressForm)
+
+    form = TestForm(
+        object={
+            "address": {
+                "street": "123 Main St",
+                "city": "Springfield",
+            },
+            "foo": "bar",
+        }
+    )
+
+    assert form.address.form.street.name == "address[street]"  # type: ignore
+    assert form.address.form.street.value == "123 Main St"  # type: ignore
+
+    assert form.address.form.city.name == "address[city]"  # type: ignore
+    assert form.address.form.city.value == "Springfield"  # type: ignore
+
+    data = form.save()
+    print(data)
+    assert data == {
+        "address": {
+            "street": "123 Main St",
+            "city": "Springfield",
+        },
+        "foo": "bar",
+    }
+
+
 def test_formset_field():
     class SkillForm(f.Form):
         name = f.TextField()
@@ -331,5 +371,93 @@ def test_formset_field():
         "skills": [
             {"name": "Python", "level": 5},
             {"name": "JavaScript", "level": 3},
+        ]
+    }
+
+
+def test_formset_field_object():
+    class SkillForm(f.Form):
+        name = f.TextField()
+        level = f.IntegerField(default=1)
+
+    class TestForm(f.Form):
+        skills = f.FormSet(SkillForm)
+
+    form = TestForm(
+        object={
+            "skills": [
+                {"id": 5, "name": "Python", "level": 5},
+                {"id": 7, "name": "JavaScript", "level": 3},
+            ]
+        }
+    )
+
+    assert form.skills.new_form.name.name == "skills[NEW_INDEX][name]"  # type: ignore
+    assert form.skills.new_form.level.name == "skills[NEW_INDEX][level]"  # type: ignore
+
+    assert form.skills.forms[0].name.name == "skills[5][name]"
+    assert form.skills.forms[0].name.value == "Python"
+
+    assert form.skills.forms[0].level.name == "skills[5][level]"
+    assert form.skills.forms[0].level.value == 5
+
+    assert form.skills.forms[1].name.name == "skills[7][name]"
+    assert form.skills.forms[1].name.value == "JavaScript"
+
+    assert form.skills.forms[1].level.name == "skills[7][level]"
+    assert form.skills.forms[1].level.value == 3
+
+    data = form.save()
+    print(data)
+    assert data == {
+        "skills": [
+            {"id": 5, "name": "Python", "level": 5},
+            {"id": 7, "name": "JavaScript", "level": 3},
+        ]
+    }
+
+
+def test_formset_field_object_updated():
+    class SkillForm(f.Form):
+        name = f.TextField()
+        level = f.IntegerField(default=1)
+
+    class TestForm(f.Form):
+        skills = f.FormSet(SkillForm)
+
+    form = TestForm(
+        {
+            "skills[7][name]": ["Go"],
+            "skills[7][level]": ["2"],
+        },
+        object={
+            "skills": [
+                {"id": 5, "name": "Python", "level": 5},
+                {"id": 7, "name": "JavaScript", "level": 3},
+            ]
+        }
+    )
+
+    assert form.skills.new_form.name.name == "skills[NEW_INDEX][name]"  # type: ignore
+    assert form.skills.new_form.level.name == "skills[NEW_INDEX][level]"  # type: ignore
+
+    assert form.skills.forms[0].name.name == "skills[7][name]"
+    assert form.skills.forms[0].name.value == "Go"
+
+    assert form.skills.forms[0].level.name == "skills[7][level]"
+    assert form.skills.forms[0].level.value == 2
+
+    assert form.skills.forms[1].name.name == "skills[5][name]"
+    assert form.skills.forms[1].name.value == "Python"
+
+    assert form.skills.forms[1].level.name == "skills[5][level]"
+    assert form.skills.forms[1].level.value == 5
+
+    data = form.save()
+    print(data)
+    assert data == {
+        "skills": [
+            {"id": 7, "name": "Go", "level": 2},
+            {"id": 5, "name": "Python", "level": 5},
         ]
     }

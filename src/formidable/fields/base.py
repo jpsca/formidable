@@ -25,7 +25,6 @@ class Field:
     error: str | dict[str, t.Any] | None = None
     error_args: dict[str, t.Any] | None = None
     messages: dict[str, str]
-    messages_overrides: dict[str, str]
     before: Iterable[TCustomValidator]
     after: Iterable[TCustomValidator]
 
@@ -57,8 +56,7 @@ class Field:
         self.required = required
         self.default = default
         self.value = self.default_value
-        self.messages_overrides = messages if messages is not None else {}
-        self.messages = {}
+        self.messages = messages if messages is not None else {}
         self.before = before if before is not None else []
         self.after = after if after is not None else []
 
@@ -82,8 +80,8 @@ class Field:
         """
         if self.error is None or not isinstance(self.error, str):
             return ""
-        tmpl = self.messages.get(self.error, self.error)
-        args = {**(self.error_args or {}), "name": self.field_name}
+        tmpl = self.messages.get(self.error, err.MESSAGES.get(self.error, self.error))
+        args = self.error_args or {}
         return tmpl.format(**args)
 
     @property
@@ -96,7 +94,7 @@ class Field:
         return self.default
 
     def set_messages(self, messages: dict[str, str]):
-        self.messages = {**messages, **self.messages_overrides}
+        self.messages = {**messages, **self.messages}
 
     def set_name_format(self, name_format: str):
         self.name_format = name_format
@@ -104,10 +102,14 @@ class Field:
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):
         self.error = None
         self.error_args = None
+        reqvalue = None if reqvalue == "" else reqvalue
+        objvalue = None if objvalue == "" else objvalue
 
         value = objvalue if reqvalue is None else reqvalue
         if value is None:
             value = self.default_value
+        if value == "":
+            value = None
 
         for validator in self.before:
             try:
@@ -121,10 +123,9 @@ class Field:
             self.value = self.to_python(value)
         except (ValueError, TypeError):
             self.error = err.INVALID
-            self.value = self.default_value
             return
 
-        if self.required and self.value is None:
+        if self.required and self.value in [None, ""]:
             self.error = err.REQUIRED
 
     def to_python(self, value: t.Any) -> t.Any:

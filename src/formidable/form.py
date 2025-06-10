@@ -7,7 +7,6 @@ import logging
 import typing as t
 from copy import copy
 
-from . import errors as err
 from .fields.base import Field
 from .parser import parse
 from .wrappers import ObjectManager
@@ -18,32 +17,34 @@ DELETED = "_deleted"
 logger = logging.getLogger("formidable")
 
 
+class DefaultMeta:
+    # ORM class to use for creating new objects.
+    orm_cls: t.Any = None
+
+    # The primary key field of the objects in the form.
+    pk: str = "id"
+
+    # Custom messages for validation errors that expand/update the default ones to
+    # customize or translate them. This argument should be a dictionary where keys
+    # are error codes and values are human error messages.
+    messages: dict[str, str]
+
+
 class Form():
-    class Meta:
-        # ORM class to use for creating new objects.
-        orm_cls: t.Any = None
+    # The class to use for wrapping objects in the form.
+    _ObjectManager: t.Type[ObjectManager] = ObjectManager
 
-        # The class to use for wrapping objects in the form.
-        obj_manager_cls: t.Type[ObjectManager] = ObjectManager
-
-        # The primary key field of the objects in the form.
-        pk: str = "id"
-
-        # Custom messages for validation errors that expand/update the default ones to
-        # customize or translate them. This argument should be a dictionary where keys
-        # are error codes and values are human error messages.
-        messages: dict[str, str]
-
-        # Whether the form allows deletion of objects.
-        # If set to True, the form will delete objects of form when the "_deleted"
-        # field is present.
-        allow_delete: bool = False
-
-    _fields: dict[str, Field]
     _messages: dict[str, str]
+    _fields: dict[str, Field]
     _object: ObjectManager
+
     _valid: bool | None = None
     _deleted: bool = False
+
+    # Whether the form allows deletion of objects.
+    # If set to True, the form will delete objects of form when the "_deleted"
+    # field is present.
+    _allow_delete: bool = False
 
     def __init__(
         self,
@@ -65,19 +66,16 @@ class Form():
                 A format string for the field names. Defaults to "{name}".
             messages:
                 Custom messages for validation errors. Defaults to `None`, which uses the default messages.
-                For `FormSet` and `FormField`, the messages set in the parent form ovewrride those set in
-                the child forms.
+                The messages are inherited to the forms of `FormSet` and `FormField` fields, however,
+                if those forms have their own `messages` defined, those will take precendence over the
+                parent messages.
 
         """
-
-        self._set_meta()
-        self._object = self.Meta.obj_manager_cls(self.Meta.orm_cls)
-        self._set_messages(messages)
-
         self._fields = {}
+
         # Instead of regular dir(), that sorts by name
         for name in self.__dir__():
-            if name.startswith("_"):
+            if name.startswith("_") or name in ("is_valid", "is_invalid"):
                 continue
             field = getattr(self, name)
             if not isinstance(field, Field):
@@ -85,16 +83,18 @@ class Form():
 
             # Clone the field to avoid modifying the original class attribute
             field = copy(field)
-            setattr(self, name, field)
-
             field.parent = self
             field.field_name = name
-            field.set_messages(self._messages)
             self._fields[name] = field
+            setattr(self, name, field)
 
+        self._set_meta()
+        self._object = self._ObjectManager(orm_cls=self.Meta.orm_cls)
+        self._set_messages(messages or {})
         self._set_name_format(name_format)
-        if reqdata or object:
-            self._set(parse(reqdata), object)
+
+        if reqdata is not None or object is not None:
+            self._set(reqdata, object)
 
     def __repr__(self) -> str:
         attrs = []
@@ -143,7 +143,8 @@ class Form():
         for field in self._fields.values():
             field.validate()
             if field.error is not None:
-                valid = False
+                self._valid = False
+                return False
 
         valid = self.on_after_validation()
 
@@ -152,11 +153,11 @@ class Form():
 
     def save(self) -> t.Any:
         if not self._deleted and not self.is_valid:
-            raise ValueError("Form is not valid")
+            raise ValueError("Form is not valid", self.get_errors())
 
         if self._deleted:
             if self._object.exists():
-                if not self.Meta.allow_delete:
+                if not self._allow_delete:
                     logger.warning("Deletion is not allowed for this form %s", self)
                 else:
                     return self._object.delete()
@@ -166,12 +167,7 @@ class Form():
         for name, field in self._fields.items():
             data[name] = field.save()
 
-        if self._object.exists():
-            return self._object.update(data)
-        elif self._object.model_cls:
-            return self._object.create(data)
-
-        return data
+        return self._object.save(data)
 
     def on_after_validation(self) -> bool:
         """
@@ -192,17 +188,12 @@ class Form():
         Sets the Meta class attributes to the form instance.
         This is done to avoid modifying the original Meta class.
         """
-        self.Meta = copy(self.Meta)
+        self.Meta = copy(getattr(self, "Meta", DefaultMeta))
 
         orm_cls = getattr(self.Meta, "orm_cls", None)
         if (orm_cls is not None) and not isinstance(orm_cls, type):
             raise TypeError("Meta.orm_cls must be a class, not an instance.")
         self.Meta.orm_cls = orm_cls
-
-        obj_manager_cls = getattr(self.Meta, "obj_manager_cls", ObjectManager)
-        if not isinstance(obj_manager_cls, type):
-            raise TypeError("Meta.obj_manager_cls must be a class, not an instance.")
-        self.Meta.obj_manager_cls = obj_manager_cls
 
         messages = getattr(self.Meta, "messages", {})
         if not isinstance(messages, dict):
@@ -214,17 +205,10 @@ class Form():
             raise TypeError("Meta.pk must be a string.")
         self.Meta.pk = pk
 
-        allow_delete = getattr(self.Meta, "allow_delete", False)
-        if not isinstance(allow_delete, bool):
-            raise TypeError("Meta.allow_delete must be a boolean.")
-        self.Meta.allow_delete = allow_delete
-
-    def _set_messages(self, messages: dict[str, str] | None = None):
-        self._messages = {
-            **err.MESSAGES,
-            **self.Meta.messages,
-            **(messages or {}),
-        }
+    def _set_messages(self, messages: dict[str, str]):
+        self._messages = {**self.Meta.messages, **messages}
+        for field in self._fields.values():
+            field.set_messages(self._messages)
 
     def _set_name_format(self, name_format: str) -> None:
         for field in self._fields.values():
@@ -237,8 +221,11 @@ class Form():
 
         self._valid = None
 
-        reqdata = reqdata or {}
-        self._object = self.Meta.obj_manager_cls(self.Meta.orm_cls, object)
+        reqdata = parse(reqdata or {})
+        self._object = self._ObjectManager(
+            orm_cls=self.Meta.orm_cls,
+            object=object,
+        )
 
         for name, field in self._fields.items():
             field.set(reqdata.get(name), self._object.get(name))

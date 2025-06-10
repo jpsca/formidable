@@ -87,8 +87,8 @@ class TextField(Field):
         """
         Convert the value to a Python string type.
         """
-        if value is None:
-            return None
+        if value in (None, ""):
+            return ""
         value = str(value)
         if self.strip:
             value = value.strip()

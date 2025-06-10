@@ -31,30 +31,30 @@ PAST_TIME = "past_time"
 FUTURE_TIME = "future_time"
 
 MESSAGES = {
-    INVALID: "Invalid value for '{name}'",
-    REQUIRED: "Field '{name}' is required",
-    NOT_ONE_OF: "'{name}' must be one of {one_of}",
+    INVALID: "Invalid value",
+    REQUIRED: "Field is required",
+    NOT_ONE_OF: "Must be one of {one_of}",
 
-    GT: "'{name}' must be greater than {gt}",
-    GTE: "'{name}' must be greater or equal than {gte}",
-    LT: "'{name}' must be less than {lt}",
-    LTE: "'{name}' must be less or equal than {lte}",
-    MULTIPLE_OF: "'{name}' must multiple of {multiple_of}",
+    GT: "Must be greater than {gt}",
+    GTE: "Must be greater or equal than {gte}",
+    LT: "Must be less than {lt}",
+    LTE: "Must be less or equal than {lte}",
+    MULTIPLE_OF: "Must multiple of {multiple_of}",
 
-    MIN_ITEMS: "'{name}' must have at least {min_length} items",
-    MAX_ITEMS: "'{name}' must have at most {max_length} items",
+    MIN_ITEMS: "Must have at least {min_length} items",
+    MAX_ITEMS: "Must have at most {max_length} items",
 
-    MIN_LENGTH: "'{name}' must have at least {min_length} characters",
-    MAX_LENGTH: "'{name}' must have at most {max_length} characters",
-    PATTERN: "'{name}' must match the pattern `{pattern}`",
+    MIN_LENGTH: "Must have at least {min_length} characters",
+    MAX_LENGTH: "Must have at most {max_length} characters",
+    PATTERN: "Invalid format",
 
-    PAST_DATE: "'{name}' must be a date in the past",
-    FUTURE_DATE: "'{name}' must be a date in the future",
-    AFTER_DATE: "'{name}' must be after {after_date}",
-    BEFORE_DATE: "'{name}' must be before {before_date}",
+    PAST_DATE: "Must be a date in the past",
+    FUTURE_DATE: "Must be a date in the future",
+    AFTER_DATE: "Must be after {after_date}",
+    BEFORE_DATE: "Must be before {before_date}",
 
-    AFTER_TIME: "'{name}' must be after {after_time}",
-    BEFORE_TIME: "'{name}' must be before {before_time}",
-    PAST_TIME: "'{name}' must be a time in the past",
-    FUTURE_TIME: "'{name}' must be a time in the future",
+    AFTER_TIME: "Must be after {after_time}",
+    BEFORE_TIME: "Must be before {before_time}",
+    PAST_TIME: "Must be a time in the past",
+    FUTURE_TIME: "Must be a time in the future",
 }
