@@ -4,11 +4,9 @@ requires = ["setuptools"]
 
 [project]
 name = "formidable"
-version = "0.4"
+version = "0.5"
 description = "Formidable HTTP forms"
-authors = [
-  {name = "Juan-Pablo Scaletti", email = "juanpablo@jpscaletti.com"},
-]
+authors = [{ name = "Juan-Pablo Scaletti", email = "juanpablo@jpscaletti.com" }]
 license = "MIT"
 readme = "README.md"
 classifiers = [
@@ -23,22 +21,19 @@ classifiers = [
     "Typing :: Typed",
 ]
 requires-python = ">=3.10,<4"
-dependencies = [
-]
+dependencies = []
 
 [project.urls]
 repository = "https://github.com/jpsca/formidable"
 
 
 [dependency-groups]
-dev = [
-  "pyright",
-  "ruff >= 0.2.0",
-  "tox-uv",
-]
+debug = ["ipdb>=0.13.13"]
+dev = ["pyright", "ruff >= 0.2.0", "tox-uv"]
 test = [
-  "pytest",
-  "pytest-cov",
+    "genbadge[coverage,tests]>=1.1.2",
+    "pytest",
+    "pytest-cov",
 ]
 
 
@@ -46,9 +41,7 @@ test = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-formidable = [
-  "src/*",
-]
+formidable = ["src/*"]
 
 
 [tool.coverage.run]
@@ -62,18 +55,15 @@ exclude_lines = [
     "def __str__",
     "raise AssertionError",
     "raise NotImplementedError",
-    "if __name__ == .__main__.:"
+    "if __name__ == .__main__.:",
 ]
 
 [tool.coverage.html]
 directory = "covreport"
 
-
 [tool.pyright]
 include = ["src"]
-exclude = [
-    "**/__pycache__",
-]
+exclude = ["**/__pycache__"]
 reportPrivateImportUsage = false
 reportWildcardImportFromLibrary = false
 
@@ -106,13 +96,7 @@ line-length = 90
 indent-width = 4
 target-version = "py312"
 
-exclude = [
-  ".*",
-  "_build",
-  "build",
-  "covreport",
-  "dist",
-]
+exclude = [".*", "_build", "build", "covreport", "dist"]
 include = ["*.py"]
 
 [tool.ruff.format]
@@ -146,34 +130,34 @@ docstring-code-line-length = "dynamic"
 [tool.ruff.lint]
 fixable = ["ALL"]
 ignore = [
-	# x is too complex
-	"C901",
-	# whitespace before ':'
-	"E203",
-	"E501",
-	# x defined from star imports
-	"F405",
-	# line break before binary operator
-	"W505",
-	"W605",
+    # x is too complex
+    "C901",
+    # whitespace before ':'
+    "E203",
+    "E501",
+    # x defined from star imports
+    "F405",
+    # line break before binary operator
+    "W505",
+    "W605",
 ]
 select = [
-	# bugbear
-	"B",
-	# mccabe"", comprehensions, commas
-	"C",
-	# pycodestyle errors
-	"E",
-	# pyflakes
-	"F",
-	# logging format
-	"G",
-	# imports
-	"I",
-	# quotes
-	"Q",
-	# pycodestyle warnings
-	"W",
+    # bugbear
+    "B",
+    # mccabe"", comprehensions, commas
+    "C",
+    # pycodestyle errors
+    "E",
+    # pyflakes
+    "F",
+    # logging format
+    "G",
+    # imports
+    "I",
+    # quotes
+    "Q",
+    # pycodestyle warnings
+    "W",
 ]
 
 [tool.ruff.lint.isort]

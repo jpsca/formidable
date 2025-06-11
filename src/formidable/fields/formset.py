@@ -34,7 +34,7 @@ class FormSet(Field):
         *,
         min_items: int | None = None,
         max_items: int | None = None,
-        default: dict | None = None,
+        default: t.Any = None,
         allow_delete: bool = True,
     ):
         """
@@ -70,9 +70,6 @@ class FormSet(Field):
         self.max_items = max_items
 
         self.allow_delete = bool(allow_delete)
-
-        if default is not None and not isinstance(default, dict):
-            raise ValueError("`default` must be a dictionary or `None`")
 
         super().__init__(
             required=bool(min_items),
@@ -143,8 +140,9 @@ class FormSet(Field):
         results = []
         for form in self.forms:
             result = form.save()
-            if result is not None:
-                results.append(result)
+            if result is None:
+                continue
+            results.append(result)
         return results
 
     def validate_value(self) -> bool:

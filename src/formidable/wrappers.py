@@ -20,7 +20,7 @@ class ObjectManager:
         """
         self.orm_cls = orm_cls
         self.object = None if object is None else object
-        self.is_dict = isinstance(self.object, dict)
+        self.is_dict = (object is not None) and isinstance(object, dict)
 
     def exists(self) -> bool:
         """Check if the wrapped object exists."""

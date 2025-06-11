@@ -9,6 +9,33 @@ import formidable as f
 from formidable import errors as err
 
 
+def test_text_field():
+    class TestForm(f.Form):
+        fullname = f.TextField()
+        lorem = f.TextField(default="ipsum")
+
+    form = TestForm({"fullname": ["John Doe"]})
+
+    assert form.fullname.name == "fullname"
+    assert form.fullname.value == "John Doe"
+    assert form.lorem.value == "ipsum"
+
+    data = form.save()
+    print(data)
+    assert data == {
+        "fullname": "John Doe",
+        "lorem": "ipsum",
+    }
+
+
+def test_no_strip():
+    class TestForm(f.Form):
+        lorem = f.TextField(strip=False)
+
+    form = TestForm({"lorem": [" ipsum  "]})
+    assert form.lorem.value == " ipsum  "
+
+
 def test_validate_min_length():
     field = f.TextField(min_length=5, required=False)
 
@@ -70,3 +97,22 @@ def test_validate_pattern():
 def test_invalid_pattern():
     with pytest.raises(ValueError):
         f.TextField(pattern=33)  # type: ignore
+
+
+def test_validate_one_of():
+    one_of = ["apple", "banana", "cherry"]
+    field = f.TextField(one_of=one_of, required=False)
+
+    field.set("banana")
+    field.validate()
+    assert field.error is None
+
+    field.set("orange")
+    field.validate()
+    assert field.error == err.ONE_OF
+    assert field.error_args == {"one_of": one_of}
+
+
+def test_invalid_one_of():
+    with pytest.raises(ValueError):
+        f.TextField(one_of="not a list")  # type: ignore

@@ -19,7 +19,7 @@ class FormField(Field):
         FormClass: "type[Form]",
         *,
         required: bool = True,
-        default: dict | None = None,
+        default: t.Any = None,
     ):
         """
         A field that represents a single sub-form.
@@ -34,9 +34,6 @@ class FormField(Field):
 
         """
         self.form = FormClass()
-
-        if default is not None and not isinstance(default, dict):
-            raise ValueError("`default` must be a dictionary or `None`")
         super().__init__(required=required, default=default)
 
     def set_name_format(self, name_format: str):
@@ -48,6 +45,9 @@ class FormField(Field):
         self.form._set_messages(messages)
 
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):
+        self.error = None
+        self.error_args = None
+
         reqvalue = reqvalue or {}
         assert isinstance(reqvalue, dict), "reqvalue must be a dictionary"
         objvalue = objvalue or {}

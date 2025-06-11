@@ -16,7 +16,7 @@ class ListField(Field):
         type: t.Any = None,
         *,
         required: bool = True,
-        default: list | None = None,
+        default: t.Any = None,
         min_items: int | None = None,
         max_items: int | None = None,
         before: Iterable[TCustomValidator] | None = None,
@@ -63,8 +63,6 @@ class ListField(Field):
         self.one_of = one_of
 
         default = default if default is not None else []
-        if not isinstance(default, list):
-            raise ValueError("`default` must be a list or `None`")
 
         super().__init__(
             required=required,
@@ -81,8 +79,6 @@ class ListField(Field):
         """
         Convert the value to a Python type.
         """
-        if value is None:
-            return None
         if self.type is not None:
             if isinstance(value, list):
                 return [self.type(item) for item in value]
@@ -94,10 +90,6 @@ class ListField(Field):
         """
         Validate the field value against the defined constraints.
         """
-        if not isinstance(self.value, list):
-            self.error = err.INVALID
-            return False
-
         if self.min_items is not None and len(self.value) < self.min_items:
             self.error = err.MIN_ITEMS
             self.error_args = {"min_items": self.min_items}
@@ -111,7 +103,7 @@ class ListField(Field):
         if self.one_of:
             for value in self.value:
                 if value not in self.one_of:
-                    self.error = err.NOT_ONE_OF
+                    self.error = err.ONE_OF
                     self.error_args = {"one_of": self.one_of}
                     return False
 

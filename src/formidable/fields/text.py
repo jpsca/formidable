@@ -4,6 +4,7 @@ Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import re
+import typing as t
 from collections.abc import Iterable
 
 from .. import errors as err
@@ -15,7 +16,7 @@ class TextField(Field):
         self,
         *,
         required: bool = True,
-        default: str | None = None,
+        default: t.Any = None,
         strip: bool = True,
         min_length: int | None = None,
         max_length: int | None = None,
@@ -114,7 +115,7 @@ class TextField(Field):
             return False
 
         if self.one_of and self.value not in self.one_of:
-            self.error = err.NOT_ONE_OF
+            self.error = err.ONE_OF
             self.error_args = {"one_of": self.one_of}
             return False
 

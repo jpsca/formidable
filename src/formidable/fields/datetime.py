@@ -11,15 +11,15 @@ from .. import errors as err
 from .base import Field, TCustomValidator
 
 
-class DateField(Field):
+class DateTimeField(Field):
     def __init__(
         self,
-        format="%Y-%m-%d",
+        format="%Y-%m-%dT%H:%M:%S",
         *,
         required: bool = True,
         default: t.Any = None,
-        after_date: datetime.date | str | None = None,
-        before_date: datetime.date | str | None = None,
+        after_date: datetime.datetime | str | None = None,
+        before_date: datetime.datetime | str | None = None,
         past_date: bool = False,
         future_date: bool = False,
         offset: int | float = 0,
@@ -30,7 +30,7 @@ class DateField(Field):
         _utcnow: datetime.datetime | None = None,
     ):
         """
-        A field that represents a date.
+        A field that represents a datetime.
 
         Args:
             format:
@@ -42,22 +42,18 @@ class DateField(Field):
             after_date:
                 A date that the field value must be after. Defaults to `None`.
             before_date:
-                A date that the field value must be before. Defaults to `None`.
+                A date that the field value must be before. Defaults to `None`.\
             past_date:
                 Whether the date must be in the past. Defaults to `False`.
             future_date:
                 Whether the date must be in the future. Defaults to `False`.
             offset:
-                Timezone offset in hours (floats are allowed) for calculating "today" when
+                Timezone offset in hours (floats are allowed) for calculating "now" when
                 `past_date` or `future_date` are used. Defaults to `0` (UTC timezone).
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             one_of:
                 List of values that the field value must be one of. Defaults to `None`.
             messages:
-                Overrides of the error messages, specifically for this field.
+                Overrides of the error messages, specifically for this field.a
 
         """
         self.format = format
@@ -100,16 +96,16 @@ class DateField(Field):
             messages=messages,
         )
 
-    def to_python(self, value: str | datetime.date | None) -> datetime.date | None:
+    def to_python(self, value: str | datetime.datetime | None) -> datetime.datetime | None:
         """
-        Convert the value to a Python date.
-        The date is expected to be in the format `DateField.format`.
+        Convert the value to a Python datetime.
+        The datetime is expected to be in the format `DateField.format`.
         """
         if value is None:
             return None
-        if isinstance(value, datetime.date):
+        if isinstance(value, datetime.datetime):
             return value
-        return datetime.datetime.strptime(value, self.format).date()
+        return datetime.datetime.strptime(value, self.format)
 
     def validate_value(self) -> bool:
         """
@@ -127,12 +123,11 @@ class DateField(Field):
         now = self._utcnow or datetime.datetime.now(datetime.timezone.utc)
         if self.offset:
             now += datetime.timedelta(hours=self.offset)
-        today = now.date()
 
-        if self.past_date and self.value >= today:
+        if self.past_date and self.value >= now:
             self.error = err.PAST_DATE
             return False
-        if self.future_date and self.value <= today:
+        if self.future_date and self.value <= now:
             self.error = err.FUTURE_DATE
             return False
 

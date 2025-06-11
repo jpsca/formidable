@@ -117,3 +117,17 @@ def test_parse_complex_structure():
     result = parse(flat)
     print(result)
     assert result == expected
+
+
+def test_parse_list_of_dicts():
+    flat = {
+        "tags[][name]": ["dumb", "why", "not-cool"],
+    }
+    expected = {
+        "tags": [
+            {"name": "dumb"},
+            {"name": "why"},
+            {"name": "not-cool"},
+        ]
+    }
+    assert parse(flat) == expected

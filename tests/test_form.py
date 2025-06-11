@@ -3,7 +3,90 @@ Formable
 Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
+import pytest
+
 import formidable as f
+
+
+def test_contains():
+    class TestForm(f.Form):
+        a = f.TextField()
+        b = f.TextField()
+        c = f.TextField()
+
+    form = TestForm()
+
+    assert "a" in form
+    assert list(form) == [form.a, form.b, form.c]
+
+
+def test_no_errors():
+    class TestForm(f.Form):
+        name = f.TextField()
+
+    form = TestForm({"name": "John"})
+    form.validate()
+
+    assert not form.is_invalid
+    assert form.is_valid
+    assert form.name.error is None
+    assert form.get_errors() == {}
+
+
+def test_errors():
+    class TestForm(f.Form):
+        name = f.TextField()
+
+    form = TestForm({})
+    form.validate()
+
+    assert form.is_invalid
+    assert not form.is_valid
+    assert form.name.error == "required"
+    assert form.get_errors() == {"name": "required"}
+
+
+def test_save_invalid_form():
+    class TestForm(f.Form):
+        name = f.TextField()
+
+    form = TestForm({})
+
+    with pytest.raises(ValueError):
+        form.save()
+
+
+def test_invalid_orm_cls():
+    class TestForm(f.Form):
+        class Meta:
+            orm_cls = "lol"
+
+        name = f.TextField()
+
+    with pytest.raises(ValueError):
+        TestForm()
+
+
+def test_invalid_custom_messages():
+    class TestForm(f.Form):
+        class Meta:
+            messages = "lol"
+
+        name = f.TextField()
+
+    with pytest.raises(ValueError):
+        TestForm()
+
+
+def test_invalid_custom_pk():
+    class TestForm(f.Form):
+        class Meta:
+            pk = None
+
+        name = f.TextField()
+
+    with pytest.raises(ValueError):
+        TestForm()
 
 
 def test_custom_messages():
@@ -17,6 +100,7 @@ def test_custom_messages():
 
     form = TestForm({})
     form.validate()
+
     assert form.name.error == "required"
     assert form.name.error_message == MSG
 
@@ -118,21 +202,3 @@ def test_messages_override_with_formset_field():
 
     assert form.myset.forms[0].name.error == "required"
     assert form.myset.forms[0].name.error_message == MSG_CHILD
-
-
-def test_ignore_data_and_skip_validation_if_deleted():
-    class TestForm(f.Form):
-        name = f.TextField()
-        age = f.IntegerField()
-
-    form = TestForm({
-        f.DELETED: "1",
-        "age": ["whatever"],
-    })
-
-    assert form.validate() is True
-
-    data = form.save()
-    print(data)
-    assert data == {f.DELETED: True}
-

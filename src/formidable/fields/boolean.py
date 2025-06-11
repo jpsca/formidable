@@ -16,7 +16,7 @@ class BooleanField(Field):
     def __init__(
         self,
         *,
-        default: bool | str | None = None,
+        default: t.Any = None,
         before: Iterable[TCustomValidator] | None = None,
         after: Iterable[TCustomValidator] | None = None,
         messages: dict[str, str] | None = None,
@@ -47,8 +47,6 @@ class BooleanField(Field):
                 Overrides of the error messages, specifically for this field.
 
         """
-        if default is not None and not isinstance(default, bool):
-            raise ValueError("`default` must be a boolean or `None`")
         super().__init__(
             default=default,
             before=before,

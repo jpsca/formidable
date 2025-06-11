@@ -9,6 +9,52 @@ import formidable as f
 from formidable import errors as err
 
 
+def test_integer_field():
+    class TestForm(f.Form):
+        age = f.IntegerField()
+        min_age = f.IntegerField(default=18)
+
+    form = TestForm({"age": ["20"]})
+
+    assert form.age.name == "age"
+    assert form.age.value == 20
+    assert form.min_age.value == 18
+
+    data = form.save()
+    print(data)
+    assert data == {
+        "age": 20,
+        "min_age": 18,
+    }
+
+
+def test_float_field():
+    class TestForm(f.Form):
+        x = f.FloatField()
+        y = f.FloatField()
+        z = f.FloatField(default=0)
+
+    form = TestForm(
+        {
+            "x": ["20"],
+            "y": ["15.5"],
+        }
+    )
+
+    assert form.x.name == "x"
+    assert form.x.value == 20.0
+    assert form.y.value == 15.5
+    assert form.z.value == 0.0
+
+    data = form.save()
+    print(data)
+    assert data == {
+        "x": 20.0,
+        "y": 15.5,
+        "z": 0.0,
+    }
+
+
 @pytest.mark.parametrize("FieldType", [f.IntegerField, f.FloatField])
 def test_validate_gt(FieldType):
     field = FieldType(gt=10)
@@ -111,3 +157,41 @@ def test_validate_multiple_of(FieldType):
 def test_invalid_multiple_of(FieldType):
     with pytest.raises(ValueError):
         FieldType(multiple_of="not a number")
+
+
+def test_validate_one_of_integer():
+    one_of = [1, 2, 3, 4]
+    field = f.IntegerField(one_of=one_of)
+
+    field.set(2)
+    field.validate()
+    assert field.error is None
+
+    field.set(5)
+    field.validate()
+    assert field.error == err.ONE_OF
+    assert field.error_args == {"one_of": one_of}
+
+
+def test_validate_one_of_float():
+    one_of = [1.0, 2.0, 3.5, 4.0]
+    field = f.FloatField(one_of=one_of)
+
+    field.set(2)
+    field.validate()
+    assert field.error is None
+
+    field.set(3.5)
+    field.validate()
+    assert field.error is None
+
+    field.set(5)
+    field.validate()
+    assert field.error == err.ONE_OF
+    assert field.error_args == {"one_of": one_of}
+
+
+@pytest.mark.parametrize("FieldType", [f.IntegerField, f.FloatField])
+def test_invalid_one_of(FieldType):
+    with pytest.raises(ValueError):
+        FieldType(one_of="not a list")

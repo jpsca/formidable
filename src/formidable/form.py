@@ -103,7 +103,7 @@ class Form():
         return f"{self.__class__.__name__}({', '.join(attrs)})"
 
     def __iter__(self):
-        return self._fields.values()
+        return iter(self._fields.values())
 
     def __contains__(self, name: str) -> bool:
         return name in self._fields
@@ -156,12 +156,13 @@ class Form():
             raise ValueError("Form is not valid", self.get_errors())
 
         if self._deleted:
-            if self._object.exists():
-                if not self._allow_delete:
-                    logger.warning("Deletion is not allowed for this form %s", self)
-                else:
-                    return self._object.delete()
-            return {DELETED: True}
+            if not self._object.exists():
+                return None
+            if self._allow_delete:
+                self._object.delete()
+                return None
+            else:
+                logger.error("Deletion is not allowed for this form %s", self)
 
         data = {}
         for name, field in self._fields.items():
@@ -192,17 +193,17 @@ class Form():
 
         orm_cls = getattr(self.Meta, "orm_cls", None)
         if (orm_cls is not None) and not isinstance(orm_cls, type):
-            raise TypeError("Meta.orm_cls must be a class, not an instance.")
+            raise ValueError("Meta.orm_cls must be a class, not an instance.")
         self.Meta.orm_cls = orm_cls
 
         messages = getattr(self.Meta, "messages", {})
         if not isinstance(messages, dict):
-            raise TypeError("Meta.messages must be a dictionary.")
+            raise ValueError("Meta.messages must be a dictionary.")
         self.Meta.messages = messages
 
         pk = getattr(self.Meta, "pk", "id")
         if not isinstance(pk, str):
-            raise TypeError("Meta.pk must be a string.")
+            raise ValueError("Meta.pk must be a string.")
         self.Meta.pk = pk
 
     def _set_messages(self, messages: dict[str, str]):
@@ -215,10 +216,6 @@ class Form():
             field.set_name_format(name_format)
 
     def _set(self, reqdata: t.Any = None, object: t.Any = None) -> None:
-        self._deleted = DELETED in reqdata if isinstance(reqdata, dict) else False
-        if self._deleted:
-            return
-
         self._valid = None
 
         reqdata = parse(reqdata or {})
@@ -226,6 +223,8 @@ class Form():
             orm_cls=self.Meta.orm_cls,
             object=object,
         )
+        self._deleted = DELETED in reqdata
 
-        for name, field in self._fields.items():
-            field.set(reqdata.get(name), self._object.get(name))
+        if not self._deleted:
+            for name, field in self._fields.items():
+                field.set(reqdata.get(name), self._object.get(name))

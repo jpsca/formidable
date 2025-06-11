@@ -2,6 +2,7 @@
 Formable
 Copyright (c) 2025 Juan-Pablo Scaletti
 """
+
 import typing as t
 from collections.abc import Iterable
 
@@ -14,7 +15,7 @@ class NumberField(Field):
         self,
         *,
         required: bool = True,
-        default: int | float | None = None,
+        default: t.Any = None,
         gt: int | float | None = None,
         gte: int | float | None = None,
         lt: int | float | None = None,
@@ -77,9 +78,6 @@ class NumberField(Field):
             raise ValueError("`one_of` must be a list or `None`")
         self.one_of = one_of
 
-        if default is not None and not isinstance(default, (int, float)):
-            raise ValueError("`default` must be an integer, float or `None`")
-
         super().__init__(
             required=required,
             default=default,
@@ -118,7 +116,7 @@ class NumberField(Field):
             return False
 
         if self.one_of and self.value not in self.one_of:
-            self.error = err.NOT_ONE_OF
+            self.error = err.ONE_OF
             self.error_args = {"one_of": self.one_of}
             return False
 

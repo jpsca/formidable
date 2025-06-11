@@ -108,8 +108,6 @@ class Field:
         value = objvalue if reqvalue is None else reqvalue
         if value is None:
             value = self.default_value
-        if value == "":
-            value = None
 
         for validator in self.before:
             try:

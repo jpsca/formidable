@@ -31,7 +31,7 @@ class TimeField(Field):
         self,
         *,
         required: bool = True,
-        default: datetime.time | str | None = None,
+        default: t.Any = None,
         after_time: datetime.time | str | None = None,
         before_time: datetime.time | str | None = None,
         past_time: bool = False,
@@ -39,7 +39,7 @@ class TimeField(Field):
         offset: int | float = 0,
         before: Iterable[TCustomValidator] | None = None,
         after: Iterable[TCustomValidator] | None = None,
-        one_of: Iterable[str] | None = None,
+        one_of: Iterable[t.Any] | None = None,
         messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
     ):
@@ -89,8 +89,13 @@ class TimeField(Field):
         # For easier testing
         self._utcnow = _utcnow
 
-        if one_of is not None and not isinstance(one_of, list):
-            raise ValueError("`one_of` must be a list or `None`")
+        if one_of is not None:
+            if not isinstance(one_of, list):
+                raise ValueError("`one_of` must be a list or `None`")
+            one_of = [
+                self.to_python(time) if isinstance(time, str) else time
+                for time in one_of if time is not None
+            ]
         self.one_of = one_of
 
         if default is not None and isinstance(default, str):
@@ -154,7 +159,7 @@ class TimeField(Field):
                 hour = 0
 
             return datetime.time(hour, minute, second)
-        except (ValueError, TypeError):
+        except (TypeError, ValueError):
             raise ValueError(f"Invalid time value: {value}") from None
 
     def validate_value(self) -> bool:
@@ -185,7 +190,7 @@ class TimeField(Field):
             return False
 
         if self.one_of and self.value not in self.one_of:
-            self.error = err.NOT_ONE_OF
+            self.error = err.ONE_OF
             self.error_args = {"one_of": self.one_of}
             return False
 
