@@ -28,10 +28,15 @@ repository = "https://github.com/jpsca/formidable"
 
 
 [dependency-groups]
-debug = ["ipdb>=0.13.13"]
-dev = ["pyright", "ruff >= 0.2.0", "tox-uv"]
+debug = [
+    "ipdb>=0.13.13",
+]
+dev = [
+    "pyright",
+    "ruff >= 0.2.0",
+    "tox-uv",
+]
 test = [
-    "genbadge[coverage,tests]>=1.1.2",
     "pytest",
     "pytest-cov",
 ]

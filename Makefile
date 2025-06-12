@@ -17,7 +17,6 @@ types:
 .PHONY: coverage
 coverage:
 	uv run pytest --cov-report html --cov-report xml --cov src tests
-	uv run genbadge coverage -i coverage.xml -n COVERAGE -o coverage.svg
 
 .PHONY: tox
 tox:
