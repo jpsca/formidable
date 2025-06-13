@@ -23,6 +23,9 @@ classifiers = [
 requires-python = ">=3.10,<4"
 dependencies = []
 
+[project.optional-dependencies]
+email = ["email-validator ~= 2.2.0"]
+
 [project.urls]
 repository = "https://github.com/jpsca/formidable"
 
@@ -60,6 +63,7 @@ exclude_lines = [
     "def __str__",
     "raise AssertionError",
     "raise NotImplementedError",
+    "ImportError",
     "if __name__ == .__main__.:",
 ]
 

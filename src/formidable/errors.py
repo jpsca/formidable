@@ -30,6 +30,10 @@ BEFORE_TIME = "before_time"
 PAST_TIME = "past_time"
 FUTURE_TIME = "future_time"
 
+INVALID_URL = "invalid_url"
+INVALID_EMAIL = "invalid_email"
+INVALID_SLUG = "invalid_slug"
+
 MESSAGES = {
     INVALID: "Invalid value",
     REQUIRED: "Field is required",
@@ -57,4 +61,8 @@ MESSAGES = {
     BEFORE_TIME: "Must be before {before_time}",
     PAST_TIME: "Must be a time in the past",
     FUTURE_TIME: "Must be a time in the future",
+
+    INVALID_URL: "Doesn't seem to be a valid URL",
+    INVALID_EMAIL: "Doesn't seem to be a valid email address",
+    INVALID_SLUG: "A valid “slug” can only have a-z letters, numbers, underscores, or hyphens"
 }

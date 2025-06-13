@@ -13,9 +13,12 @@ from formidable import errors as err
     [
         f.DateField,
         f.DateTimeField,
-        f.IntegerField,
+        f.EmailField,
         f.FloatField,
+        f.IntegerField,
+        f.SlugField,
         f.TimeField,
+        f.URLField,
     ]
 )
 def test_required(FieldType):

@@ -1,6 +1,6 @@
 .PHONY: install
 install:
-	uv sync --group dev --group test --group debug
+	uv sync --extra email --group dev --group test --group debug
 
 .PHONY: test
 test:
