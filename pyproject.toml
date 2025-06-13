@@ -92,6 +92,8 @@ env_list =
 
 [testenv]
 runner = uv-venv-lock-runner
+extras =
+    email
 dependency_groups =
     dev
     test
