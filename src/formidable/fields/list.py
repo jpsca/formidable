@@ -83,12 +83,14 @@ class ListField(Field):
         """
         Convert the value to a Python type.
         """
-        if self.type is not None:
-            if isinstance(value, list):
-                return [self.type(item) for item in value]
-            else:
-                return [self.type(value)]
-        return value
+        if self.type is None:
+            return value
+
+        # TODO: Accept an instance of a Field subclass as type
+        if isinstance(value, list):
+            return [self.type(item) for item in value]
+        else:
+            return [self.type(value)]
 
     def validate_value(self) -> bool:
         """
