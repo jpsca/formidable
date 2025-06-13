@@ -91,6 +91,9 @@ class NumberField(Field):
         """
         Validate the field value against the defined constraints.
         """
+        if not self.value:
+            return True
+
         if self.gt is not None and self.value <= self.gt:
             self.error = err.GT
             self.error_args = {"gt": self.gt}

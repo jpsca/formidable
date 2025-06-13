@@ -14,11 +14,10 @@ except ImportError:
 
 from formidable import errors as err
 
-from .base import TCustomValidator
-from .text import TextField
+from .base import Field, TCustomValidator
 
 
-class EmailField(TextField):
+class EmailField(Field):
     def __init__(
         self,
         *,
@@ -26,9 +25,6 @@ class EmailField(TextField):
         default: t.Any = None,
         check_dns: bool = False,
         allow_smtputf8: bool = False,
-        min_length: int | None = None,
-        max_length: int | None = None,
-        pattern: str | None = None,
         before: Iterable[TCustomValidator] | None = None,
         after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[str] | None = None,
@@ -61,12 +57,6 @@ class EmailField(TextField):
                 including your own outbound mail server, all support the
                 [SMTPUTF8 (RFC 6531)](https://tools.ietf.org/html/rfc6531) extension.
                 By default this is set to `False`.
-            min_length:
-                Minimum length of the text. Defaults to `None `(no minimum).
-            max_length:
-                Maximum length of the text. Defaults to `None` (no maximum).
-            pattern:
-                A regex pattern that the string must match. Defaults to `None`.
             before:
                 List of custom validators to run before setting the value.
             after:
@@ -77,33 +67,37 @@ class EmailField(TextField):
                 Overrides of the error messages, specifically for this field.
 
         """
+        self.check_dns = check_dns
+        self.allow_smtputf8 = allow_smtputf8
+
+        if one_of is not None:
+            if isinstance(one_of, str) or not isinstance(one_of, Iterable):
+                raise ValueError("`one_of` must be an iterable (but not a string) or `None`")
+        self.one_of = one_of
+
+        default = str(default) if default is not None else None
+
         super().__init__(
             required=required,
             default=default,
-            min_length=min_length,
-            max_length=max_length,
-            pattern=pattern,
             before=before,
             after=after,
-            one_of=one_of,
             messages=messages,
         )
-        self.check_dns = check_dns
-        self.allow_smtputf8 = allow_smtputf8
 
     def to_python(self, value: str | None) -> str | None:
         """
         Convert the value to a Python string type.
         """
-        if value in (None, ""):
+        value = str(value or "").strip()
+        if not value:
             return ""
+
         if validate_email is None:
             raise ImportError(
                 "The 'email_validator' package is required for EmailField. "
                 "Please install it with 'pip install email_validator'."
             )
-
-        value = str(value).strip()
         try:
             validated = validate_email(
                 value,
@@ -115,3 +109,16 @@ class EmailField(TextField):
             self.error = err.INVALID_EMAIL
         return value
 
+    def validate_value(self) -> bool:
+        """
+        Validate the field value against the defined constraints.
+        """
+        if not self.value:
+            return True
+
+        if self.one_of and self.value not in self.one_of:
+            self.error = err.ONE_OF
+            self.error_args = {"one_of": self.one_of}
+            return False
+
+        return True

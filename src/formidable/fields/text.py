@@ -100,6 +100,9 @@ class TextField(Field):
         """
         Validate the field value against the defined constraints.
         """
+        if not self.value:
+            return True
+
         if self.min_length is not None and len(self.value) < self.min_length:
             self.error = err.MIN_LENGTH
             self.error_args = {"min_length": self.min_length}

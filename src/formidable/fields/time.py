@@ -166,6 +166,9 @@ class TimeField(Field):
         """
         Validate the field value against the defined constraints.
         """
+        if not self.value:
+            return True
+
         if self.after_time and self.value <= self.after_time:
             self.error = err.AFTER_TIME
             self.error_args = {"after_time": self.after_time}

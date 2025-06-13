@@ -21,9 +21,6 @@ class SlugField(TextField):
         *,
         required: bool = True,
         default: t.Any = None,
-        min_length: int | None = None,
-        max_length: int | None = None,
-        pattern: str | None = None,
         before: Iterable[TCustomValidator] | None = None,
         after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[str] | None = None,
@@ -59,9 +56,6 @@ class SlugField(TextField):
         super().__init__(
             required=required,
             default=default,
-            min_length=min_length,
-            max_length=max_length,
-            pattern=pattern,
             before=before,
             after=after,
             one_of=one_of,
@@ -72,7 +66,13 @@ class SlugField(TextField):
         """
         Validate the field value against the defined constraints.
         """
-        if self.value and not self.rx_slug.match(self.value):
+        if not super().validate_value():
+            return False
+
+        if not self.value or self.error:
+            return False
+
+        if not self.rx_slug.match(self.value):
             self.error = err.INVALID_SLUG
             return False
 

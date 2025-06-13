@@ -3,6 +3,8 @@ Formable
 Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
+import pytest
+
 import formidable as f
 from formidable import errors as err
 
@@ -40,3 +42,20 @@ def test_url_field_invalid():
     assert field.error is None
 
 
+def test_validate_one_of():
+    one_of = ["http://a.com", "http://b.com", "http://b.com"]
+    field = f.URLField(one_of=one_of, required=False)
+
+    field.set("http://b.com")
+    field.validate()
+    assert field.error is None
+
+    field.set("http://o.com")
+    field.validate()
+    assert field.error == err.ONE_OF
+    assert field.error_args == {"one_of": one_of}
+
+
+def test_invalid_one_of():
+    with pytest.raises(ValueError):
+        f.URLField(one_of="not a list")  # type: ignore

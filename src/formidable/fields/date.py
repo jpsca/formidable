@@ -115,6 +115,9 @@ class DateField(Field):
         """
         Validate the field value against the defined constraints.
         """
+        if not self.value:
+            return True
+
         if self.after_date and self.value <= self.after_date:
             self.error = err.AFTER_DATE
             self.error_args = {"after_date": self.after_date}
