@@ -83,7 +83,7 @@ def test_delete_object():
     form = ProductForm(
         {
             "tags[3][name]": ["cool"],
-            "tags[6][_deleted]": ["1"],
+            f"tags[6][{f.DELETED}]": ["1"],
             "tags[6][name]": ["meh"],
             "tags[9][name]": ["awesome"],
         },
@@ -114,7 +114,7 @@ def test_delete_not_allowed():
     form = ProductForm(
         {
             "tags[3][name]": ["cool"],
-            "tags[6][_deleted]": ["1"],
+            f"tags[6][{f.DELETED}]": ["1"],
             "tags[6][name]": ["meh"],
             "tags[9][name]": ["awesome"],
         },
@@ -130,6 +130,36 @@ def test_delete_not_allowed():
     assert updated_obj.tags == [tag1, tag2, tag3]
 
 
+def test_empty_delete_field_is_no_delete():
+    class ChildForm(f.Form):
+        name = f.TextField()
+
+    class ProductForm(f.Form):
+        tags = f.FormSet(ChildForm, allow_delete=False)
+
+    tag1 = Object(id=3, name="cool")
+    tag2 = Object(id=6, name="new")
+    tag3 = Object(id=9, name="awesome")
+    existing_obj = Object(name="Test Product", tags=[tag1, tag2, tag3])
+
+    form = ProductForm(
+        {
+            "tags[3][name]": ["cool"],
+            f"tags[6][{f.DELETED}]": [""],
+            "tags[6][name]": ["meh"],
+            "tags[9][name]": ["awesome"],
+        },
+        object=existing_obj
+    )
+
+    form.validate()
+    assert form.is_valid
+    updated_obj = form.save()
+
+    tag2.delete_instance.assert_not_called()
+    print(updated_obj.tags)
+    assert updated_obj.tags == [tag1, tag2, tag3]
+
 
 def test_delete_without_object():
     class ChildForm(f.Form):
@@ -142,7 +172,7 @@ def test_delete_without_object():
 
     form = ProductForm(
         {
-            "tags[6][_deleted]": ["1"],
+            f"tags[6][{f.DELETED}]": ["1"],
             "tags[6][name]": ["meh"],
         },
         object=existing_obj

@@ -8,11 +8,13 @@ import typing as t
 from copy import copy
 
 from .fields.base import Field
+from .fields.text import TextField
 from .parser import parse
 from .wrappers import ObjectManager
 
 
-DELETED = "_deleted"
+# Instead of "_delete", we use "_destroy" to be compatible with Rails forms.
+DELETED = "_destroy"
 
 logger = logging.getLogger("formidable")
 
@@ -35,6 +37,7 @@ class Form():
     _ObjectManager: t.Type[ObjectManager] = ObjectManager
 
     _messages: dict[str, str]
+    _name_format: str = "{name}"
     _fields: dict[str, Field]
     _object: ObjectManager
 
@@ -124,6 +127,23 @@ class Form():
         """
         return not self.is_valid
 
+    @property
+    def _delete(self) -> TextField:
+        """
+        Returns a fake field to render a hidden input to indicate
+        that the object linked to this form should be deleted.
+        """
+        field = TextField(required=False)
+        field.parent = self
+        field.field_name = DELETED
+        field.name_format = self._name_format
+        return field
+
+    @property
+    def _destroy(self) -> TextField:
+        """An alias to `Form._delete`."""
+        return self._delete
+
     def get_errors(self) -> dict[str, str]:
         """
         Returns a dictionary of field names and their error messages.
@@ -212,6 +232,7 @@ class Form():
             field.set_messages(self._messages)
 
     def _set_name_format(self, name_format: str) -> None:
+        self._name_format = name_format
         for field in self._fields.values():
             field.set_name_format(name_format)
 
@@ -223,7 +244,7 @@ class Form():
             orm_cls=self.Meta.orm_cls,
             object=object,
         )
-        self._deleted = DELETED in reqdata
+        self._deleted = bool(reqdata.get(DELETED, None))
 
         if not self._deleted:
             for name, field in self._fields.items():

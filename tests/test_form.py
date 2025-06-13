@@ -120,6 +120,26 @@ def test_field_messages():
     assert form.name2.error_message != MSG
 
 
+def test_field_messages_overrides_form_messages():
+    MSG_FORM = "Form required message"
+    MSG_FIELD = "Field required message"
+
+    class TestForm(f.Form):
+        class Meta:
+            messages = {"required": MSG_FORM}
+
+        name1 = f.TextField(messages={"required": MSG_FIELD})
+        name2 = f.TextField()
+
+    form = TestForm({})
+    form.validate()
+
+    assert form.name1.error == "required"
+    assert form.name1.error_message == MSG_FIELD
+    assert form.name2.error == "required"
+    assert form.name2.error_message == MSG_FORM
+
+
 def test_messages_inheritance_with_form_field():
     MSG = "parent"
 
