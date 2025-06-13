@@ -11,6 +11,9 @@ from .base import Field, TCustomValidator
 
 
 class ListField(Field):
+    # The value of this field is a list of values.
+    multiple: bool = True
+
     def __init__(
         self,
         type: t.Any = None,

@@ -105,3 +105,14 @@ def test_after_hook_error():
     field.validate()
     assert field.error == "Error in after hook"
     assert field.error_args == {"foo": "bar"}
+
+
+def test_is_multiple():
+    """
+    Test that the `multiple` property works correctly.
+    """
+    field = f.TextField()
+    assert not field.multiple
+
+    field = f.ListField()
+    assert field.multiple

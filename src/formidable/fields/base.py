@@ -28,6 +28,9 @@ class Field:
     before: Iterable[TCustomValidator]
     after: Iterable[TCustomValidator]
 
+    # Whether the value of this field is a list of values.
+    multiple: bool = False
+
     def __init__(
         self,
         *,
