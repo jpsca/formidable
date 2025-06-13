@@ -16,7 +16,7 @@ jobs:
       - name: "Installs dependencies"
         run: |
           pip install -U uv
-          uv sync --group dev --group test
+          uv sync --group dev --group test --extra email
           pip install -e .
       - run: make lint
   tests:
@@ -34,6 +34,6 @@ jobs:
       - name: "Installs dependencies"
         run: |
           pip install -U uv
-          uv sync --group dev --group test
+          uv sync --group dev --group test --extra email
           pip install -e .
       - run: make test
