@@ -74,8 +74,9 @@ class NumberField(Field):
             raise ValueError("`multiple_of` must be an integer or float")
         self.multiple_of = multiple_of
 
-        if one_of is not None and not isinstance(one_of, list):
-            raise ValueError("`one_of` must be a list or `None`")
+        if one_of is not None:
+            if isinstance(one_of, str) or not isinstance(one_of, Iterable):
+                raise ValueError("`one_of` must be an iterable (but not a string) or `None`")
         self.one_of = one_of
 
         super().__init__(

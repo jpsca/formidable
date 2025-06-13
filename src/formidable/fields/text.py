@@ -70,8 +70,9 @@ class TextField(Field):
                 raise ValueError("Invalid regex pattern") from e
         self.pattern = pattern
 
-        if one_of is not None and not isinstance(one_of, list):
-            raise ValueError("`one_of` must be a list or `None`")
+        if one_of is not None:
+            if isinstance(one_of, str) or not isinstance(one_of, Iterable):
+                raise ValueError("`one_of` must be an iterable (but not a string) or `None`")
         self.one_of = one_of
 
         default = str(default) if default is not None else None

@@ -58,8 +58,9 @@ class ListField(Field):
             raise ValueError("`max_items` must be a positive integer")
         self.max_items = max_items
 
-        if one_of is not None and not isinstance(one_of, list):
-            raise ValueError("`one_of` must be a list or `None`")
+        if one_of is not None:
+            if isinstance(one_of, str) or not isinstance(one_of, Iterable):
+                raise ValueError("`one_of` must be an iterable (but not a string) or `None`")
         self.one_of = one_of
 
         default = default if default is not None else []

@@ -90,8 +90,8 @@ class TimeField(Field):
         self._utcnow = _utcnow
 
         if one_of is not None:
-            if not isinstance(one_of, list):
-                raise ValueError("`one_of` must be a list or `None`")
+            if isinstance(one_of, str) or not isinstance(one_of, Iterable):
+                raise ValueError("`one_of` must be an iterable (but not a string) or `None`")
             one_of = [
                 self.to_python(time) if isinstance(time, str) else time
                 for time in one_of if time is not None
