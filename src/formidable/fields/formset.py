@@ -79,7 +79,7 @@ class FormSet(Field):
         self.set_name_format(self.name_format)
 
     def set_name_format(self, name_format: str):
-        self.name_format = f"{name_format}[NEW_INDEX]"
+        self.name_format = f"{name_format}[NEW_RECORD]"
         self.sub_name_format = f"{self.name}[{{name}}]"
         self.new_form._set_name_format(self.sub_name_format)
 
@@ -108,7 +108,7 @@ class FormSet(Field):
         if reqvalue:
             objects = {get_pk(obj, self.pk): obj for obj in objvalue}
             for pk, data in reqvalue.items():
-                name_format = self.sub_name_format.replace("NEW_INDEX", pk)
+                name_format = self.sub_name_format.replace("NEW_RECORD", pk)
                 form = self.FormClass(
                     data,
                     object=objects.get(pk),
@@ -124,7 +124,7 @@ class FormSet(Field):
                 pk = get_pk(obj, self.pk)
                 if pk in pks_used:
                     continue
-                name_format = self.sub_name_format.replace("NEW_INDEX", str(pk))
+                name_format = self.sub_name_format.replace("NEW_RECORD", str(pk))
                 form = self.FormClass(
                     object=obj,
                     name_format=name_format,
