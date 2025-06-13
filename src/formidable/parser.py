@@ -62,13 +62,52 @@ def insert(
                 ref = ref[part]  # type: ignore
 
 
-def parse(reqdata: dict[str, t.Any]) -> dict[str, t.Any]:
-    """parse a flat dict-like object into a nested structure based on keys."""
+def get_items(reqdata: t.Any):  #  pragma: no cover
+    """Return an iterable of (key, values) pairs from a dict-like object.
+    Works with the most common web frameworks' request data structures.
+    """
+    # e.g.: Starlette MultiDict (FastAPI)
+    if hasattr(reqdata, "multi_items"):
+        return reqdata.multi_items()
+
+    # e.g.: Django QueryDict
+    if hasattr(reqdata, "lists"):
+        return reqdata.lists()
+
+    # e.g.: Werkzeug MultiDict (Flask)
+    if hasattr(reqdata, "iterlists"):
+        return reqdata.iterlists()
+
+    # e.g.: Bottle MultiDict
+    if hasattr(reqdata, "allitems"):
+        return reqdata.allitems()
+
+    # e.g.: plain dict or similar
+    if hasattr(reqdata, "items"):
+        return reqdata.items()
+
+    raise TypeError(f"Unsupported type for reqdata: {type(reqdata)}")
+
+
+def parse(reqdata: t.Any) -> dict[str, t.Any]:
+    """Parse a flat dict-like object into a nested structure based on keys.
+
+    Args:
+        reqdata:
+            A dict-like object containing the request data, where keys
+            may include nested structures (e.g., "user[name]", "user[age]").
+
+    Returns:
+        A nested dictionary where keys are parsed into a hierarchy based on
+        the structure of the original keys. For example, "user[name]" becomes
+        {"user": {"name": value}}.
+
+    """
     if not reqdata:
         return {}
 
     result = {}
-    for key, values in dict.items(reqdata):
+    for key, values in get_items(reqdata):
         if not isinstance(values, list) or not values:
             values = [values]
         parsed_key = parse_key(key)
