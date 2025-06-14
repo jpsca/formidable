@@ -21,7 +21,9 @@ classifiers = [
     "Typing :: Typed",
 ]
 requires-python = ">=3.10,<4"
-dependencies = []
+dependencies = [
+    "idna>=3.0",
+]
 
 [project.optional-dependencies]
 email = ["email-validator ~= 2.2.0"]

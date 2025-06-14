@@ -3,15 +3,18 @@ Formable
 Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
+import re
 import typing as t
 from collections.abc import Iterable
+from urllib.parse import urlsplit, urlunsplit
+
+import idna
 
 from .. import errors as err
-from .base import TCustomValidator
-from .text import TextField
+from .base import Field, TCustomValidator
 
 
-class URLField(TextField):
+class URLField(Field):
 
     def __init__(
         self,
@@ -26,6 +29,14 @@ class URLField(TextField):
     ):
         """
         A field for validating URLs.
+
+        Even if the format is valid, it cannot guarantee that the URL is real. The
+        purpose of this function is to alert the user of a typing mistake.
+
+        Perform an UTS-46 normalization of the domain, which includes lowercasing
+        (domain names are case-insensitive), NFC normalization, and converting all label
+        separators (the period/full stop, fullwidth full stop, ideographic full stop, and
+        halfwidth ideographic full stop) to basic periods.
 
         Args:
             required:
@@ -47,16 +58,23 @@ class URLField(TextField):
                 Overrides of the error messages, specifically for this field.
 
         """
+        self.schemes = schemes = schemes or ["http", "https"]
+        self.rx_url = self._compile_url_regex(schemes=schemes)
+
+        if one_of is not None:
+            if isinstance(one_of, str) or not isinstance(one_of, Iterable):
+                raise ValueError("`one_of` must be an iterable (but not a string) or `None`")
+        self.one_of = one_of
+
+        default = str(default) if default is not None else None
+
         super().__init__(
             required=required,
             default=default,
             before=before,
             after=after,
-            one_of=one_of,
-            messages=messages
+            messages=messages,
         )
-        self.schemes = schemes or ["http", "https"]
-        self.rx_url = self._compile_url_regex(schemes=self.schemes)
 
     def _compile_url_regex(self, schemes: Iterable[str]) -> t.Pattern[str]:
         """
@@ -66,24 +84,50 @@ class URLField(TextField):
         Returns:
             Compiled regex pattern for URL validation.
         """
-        import re
         scheme_pattern = "|".join(schemes)
         return re.compile(
-            rf"^(?:(?:{scheme_pattern}):\/\/)(?:[a-zA-Z0-9\-._~!$&'()*+,;=:@]+)(?:\/[a-zA-Z0-9\-._~!$&'()*+,;=:@]*)*$"
+            rf"^({scheme_pattern}):\/\/[^./:\s][^/\s]+[^./:\s](\/.*)?$",
+            re.IGNORECASE | re.UNICODE
         )
+
+    def to_python(self, value: str | None) -> str | None:
+        """
+        Convert the value to a Python string type.
+        """
+        value = str(value or "").strip()
+        if not value:
+            return ""
+
+        if not self.rx_url.match(value):
+            self.error = err.INVALID_URL
+            return value
+
+        scheme, domain, path, query, fragment = urlsplit(value)
+
+        if ".." in domain:
+            self.error = err.INVALID_URL
+            return value
+
+        try:
+            domain = idna.uts46_remap(domain, std3_rules=False, transitional=False)
+        except idna.IDNAError:  # pragma: no cover
+            self.error = err.INVALID_URL
+            return value
+
+        scheme = scheme.lower()
+        print(f"Scheme: {scheme}, Domain: {domain}, Path: {path}, Query: {query}, Fragment: {fragment}")
+        return urlunsplit((scheme, domain, path, query, fragment))
 
     def validate_value(self) -> bool:
         """
         Validate the field value against the defined constraints.
         """
-        if not super().validate_value():
-            return False
+        if not self.value:
+            return True
 
-        if not self.value or self.error:
-            return False
-
-        if not self.rx_url.match(self.value):
-            self.error = err.INVALID_URL
+        if self.one_of and self.value not in self.one_of:
+            self.error = err.ONE_OF
+            self.error_args = {"one_of": self.one_of}
             return False
 
         return True

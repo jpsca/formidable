@@ -30,16 +30,81 @@ def test_url_field():
     }
 
 
-def test_url_field_invalid():
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://example.com",
+        "https://example.com",
+        "http://example.com/path/to/resource",
+        "https://example.com/path/to/resource?query=param#fragment",
+        "https://subdomain.example.com",
+        "http://example.co.uk",
+        "http://xn--ls8h.xn--zfr164b",  # Punycode example
+        "http://example.com:8080",  # With port
+        "https://127.0.0.1/path",  # IPv4 address
+        "https://[2001:db8::1]/path",  # IPv6 address
+        "https://localhost",
+    ],
+)
+def test_valid_urls(url):
+    field = f.URLField()
+    field.set(url)
+
+    assert field.error is None
+    assert field.value == url
+
+
+def test_normalize_url():
+    field = f.URLField()
+
+    field.set("HTTP://EXAMPLE.COM/PATH")
+    assert field.error is None
+    assert field.value == "http://example.com/PATH"
+
+    field.set("http://example.com/Some⒈Path")
+    assert field.error is None
+    assert field.value == "http://example.com/Some⒈Path"
+
+    field.set("http://example．com/path")
+    assert field.error is None
+    assert field.value == "http://example.com/path"
+
+
+def test_not_an_url():
     field = f.URLField()
 
     field.set("not a url")
-    field.validate()
     assert field.error == err.INVALID_URL
 
-    field.set("https://example.com")
-    field.validate()
+
+def test_space_in_url():
+    field = f.URLField()
+
+    field.set("http://ex ample.com/path")
+    assert field.error == err.INVALID_URL
+
+    field.set("http://example.com/some path")
     assert field.error is None
+
+
+def test_two_dots_in_domain():
+    field = f.URLField()
+
+    field.set("http://example..com")
+    assert field.error == err.INVALID_URL
+
+
+def test_invalid_character():
+    field = f.URLField()
+    field.set("http://exampl⒈e.com/abcdef")
+    assert field.error == err.INVALID_URL
+
+
+def test_invalid_scheme():
+    field = f.URLField(schemes=["http", "https"])
+
+    field.set("ftp://example.com")
+    assert field.error == err.INVALID_URL
 
 
 def test_validate_one_of():

@@ -185,6 +185,9 @@ wheels = [
 name = "formidable"
 version = "0.7"
 source = { editable = "." }
+dependencies = [
+    { name = "idna" },
+]
 
 [package.optional-dependencies]
 email = [
@@ -206,7 +209,10 @@ test = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "email-validator", marker = "extra == 'email'", specifier = "~=2.2.0" }]
+requires-dist = [
+    { name = "email-validator", marker = "extra == 'email'", specifier = "~=2.2.0" },
+    { name = "idna", specifier = ">=3.0" },
+]
 provides-extras = ["email"]
 
 [package.metadata.requires-dev]
