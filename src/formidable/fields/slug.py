@@ -27,22 +27,13 @@ class SlugField(TextField):
         messages: dict[str, str] | None = None,
     ):
         """
-        A field for validating URLs.
+        Slug field.
 
         Args:
             required:
                 Whether the field is required. Defaults to `True`.
             default:
                 Default value for the field. Defaults to `None`.
-            schemes:
-                URL/URI scheme list to validate against. If not provided,
-                the default list is ["http", "https"].
-            min_length:
-                Minimum length of the text. Defaults to `None `(no minimum).
-            max_length:
-                Maximum length of the text. Defaults to `None` (no maximum).
-            pattern:
-                A regex pattern that the string must match. Defaults to `None`.
             before:
                 List of custom validators to run before setting the value.
             after:
@@ -56,6 +47,7 @@ class SlugField(TextField):
         super().__init__(
             required=required,
             default=default,
+            strip=True,
             before=before,
             after=after,
             one_of=one_of,

@@ -35,6 +35,7 @@ def test_url_field():
     [
         "http://example.com",
         "https://example.com",
+        " https://example.com ",  # spaces around URL
         "http://example.com/path/to/resource",
         "https://example.com/path/to/resource?query=param#fragment",
         "https://subdomain.example.com",
@@ -51,7 +52,7 @@ def test_valid_urls(url):
     field.set(url)
 
     assert field.error is None
-    assert field.value == url
+    assert field.value == url.strip()
 
 
 def test_normalize_url():

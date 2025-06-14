@@ -30,6 +30,24 @@ def test_email_field():
     }
 
 
+@pytest.mark.parametrize(
+    "email",
+    [
+        "banana@example.com",
+        " banana@example.com  ",  # spaces around email
+        "banana@mail.example.com",  # subdomain
+        "steve.jobs@apple.com",  # dots in local part
+        "steve.jobs+spam@gmail.com",  # plus sign in local part
+    ],
+)
+def test_valid_emails(email):
+    field = f.EmailField()
+    field.set(email)
+
+    assert field.error is None
+    assert field.value == email.strip()
+
+
 def test_email_field_invalid():
     class TestForm(f.Form):
         email = f.EmailField()
