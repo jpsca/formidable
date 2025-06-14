@@ -105,8 +105,6 @@ class Field:
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):
         self.error = None
         self.error_args = None
-        reqvalue = None if reqvalue == "" else reqvalue
-        objvalue = None if objvalue == "" else objvalue
 
         value = objvalue if reqvalue is None else reqvalue
         if value is None:
@@ -120,14 +118,16 @@ class Field:
                 self.error_args = e.args[1] if len(e.args) > 1 else None
                 return
 
+        self.value = value
+        if self.required and value in [None, ""]:
+            self.error = err.REQUIRED
+            return
+
         try:
             self.value = self.to_python(value)
         except (ValueError, TypeError):
             self.error = err.INVALID
             return
-
-        if self.required and self.value in [None, ""]:
-            self.error = err.REQUIRED
 
     def to_python(self, value: t.Any) -> t.Any:
         """

@@ -58,6 +58,25 @@ def test_invalid(FieldType, value):
     assert field.error_message == err.MESSAGES[err.INVALID]
 
 
+@pytest.mark.parametrize(
+  "FieldType,objvalue",
+    [
+        (f.DateField, "2025-05-05"),
+        (f.DateTimeField, "2025-05-05T00:00:00"),
+        (f.EmailField, "test@example.com"),
+        (f.FloatField, "5.0"),
+        (f.IntegerField, "5"),
+        (f.SlugField, "test"),
+        (f.TimeField, "12 PM"),
+        (f.URLField, "http://test.com"),
+    ]
+)
+def test_reqdata_over_objvalue(FieldType, objvalue):
+    field = FieldType(required=False)
+    field.set("", objvalue)
+    assert field.value == ""
+
+
 def test_before_hook():
     """
     Test that the before hook is called before setting the value.
