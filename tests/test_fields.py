@@ -2,6 +2,8 @@
 Formable
 Copyright (c) 2025 Juan-Pablo Scaletti
 """
+from uuid import uuid4
+
 import pytest
 
 import formidable as f
@@ -75,6 +77,37 @@ def test_reqdata_over_objvalue(FieldType, objvalue):
     field = FieldType(required=False)
     field.set("", objvalue)
     assert field.value == ""
+
+
+@pytest.mark.parametrize(
+  "FieldType",
+    [
+        f.DateField,
+        f.DateTimeField,
+        f.EmailField,
+        f.FloatField,
+        f.IntegerField,
+        f.ListField,
+        f.SlugField,
+        f.TextField,
+        f.TimeField,
+        f.URLField,
+    ]
+)
+def test_value(FieldType):
+    VALUE = uuid4().hex
+
+    field = FieldType()
+    field.set(VALUE, "whatever")
+    assert field.value == VALUE
+
+    field = FieldType()
+    field.set("", VALUE)
+    assert field.value == ""
+
+    field = FieldType()
+    field.set(None, VALUE)
+    assert field.value == VALUE
 
 
 def test_before_hook():
