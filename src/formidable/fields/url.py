@@ -115,7 +115,6 @@ class URLField(Field):
             return value
 
         scheme = scheme.lower()
-        print(f"Scheme: {scheme}, Domain: {domain}, Path: {path}, Query: {query}, Fragment: {fragment}")
         return urlunsplit((scheme, domain, path, query, fragment))
 
     def validate_value(self) -> bool:

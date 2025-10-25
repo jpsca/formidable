@@ -10,7 +10,7 @@ from collections.abc import Iterable
 try:
     from email_validator import validate_email
 except ImportError:
-    validate_email = None
+    validate_email = None  # type: ignore
 
 from formidable import errors as err
 
@@ -25,6 +25,7 @@ class EmailField(Field):
         default: t.Any = None,
         check_dns: bool = False,
         allow_smtputf8: bool = False,
+        strict: bool = True,
         before: Iterable[TCustomValidator] | None = None,
         after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[str] | None = None,
@@ -57,6 +58,9 @@ class EmailField(Field):
                 including your own outbound mail server, all support the
                 [SMTPUTF8 (RFC 6531)](https://tools.ietf.org/html/rfc6531) extension.
                 By default this is set to `False`.
+            strict:
+                if `True`, validates that the local part of the email is at most
+                64 characters long.
             before:
                 List of custom validators to run before setting the value.
             after:
@@ -69,6 +73,7 @@ class EmailField(Field):
         """
         self.check_dns = check_dns
         self.allow_smtputf8 = allow_smtputf8
+        self.strict = strict
 
         if one_of is not None:
             if isinstance(one_of, str) or not isinstance(one_of, Iterable):
@@ -103,6 +108,7 @@ class EmailField(Field):
                 value,
                 check_deliverability=self.check_dns,
                 allow_smtputf8=self.allow_smtputf8,
+                strict=self.strict,
             )
             return validated.normalized
         except (ValueError, TypeError):

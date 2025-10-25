@@ -4,7 +4,7 @@ requires = ["setuptools"]
 
 [project]
 name = "formidable"
-version = "0.7"
+version = "0.8"
 description = "Formidable HTTP forms"
 authors = [{ name = "Juan-Pablo Scaletti", email = "juanpablo@jpscaletti.com" }]
 license = "MIT"
@@ -20,13 +20,14 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
 ]
-requires-python = ">=3.10,<4"
+requires-python = ">=3.12,<4"
 dependencies = [
-    "idna>=3.0",
+    "idna>=3.10",
 ]
 
 [project.optional-dependencies]
-email = ["email-validator ~= 2.2.0"]
+email = ["email-validator~= 2.3.0"]
+
 
 [project.urls]
 repository = "https://github.com/jpsca/formidable"
@@ -37,7 +38,7 @@ debug = [
     "ipdb>=0.13.13",
 ]
 dev = [
-    "pyright",
+    "ty",
     "ruff >= 0.2.0",
     "tox-uv",
 ]
@@ -87,10 +88,9 @@ addopts = "--doctest-modules"
 legacy_tox_ini = """
 [tox]
 env_list =
-    3.10
-    3.11
     3.12
     3.13
+    3.14
 
 [testenv]
 runner = uv-venv-lock-runner

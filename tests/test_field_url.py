@@ -40,7 +40,7 @@ def test_url_field():
         "https://example.com/path/to/resource?query=param#fragment",
         "https://subdomain.example.com",
         "http://example.co.uk",
-        "http://xn--ls8h.xn--zfr164b",  # Punycode example
+        "http://xn--eckwd4c7c.xn--zckzah",  # Punycode example
         "http://example.com:8080",  # With port
         "https://127.0.0.1/path",  # IPv4 address
         "https://[2001:db8::1]/path",  # IPv6 address

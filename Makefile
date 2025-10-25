@@ -9,15 +9,20 @@ test:
 .PHONY: lint
 lint:
 	uv run ruff check src tests
-
-.PHONY: types
-types:
-	uv run pyright src tests
+	uv run ty check
 
 .PHONY: coverage
 coverage:
-	uv run pytest --cov-report html --cov-report xml --cov src tests
+	uv run pytest --cov-config=pyproject.toml --cov-report html --cov formidable src tests
 
-.PHONY: tox
-tox:
-	uv run tox
+.PHONY: docs
+docs:
+	cd docs && uv run python docs.py
+
+.PHONY: docs-build
+docs-build:
+	cd docs && uv run python docs.py build
+
+.PHONY: docs-deploy
+docs-deploy:
+	cd docs && uv run sh deploy.sh
