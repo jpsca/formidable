@@ -1,0 +1,20 @@
+{# import "./layout.jinja" as Layout #}
+{# import "./footer.jinja" as Footer #}
+
+<Layout>
+  <div class="headline">
+    <header>
+      <h1><img src="/assets/images/formidable.svg" alt="Formidable" class="invert" /></h1>
+      <h2>A simple but powerful library for processing web&nbsp;forms</h2>
+    </header>
+  </div>
+
+  <div class="page page--docs">
+    <div class="page__wrapper">
+      <div class="page__content">
+      {{ page.content }}
+      </div>
+    </div>
+  </div>
+  <Footer />
+</Layout>

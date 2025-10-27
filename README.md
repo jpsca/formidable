@@ -1,5 +1,5 @@
 <div align="center">
-  <h1><img alt="Formidable" src="./docs/formidable.jpeg"></h1>
+  <h1><img alt="Formidable" src="./docs/formidable.png"></h1>
 </div>
 <p align="center">
   <img alt="coverage: 100%" src="./docs/coverage.svg">
