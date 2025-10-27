@@ -76,12 +76,11 @@ exclude_lines = [
 [tool.coverage.html]
 directory = "covreport"
 
-[tool.pyright]
-include = ["src"]
-exclude = ["**/__pycache__"]
-reportPrivateImportUsage = false
-reportWildcardImportFromLibrary = false
 
+[tool.ty.src]
+exclude = [
+    "docs",
+]
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
