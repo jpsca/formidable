@@ -1,0 +1,5 @@
+---
+title: Email
+---
+
+::: formidable.EmailField

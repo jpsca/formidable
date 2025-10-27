@@ -1,5 +1,6 @@
 .headline {
   padding: 1rem;
+  font-family: var(--font-family-mono);
 }
 
 .headline header {
@@ -36,6 +37,9 @@
   }
 }
 
+.page-index .page__content {
+  margin-left: auto;
+}
 
 .footer {
   display: flex;

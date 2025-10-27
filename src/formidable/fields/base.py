@@ -1,10 +1,10 @@
 """
-Formable
-Copyright (c) 2025 Juan-Pablo Scaletti
+Formable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import typing as t
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
+from uuid import uuid4
 
 from .. import errors as err
 
@@ -13,7 +13,7 @@ if t.TYPE_CHECKING:
     from ..form import Form
 
 
-TCustomValidator = t.Callable[[t.Any], t.Any]  # Type for a validator function
+TCustomValidator = Callable[[t.Any], t.Any]  # Type for a validator function
 
 
 class Field:
@@ -62,6 +62,7 @@ class Field:
         self.messages = messages if messages is not None else {}
         self.before = before if before is not None else []
         self.after = after if after is not None else []
+        self.id = f"f-{uuid4().hex}"
 
     def __repr__(self):
         attrs = [

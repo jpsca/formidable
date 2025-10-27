@@ -1,0 +1,5 @@
+---
+title: Float
+---
+
+::: formidable.FloatField

@@ -6,7 +6,7 @@
   <img alt="license: MIT" src="./docs/license.svg">
 </p>
 
-### A simple but powerful library for processing web forms
+### A small but powerful library for processing web forms
 
 ## Features
 

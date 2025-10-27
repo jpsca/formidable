@@ -1,6 +1,5 @@
 """
-Formable
-Copyright (c) 2025 Juan-Pablo Scaletti
+Formable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import logging
@@ -34,7 +33,7 @@ class DefaultMeta:
 
 class Form():
     # The class to use for wrapping objects in the form.
-    _ObjectManager: t.Type[ObjectManager] = ObjectManager
+    _ObjectManager: type[ObjectManager] = ObjectManager
 
     _messages: dict[str, str]
     _name_format: str = "{name}"

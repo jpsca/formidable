@@ -1,3 +1,9 @@
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/Inter-Variable.woff2") format("woff2");
+  font-display: swap
+}
+
 html.cs-light {
   color-scheme: light;
 }
@@ -30,7 +36,7 @@ html {
 
   --color-accent: rgb(var(--rgb-accent));
 
-  --font-family: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+  --font-family: Inter, sans-serif;
   --font-family-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
   --font-size: min(calc(1.6em + 1vw), 2.3rem);
   --font-size-xx-small: 50%;
@@ -165,7 +171,7 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
 }
 
 h1 {
-  font-size: var(--font-size-xxx-large);
+  font-size: var(--font-size-xx-large);
   letter-spacing: -0.03em;
   line-height: 1.2
 }
@@ -265,17 +271,17 @@ video::cue {
 
 @media (prefers-color-scheme: light) {
   html:not(.cs-dark) .only-dark {
-    display: none;
+    display: none !important;
   }
 }
 @media (prefers-color-scheme: dark) {
   html:not(.cs-light) .only-light {
-    display: none;
+    display: none !important;
   }
 }
 html.cs-dark .only-light,
 html.cs-light .only-dark {
-  display: none;
+  display: none !important;
 }
 
 
@@ -742,7 +748,7 @@ html.cs-dark .highlight {
 
 .page__content hr:before {
   color: var(--color-base-darkest);
-  content: '----+----';
+  content: '-+-+-+-+-';
   font-weight: 500;
   letter-spacing: 0.1em;
   line-height: 1;
@@ -798,7 +804,7 @@ html.cs-dark .highlight {
 }
 
 .page__content h1 {
-  font-size: 2.5em;
+  /* font-size: 2.5em; */
   padding-top: 0.08em;
 }
 
@@ -814,13 +820,13 @@ html.cs-dark .highlight {
 .page__content h2 {
   color: var(--color-accent);
   padding-top: 0.1em;
-  font-size: 2em;
+  /* font-size: 2em; */
 }
 
 .page__content h3 {
   color: var(--color-gray);
   padding-top: 0.125em;
-  font-size: 1.5em;
+  /* font-size: 1.5em; */
 }
 
 .page__content h4,

@@ -1,6 +1,5 @@
 """
-Formable
-Copyright (c) 2025 Juan-Pablo Scaletti
+Formable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import re

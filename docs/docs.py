@@ -10,6 +10,34 @@ from writeadoc import Docs
 
 pages = [
     "quickstart.md",
+    "forms.md",
+    "fields.md",
+    "nested.md",
+    {
+        "title": "API",
+        "closed": True,
+        "pages": [
+            "api/form.md",
+            {
+                "title": "Fields",
+                "pages": [
+                    "api/fields/text.md",
+                    "api/fields/boolean.md",
+                    "api/fields/integer.md",
+                    "api/fields/float.md",
+                    "api/fields/date.md",
+                    "api/fields/datetime.md",
+                    "api/fields/time.md",
+                    "api/fields/slug.md",
+                    "api/fields/email.md",
+                    "api/fields/url.md",
+                    "api/fields/list.md",
+                    "api/fields/formfield.md",
+                    "api/fields/formset.md",
+                ]
+            },
+        ]
+    }
 ]
 
 docs = Docs(
@@ -17,10 +45,10 @@ docs = Docs(
     pages=pages,
     site={
         "name": "Formidable",
-        "description": "A simple but powerful library for processing web forms",
+        "description": "A small but powerful library for processing web forms",
         "base_url": "https://formidable.scaletti.dev",
         "lang": "en",
-        "version": "0.8",
+        "version": "0",
         "source_code": "https://github.com/jpsca/formidable/",
     },
 )
