@@ -6,6 +6,7 @@ from .fields.boolean import BooleanField  # noqa
 from .fields.date import DateField  # noqa
 from .fields.datetime import DateTimeField  # noqa
 from .fields.email import EmailField  # noqa
+from .fields.file import FileField  # noqa
 from .fields.formfield import FormField  # noqa
 from .fields.formset import FormSet  # noqa
 from .fields.list import ListField  # noqa
