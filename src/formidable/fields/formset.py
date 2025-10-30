@@ -55,10 +55,10 @@ class FormSet(Field):
 
         """
         self.FormClass = FormClass
-        self.new_form = FormClass()
+        self.empty_form = FormClass()
 
         self.forms = []
-        self.pk = getattr(self.new_form.Meta, "pk", "id")
+        self.pk = getattr(self.empty_form.Meta, "pk", "id")
 
         if min_items is not None and (not isinstance(min_items, int) or min_items < 0):
             raise ValueError("`min_items` must be a positive integer")
@@ -73,18 +73,18 @@ class FormSet(Field):
         super().__init__(
             required=bool(min_items),
             default=default,
-            messages={**self.new_form._messages}
+            messages={**self.empty_form._messages}
         )
         self.set_name_format(self.name_format)
 
     def set_name_format(self, name_format: str):
         self.name_format = f"{name_format}[NEW_RECORD]"
         self.sub_name_format = f"{self.name}[{{name}}]"
-        self.new_form._set_name_format(self.sub_name_format)
+        self.empty_form._set_name_format(self.sub_name_format)
 
     def set_messages(self, messages: dict[str, str]):
         super().set_messages(messages)
-        self.new_form._set_messages(self.messages)
+        self.empty_form._set_messages(self.messages)
 
     def set(
         self,

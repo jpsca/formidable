@@ -26,8 +26,8 @@ def test_formset_field():
     )
 
 
-    assert form.skills.new_form.name.name == "skills[NEW_RECORD][name]"  # type: ignore
-    assert form.skills.new_form.level.name == "skills[NEW_RECORD][level]"  # type: ignore
+    assert form.skills.empty_form.name.name == "skills[NEW_RECORD][name]"  # type: ignore
+    assert form.skills.empty_form.level.name == "skills[NEW_RECORD][level]"  # type: ignore
 
     assert form.skills.forms[0].name.name == "skills[0][name]"
     assert form.skills.forms[0].name.value == "Python"
@@ -68,8 +68,8 @@ def test_formset_field_object():
         }
     )
 
-    assert form.skills.new_form.name.name == "skills[NEW_RECORD][name]"  # type: ignore
-    assert form.skills.new_form.level.name == "skills[NEW_RECORD][level]"  # type: ignore
+    assert form.skills.empty_form.name.name == "skills[NEW_RECORD][name]"  # type: ignore
+    assert form.skills.empty_form.level.name == "skills[NEW_RECORD][level]"  # type: ignore
 
     assert form.skills.forms[0].name.name == "skills[5][name]"
     assert form.skills.forms[0].name.value == "Python"
@@ -122,8 +122,8 @@ def test_formset_field_object_updated():
         }
     )
 
-    assert form.skills.new_form.name.name == "skills[NEW_RECORD][name]"  # type: ignore
-    assert form.skills.new_form.level.name == "skills[NEW_RECORD][level]"  # type: ignore
+    assert form.skills.empty_form.name.name == "skills[NEW_RECORD][name]"  # type: ignore
+    assert form.skills.empty_form.level.name == "skills[NEW_RECORD][level]"  # type: ignore
 
     assert form.skills.forms[0].name.name == "skills[7][name]"
     assert form.skills.forms[0].name.value == "Go"
