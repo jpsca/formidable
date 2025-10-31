@@ -13,7 +13,7 @@ lint:
 
 .PHONY: coverage
 coverage:
-	uv run pytest --cov-config=pyproject.toml --cov-report html src tests
+	uv run pytest --cov=formidable --cov-config=pyproject.toml --cov-report=html tests
 
 .PHONY: docs
 docs:
