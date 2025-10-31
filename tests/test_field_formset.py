@@ -161,6 +161,26 @@ def test_empty_formset():
     assert data == {"items": []}
 
 
+def test_subforms_with_errors():
+    class ChildForm(f.Form):
+        meh = f.TextField(required=True)
+
+    field = f.FormSet(ChildForm)
+    field.set({
+        "0": {"meh": ""},
+        "1": {"meh": "Hello"},
+        "2": {},
+    })
+
+    field.validate()
+    print(field.error_args)
+    assert field.error == err.INVALID
+    assert field.error_args == {
+        0: {"meh": err.REQUIRED},
+        2: {"meh": err.REQUIRED},
+    }
+
+
 def test_validate_min_items():
     field = f.FormSet(ChildForm, min_items=3)
 

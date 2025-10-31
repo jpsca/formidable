@@ -148,6 +148,17 @@ class FormSet(Field):
         """
         Validate the field value against the defined constraints.
         """
+        sub_errors = {}
+        for index, form in enumerate(self.forms):
+            valid = form.validate()
+            if not valid:
+                sub_errors[index] = form.get_errors()
+
+        if sub_errors:
+            self.error = err.INVALID
+            self.error_args = sub_errors
+            return False
+
         if self.min_items is not None and len(self.forms) < self.min_items:
             self.error = err.MIN_ITEMS
             self.error_args = {"min_items": self.min_items}
