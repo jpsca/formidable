@@ -12,7 +12,8 @@ html.cs-dark {
 }
 
 html {
-  --rgb-base: 247, 249, 251;
+  --rgb-base: 246, 241, 238;
+
   --rgb-base-dark: 241, 243, 245;
   --rgb-base-darker: 235, 237, 239;
   --rgb-base-darkest: 229, 231, 233;
@@ -22,7 +23,7 @@ html {
   --rgb-gray-light: 105, 115, 125;
   --rgb-gray-lighter: 170, 180, 190;
 
-  --rgb-accent: 73,149,247;
+  --rgb-accent: 83, 151, 0;
 
   --color-base: rgb(var(--rgb-base));
   --color-base-dark: rgb(var(--rgb-base-dark));
@@ -39,14 +40,14 @@ html {
   --font-family: Inter, sans-serif;
   --font-family-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
   --font-size: min(calc(1.6em + 1vw), 2.3rem);
-  --font-size-xx-small: 50%;
-  --font-size-x-small: 60%;
-  --font-size-small: 75%;
-  --font-size-medium: 100%;
-  --font-size-large: 115%;
-  --font-size-x-large: 135%;
-  --font-size-xx-large: 180%;
-  --font-size-xxx-large: 250%;
+  --font-size-xx-small: 0.5rem;
+  --font-size-x-small: 0.6rem;
+  --font-size-small: 0.75rem;
+  --font-size-medium: 1rem;
+  --font-size-large: 1.15rem;
+  --font-size-x-large: 1.5rem;
+  --font-size-xx-large: 1.8rem;
+  --font-size-xxx-large: 2.5rem;
   --space-small: 0.5em;
   --space-medium: 1em;
   --space-large: 2em;
@@ -58,7 +59,7 @@ html {
 
 @media (prefers-color-scheme: dark) {
   html:not(.cs-light) {
-    --rgb-base: 4, 5, 6;
+    --rgb-base: 42, 41, 41;
     --rgb-base-dark: 28, 28, 28;
     --rgb-base-darker: 49, 49, 49;
     --rgb-base-darkest: var(--rgb-base-darker);
@@ -67,7 +68,7 @@ html {
     --color-base-dark: var(--color-base);
     --rgb-white: var(--rgb-base-dark);
     --rgb-black: 255, 255, 255;
-    --rgb-accent: 104, 167, 249;
+    --rgb-accent: 118, 215, 0;
   }
 }
 html.cs-dark {
@@ -80,7 +81,7 @@ html.cs-dark {
   --color-base-dark: var(--color-base);
   --rgb-white: var(--rgb-base-dark);
   --rgb-black: 255, 255, 255;
-  --rgb-accent: 104, 167, 249;
+  --rgb-accent: 118, 215, 0;
 }
 
 /******* RESET *******/
@@ -171,17 +172,21 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
 }
 
 h1 {
-  font-size: var(--font-size-xx-large);
+  font-size: var(--font-size-xxx-large);
   letter-spacing: -0.03em;
   line-height: 1.2
 }
 
 h2 {
-  font-size: var(--font-size-x-large);
+  font-size: var(--font-size-xx-large);
   letter-spacing: -0.015em
 }
 
 h3 {
+  font-size: var(--font-size-x-large)
+}
+
+h4 {
   font-size: var(--font-size-large)
 }
 
@@ -681,7 +686,7 @@ html.cs-dark .highlight {
 }
 .autodoc-label {
   font-size: 0.6em !important;
-  color: #36464e !important;
+  color: var(--doc-label-fg-color, #79c0ff) !important;
   font-weight: 400;
   padding: 0.1rem 0.4rem !important;
 }
@@ -804,7 +809,6 @@ html.cs-dark .highlight {
 }
 
 .page__content h1 {
-  /* font-size: 2.5em; */
   padding-top: 0.08em;
 }
 
@@ -818,15 +822,19 @@ html.cs-dark .highlight {
 }
 
 .page__content h2 {
-  color: var(--color-accent);
   padding-top: 0.1em;
-  /* font-size: 2em; */
+}
+
+.page__content h1,
+.page__content h2,
+.page__content h3 {
+  font-family: var(--font-family-mono);
+  text-shadow: 1px 1px 0 rgb(255 255 255 / 50%);
 }
 
 .page__content h3 {
   color: var(--color-gray);
   padding-top: 0.125em;
-  /* font-size: 1.5em; */
 }
 
 .page__content h4,
