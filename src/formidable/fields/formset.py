@@ -104,6 +104,8 @@ class FormSet(Field):
         self.forms = []
         pks_used = set()
 
+        reqvalue, objvalue = self._custom_filter(reqvalue, objvalue)
+
         if reqvalue:
             objects = {get_pk(obj, self.pk): obj for obj in objvalue}
             for pk, data in reqvalue.items():
@@ -150,8 +152,7 @@ class FormSet(Field):
         """
         sub_errors = {}
         for index, form in enumerate(self.forms):
-            valid = form.validate()
-            if not valid:
+            if form.is_invalid:
                 sub_errors[index] = form.get_errors()
 
         if sub_errors:
@@ -170,3 +171,10 @@ class FormSet(Field):
             return False
 
         return True
+
+    def _custom_filter(
+        self,
+        reqvalue: dict[str, t.Any] | None,
+        objvalue: Iterable[t.Any],
+    ) -> tuple[dict[str, t.Any] | None, Iterable[t.Any]]:
+        return reqvalue, objvalue

@@ -10,7 +10,7 @@ from urllib.parse import urlsplit, urlunsplit
 import idna
 
 from .. import errors as err
-from .base import Field, TCustomValidator
+from .base import Field
 
 
 class URLField(Field):
@@ -21,8 +21,6 @@ class URLField(Field):
         required: bool = True,
         default: t.Any = None,
         schemes: Iterable[str] | None = None,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[str] | None = None,
         messages: dict[str, str] | None = None,
     ):
@@ -47,10 +45,6 @@ class URLField(Field):
                 the default list is ["http", "https"].
             pattern:
                 A regex pattern that the string must match. Defaults to `None`.
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             one_of:
                 List of values that the field value must be one of. Defaults to `None`.
             messages:
@@ -70,8 +64,6 @@ class URLField(Field):
         super().__init__(
             required=required,
             default=default,
-            before=before,
-            after=after,
             messages=messages,
         )
 
@@ -89,7 +81,7 @@ class URLField(Field):
             re.IGNORECASE | re.UNICODE
         )
 
-    def to_python(self, value: str | None) -> str | None:
+    def filter_value(self, value: str | None) -> str | None:
         """
         Convert the value to a Python string type.
         """

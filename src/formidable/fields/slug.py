@@ -7,7 +7,6 @@ import typing as t
 from collections.abc import Iterable
 
 from .. import errors as err
-from .base import TCustomValidator
 from .text import TextField
 
 
@@ -20,8 +19,6 @@ class SlugField(TextField):
         *,
         required: bool = True,
         default: t.Any = None,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[str] | None = None,
         messages: dict[str, str] | None = None,
     ):
@@ -33,10 +30,6 @@ class SlugField(TextField):
                 Whether the field is required. Defaults to `True`.
             default:
                 Default value for the field. Defaults to `None`.
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             one_of:
                 List of values that the field value must be one of. Defaults to `None`.
             messages:
@@ -47,8 +40,6 @@ class SlugField(TextField):
             required=required,
             default=default,
             strip=True,
-            before=before,
-            after=after,
             one_of=one_of,
             messages=messages
         )

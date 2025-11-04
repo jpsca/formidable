@@ -3,7 +3,6 @@ Formable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import typing as t
-from collections.abc import Callable, Iterable
 from uuid import uuid4
 
 from .. import errors as err
@@ -11,9 +10,6 @@ from .. import errors as err
 
 if t.TYPE_CHECKING:
     from ..form import Form
-
-
-TCustomValidator = Callable[[t.Any], t.Any]  # Type for a validator function
 
 
 class Field:
@@ -25,8 +21,6 @@ class Field:
     error: str | dict[str, t.Any] | None = None
     error_args: dict[str, t.Any] | None = None
     messages: dict[str, str]
-    before: Iterable[TCustomValidator]
-    after: Iterable[TCustomValidator]
 
     # Whether the value of this field is a list of values.
     multiple: bool = False
@@ -36,8 +30,6 @@ class Field:
         *,
         required: bool = True,
         default: t.Any = None,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         messages: dict[str, str] | None = None,
     ):
         """
@@ -48,10 +40,6 @@ class Field:
                 Whether the field is required. Defaults to `True`.
             default:
                 Default value for the field. Defaults to `None`.
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             messages:
                 Overrides of the error messages, specifically for this field.
 
@@ -60,8 +48,6 @@ class Field:
         self.default = default
         self.value = self.default_value
         self.messages = messages if messages is not None else {}
-        self.before = before if before is not None else []
-        self.after = after if after is not None else []
         self.id = f"f-{uuid4().hex}"
 
     def __repr__(self):
@@ -111,13 +97,12 @@ class Field:
         if value is None:
             value = self.default_value
 
-        for validator in self.before:
-            try:
-                value = validator(value)
-            except ValueError as e:
-                self.error = e.args[0] if e.args else err.INVALID
-                self.error_args = e.args[1] if len(e.args) > 1 else None
-                return
+        try:
+            value = self._custom_filter(value)
+        except ValueError as e:
+            self.error = e.args[0] if e.args else err.INVALID
+            self.error_args = e.args[1] if len(e.args) > 1 else None
+            return
 
         self.value = value
         if self.required and value in [None, ""]:
@@ -125,17 +110,17 @@ class Field:
             return
 
         try:
-            self.value = self.to_python(value)
+            self.value = self.filter_value(value)
         except (ValueError, TypeError):
             self.error = err.INVALID
             return
 
-    def to_python(self, value: t.Any) -> t.Any:
+    def filter_value(self, value: t.Any) -> t.Any:
         """
         Convert the value to a Python type.
         """
         raise NotImplementedError(
-            f"{self.__class__.__name__}.to_python() must be implemented"
+            f"{self.__class__.__name__}.filter_value() must be implemented"
         )
 
     def validate(self) -> bool:
@@ -149,13 +134,12 @@ class Field:
         if self.error:
             return False
 
-        for validator in self.after:
-            try:
-                self.value = validator(self.value)
-            except ValueError as e:
-                self.error = e.args[0] if e.args else err.INVALID
-                self.error_args = e.args[1] if len(e.args) > 1 else None
-                return False
+        try:
+            self.value = self._custom_validator(self.value)
+        except ValueError as e:
+            self.error = e.args[0] if e.args else err.INVALID
+            self.error_args = e.args[1] if len(e.args) > 1 else None
+            return False
 
         return True
 
@@ -164,3 +148,9 @@ class Field:
 
     def save(self) -> t.Any:
         return self.value
+
+    def _custom_filter(self, value: t.Any) -> t.Any:
+        return value
+
+    def _custom_validator(self, value: t.Any) -> t.Any:
+        return value

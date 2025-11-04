@@ -14,10 +14,9 @@ def test_email_field():
         default_email = f.EmailField(default="aaa@example.com")
 
     form = TestForm({"email": ["hello@jpscaletti.com"]})
-    form.validate()
-    print(form.get_errors())
 
     assert form.is_valid
+    print(form.get_errors())
     assert form.email.value == "hello@jpscaletti.com"
     assert form.default_email.value == "aaa@example.com"
 
@@ -52,7 +51,7 @@ def test_email_field_invalid():
         email = f.EmailField()
 
     form = TestForm({"email": ["not an email"]})
-    assert not form.is_valid
+    assert form.is_invalid
     assert form.email.error == err.INVALID_EMAIL
 
 

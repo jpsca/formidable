@@ -13,10 +13,9 @@ def test_file_field(value):
 
     reqdata = {"photo": [value]}
     form = TestForm(reqdata)
-    form.validate()
-    print(form.get_errors())
 
     assert form.is_valid
+    print(form.get_errors())
     assert form.photo.value == value
 
     data = form.save()
@@ -31,10 +30,9 @@ def test_empty_file_field_with_object_value():
     reqdata = {"photo": [""]}
     object = {"photo": "saved_photo.jpg"}
     form = TestForm(reqdata, object=object)
-    form.validate()
-    print(form.get_errors())
 
     assert form.is_valid
+    print(form.get_errors())
     assert form.photo.value == object["photo"]
 
     data = form.save()
@@ -49,10 +47,9 @@ def test_file_field_with_object_value():
     reqdata = {"photo": ["new_photo.jpg"]}
     object = {"photo": "saved_photo.jpg"}
     form = TestForm(reqdata, object=object)
-    form.validate()
-    print(form.get_errors())
 
     assert form.is_valid
+    print(form.get_errors())
     assert form.photo.value == reqdata["photo"][0]
 
     data = form.save()
@@ -66,28 +63,13 @@ def test_file_field_required():
 
     reqdata = {"photo": [""]}
     form = TestForm(reqdata)
-    form.validate()
-    print(form.get_errors())
 
-    assert not form.is_valid
+    assert form.is_invalid
+    print(form.get_errors())
     assert form.photo.error == f.errors.REQUIRED
 
     form = TestForm({})
-    form.validate()
+
+    assert form.is_invalid
     print(form.get_errors())
-
-    assert not form.is_valid
     assert form.photo.error == f.errors.REQUIRED
-
-
-def test_before_hook():
-    """
-    Test that ValueError raised in before hook is handled correctly.
-    """
-    def before_hook(value):
-        raise ValueError("Error in before hook", {"foo": "bar"})
-
-    field = f.FileField(before=[before_hook])
-    field.set("Hello")
-    assert field.error == "Error in before hook"
-    assert field.error_args == {"foo": "bar"}

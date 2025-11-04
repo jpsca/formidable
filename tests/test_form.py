@@ -7,6 +7,15 @@ import pytest
 import formidable as f
 
 
+def test_reserved_words():
+    for name in f.RESERVED_NAMES:
+        with pytest.raises(ValueError):
+            class TestForm(f.Form):
+                locals()[name] = f.TextField()
+
+            TestForm()
+
+
 def test_contains():
     class TestForm(f.Form):
         a = f.TextField()
@@ -26,7 +35,6 @@ def test_no_errors():
     form = TestForm({"name": "John"})
     form.validate()
 
-    assert not form.is_invalid
     assert form.is_valid
     assert form.name.error is None
     assert form.get_errors() == {}
@@ -40,7 +48,6 @@ def test_errors():
     form.validate()
 
     assert form.is_invalid
-    assert not form.is_valid
     assert form.name.error == "required"
     assert form.get_errors() == {"name": "required"}
 
@@ -221,3 +228,100 @@ def test_messages_override_with_formset_field():
 
     assert form.myset.forms[0].name.error == "required"
     assert form.myset.forms[0].name.error_message == MSG_CHILD
+
+
+def test_custom_filter():
+    class TestForm(f.Form):
+        name = f.TextField(required=False)
+
+        def filter_name(self, value):
+            return value.upper()
+
+    form = TestForm({"name": "Zoe"})
+    assert form.is_valid
+    assert form.name.value == "ZOE"
+
+
+def test_custom_filter_with_error():
+    class TestForm(f.Form):
+        name = f.TextField(required=False)
+
+        def filter_name(self, value):
+            if value and value.startswith("Z"):
+                raise ValueError("no-z-names")
+            return value
+
+    form = TestForm({"name": "Zoe"})
+    assert form.is_invalid
+    assert form.name.error == "no-z-names"
+
+    form = TestForm({})
+    assert form.is_valid
+
+
+def test_custom_validator():
+    class TestForm(f.Form):
+        name = f.TextField()
+
+        def validate_name(self, value):
+            return value.upper()
+
+    form = TestForm({"name": "Zoe"})
+    assert form.is_valid
+    assert form.name.value == "ZOE"
+
+
+def test_custom_validator_with_error():
+    class TestForm(f.Form):
+        name = f.TextField()
+
+        def validate_name(self, value):
+            if value.startswith("Z"):
+                raise ValueError("no-z-names")
+            return value
+
+    form = TestForm({"name": "Zoe"})
+    assert form.is_invalid
+    assert form.name.error == "no-z-names"
+
+
+def test_boolean_custom_filter_with_error():
+    class TestForm(f.Form):
+        bool = f.BooleanField()
+
+        def filter_bool(self, value):
+            if value == "maybe":
+                raise ValueError("not-an-answer")
+            return value
+
+    form = TestForm({"bool": "maybe"})
+    assert form.is_invalid
+
+
+def test_file_custom_filter_with_error():
+    class TestForm(f.Form):
+        photo = f.FileField()
+
+        def filter_photo(self, value):
+            raise ValueError("you-shall-not-pass")
+
+    form = TestForm({"photo": "test.jpg"})
+    assert form.is_invalid
+
+
+def test_form_validation():
+    class TestForm(f.Form):
+        password1 = f.TextField()
+        password2 = f.TextField()
+
+        def after_validate(self):
+            if self.password1.value != self.password2.value:
+                self.password2.error = "invalid"
+                return False
+            return True
+
+    form = TestForm({"password1": "abc", "password2": "abc"})
+    assert form.is_valid
+
+    form = TestForm({"password1": "abc", "password2": "def"})
+    assert form.is_invalid

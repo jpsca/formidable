@@ -47,9 +47,7 @@ class FormField(Field):
         self.error = None
         self.error_args = None
 
-        reqvalue = reqvalue or {}
-        assert isinstance(reqvalue, dict), "reqvalue must be a dictionary"
-        objvalue = objvalue or {}
+        reqvalue, objvalue = self._custom_filter(reqvalue or {}, objvalue or {})
 
         if not (reqvalue or objvalue):
             if self.default_value is not None:
@@ -60,10 +58,13 @@ class FormField(Field):
         self.form._set(reqvalue, objvalue)
 
     def validate_value(self) -> bool:
-        valid = self.form.validate()
-        if not valid:
+        if self.form.is_invalid:
             self.error = self.form.get_errors()
-        return valid
+            return False
+        return True
 
     def save(self) -> t.Any:
         return self.form.save()
+
+    def _custom_filter(self, reqvalue: t.Any, objvalue: t.Any) -> tuple[t.Any, t.Any]:
+        return reqvalue, objvalue

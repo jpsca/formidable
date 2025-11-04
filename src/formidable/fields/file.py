@@ -30,18 +30,17 @@ class FileField(Field):
         else:
             value = reqvalue
 
-        for validator in self.before:
-            try:
-                value = validator(value)
-            except ValueError as e:
-                self.error = e.args[0] if e.args else err.INVALID
-                self.error_args = e.args[1] if len(e.args) > 1 else None
-                return
+        try:
+            value = self._custom_filter(value)
+        except ValueError as e:
+            self.error = e.args[0] if e.args else err.INVALID
+            self.error_args = e.args[1] if len(e.args) > 1 else None
+            return
 
-        self.value = self.to_python(value)
+        self.value = self.filter_value(value)
         if self.required and value in [None, ""]:
             self.error = err.REQUIRED
             return
 
-    def to_python(self, value: t.Any) -> t.Any:
+    def filter_value(self, value: t.Any) -> t.Any:
         return value

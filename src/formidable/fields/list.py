@@ -6,7 +6,7 @@ import typing as t
 from collections.abc import Iterable
 
 from .. import errors as err
-from .base import Field, TCustomValidator
+from .base import Field
 
 
 class ListField(Field):
@@ -21,8 +21,6 @@ class ListField(Field):
         default: t.Any = None,
         min_items: int | None = None,
         max_items: int | None = None,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[t.Any] | None = None,
         messages: dict[str, str] | None = None,
     ):
@@ -40,10 +38,6 @@ class ListField(Field):
                 Minimum number of items in the list. Defaults to None (no minimum).
             max_items:
                 Maximum number of items in the list. Defaults to None (no maximum).
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             one_of:
                 List of values that the field value must be one of. Defaults to `None`.
             messages:
@@ -70,15 +64,13 @@ class ListField(Field):
         super().__init__(
             required=required,
             default=default,
-            before=before,
-            after=after,
             messages=messages,
         )
 
     def set_name_format(self, name_format: str):
         self.name_format = f"{name_format}[]"
 
-    def to_python(self, value: t.Any) -> t.Any:
+    def filter_value(self, value: t.Any) -> t.Any:
         """
         Convert the value to a Python type.
         """

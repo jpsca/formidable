@@ -13,7 +13,7 @@ except ImportError:
 
 from formidable import errors as err
 
-from .base import Field, TCustomValidator
+from .base import Field
 
 
 class EmailField(Field):
@@ -25,8 +25,6 @@ class EmailField(Field):
         check_dns: bool = False,
         allow_smtputf8: bool = False,
         strict: bool = True,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[str] | None = None,
         messages: dict[str, str] | None = None,
     ):
@@ -60,10 +58,6 @@ class EmailField(Field):
             strict:
                 if `True`, validates that the local part of the email is at most
                 64 characters long.
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             one_of:
                 List of values that the field value must be one of. Defaults to `None`.
             messages:
@@ -84,12 +78,10 @@ class EmailField(Field):
         super().__init__(
             required=required,
             default=default,
-            before=before,
-            after=after,
             messages=messages,
         )
 
-    def to_python(self, value: str | None) -> str | None:
+    def filter_value(self, value: str | None) -> str | None:
         """
         Convert the value to a Python string type.
         """

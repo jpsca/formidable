@@ -109,58 +109,6 @@ def test_value(FieldType):
     assert field.value == VALUE
 
 
-def test_before_hook():
-    """
-    Test that the before hook is called before setting the value.
-    """
-    def before_hook(value):
-        return value + " (from before)"
-
-    field = f.TextField(before=[before_hook])
-    field.set("Hello")
-    assert field.value == "Hello (from before)"
-
-
-def test_before_hook_error():
-    """
-    Test that ValueError raised in before hook is handled correctly.
-    """
-    def before_hook(value):
-        raise ValueError("Error in before hook", {"foo": "bar"})
-
-    field = f.TextField(before=[before_hook])
-    field.set("Hello")
-    assert field.error == "Error in before hook"
-    assert field.error_args == {"foo": "bar"}
-
-
-def test_after_hook():
-    """
-    Test that the after hook is called after setting the value.
-    """
-    def after_hook(value):
-        return value + " (from after)"
-
-    field = f.TextField(after=[after_hook])
-    field.set("Hello")
-    field.validate()
-    assert field.value == "Hello (from after)"
-
-
-def test_after_hook_error():
-    """
-    Test that ValueError raised in after hook is handled correctly.
-    """
-    def after_hook(value):
-        raise ValueError("Error in after hook", {"foo": "bar"})
-
-    field = f.TextField(after=[after_hook])
-    field.set("Hello")
-    field.validate()
-    assert field.error == "Error in after hook"
-    assert field.error_args == {"foo": "bar"}
-
-
 def test_is_multiple():
     """
     Test that the `multiple` property works correctly.

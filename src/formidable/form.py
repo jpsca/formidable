@@ -13,7 +13,15 @@ from .wrappers import ObjectManager
 
 
 # Instead of "_delete", we use "_destroy" to be compatible with Rails forms.
-DELETED = "_destroy"
+DELETED_NAME = "_destroy"
+
+RESERVED_NAMES = (
+    "get_errors",
+    "save",
+    "validate",
+    "validate_form",
+    "form",
+)
 
 logger = logging.getLogger("formidable")
 
@@ -79,14 +87,27 @@ class Form():
         for name in self.__dir__():
             if name.startswith("_") or name in ("is_valid", "is_invalid"):
                 continue
+
             field = getattr(self, name)
             if not isinstance(field, Field):
                 continue
+
+            if name in RESERVED_NAMES:
+                raise ValueError(f"Form cannot have a field named '{name}'")
 
             # Clone the field to avoid modifying the original class attribute
             field = copy(field)
             field.parent = self
             field.field_name = name
+
+            custom_filter = getattr(self, f"filter_{name}", None)
+            if callable(custom_filter):
+                field._custom_filter = custom_filter
+
+            custom_validator = getattr(self, f"validate_{name}", None)
+            if callable(custom_validator):
+                field._custom_validator = custom_validator
+
             self._fields[name] = field
             setattr(self, name, field)
 
@@ -114,6 +135,14 @@ class Form():
     def is_valid(self) -> bool:
         """
         Returns whether the form is valid.
+
+        This is a property with side effects: it triggers validation of all fields
+        and the form itself.
+
+        It wasn't designed as a method to prevent the common mistake of forgetting
+        to call it, which would lead to incorrect assumptions about the form's validity.
+
+        The result is cached, so to re-validate the form, you need to call `form.validate()`.
         """
         if self._valid is None:
             return self.validate()
@@ -134,7 +163,7 @@ class Form():
         """
         field = TextField(required=False)
         field.parent = self
-        field.field_name = DELETED
+        field.field_name = DELETED_NAME
         field.name_format = self._name_format
         return field
 
@@ -152,23 +181,6 @@ class Form():
             if field.error is not None:
                 errors[name] = field.error
         return errors
-
-    def validate(self) -> bool:
-        """
-        Returns whether the form is valid.
-        """
-        valid = True
-
-        for field in self._fields.values():
-            field.validate()
-            if field.error is not None:
-                self._valid = False
-                return False
-
-        valid = self.on_after_validation()
-
-        self._valid = valid
-        return valid
 
     def save(self) -> t.Any:
         if not self._deleted and not self.is_valid:
@@ -189,14 +201,29 @@ class Form():
 
         return self._object.save(data)
 
-    def on_after_validation(self) -> bool:
+    def validate(self) -> bool:
+        self._valid = True
+
+        for field in self._fields.values():
+            field.validate()
+            if field.error is not None:
+                self._valid = False
+                return False
+
+        self._valid = self.after_validate()
+        return self._valid
+
+    def after_validate(self) -> bool:
         """
-        Hook method called after validation.
-        Can be overridden to modify the field values or errors
-        before saving.
+        Method called after individual field validation.
+
+        You can use to validate the relation between fields (e.g.: password1 == password2)
+        or to modify the field values before saving.
+
+        To indicate validation errors, set the `error` attribute of the individual fields.
 
         Returns:
-            Whether the form is valid after the custom validation.
+            `True` or `False`, whether the form is valid after the custom validation.
 
         """
         return True
@@ -243,7 +270,7 @@ class Form():
             orm_cls=self.Meta.orm_cls,
             object=object,
         )
-        self._deleted = bool(reqdata.get(DELETED, None))
+        self._deleted = bool(reqdata.get(DELETED_NAME, None))
 
         if not self._deleted:
             for name, field in self._fields.items():

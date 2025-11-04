@@ -7,7 +7,7 @@ import typing as t
 from collections.abc import Iterable
 
 from .. import errors as err
-from .base import Field, TCustomValidator
+from .base import Field
 
 
 class DateTimeField(Field):
@@ -22,8 +22,6 @@ class DateTimeField(Field):
         past_date: bool = False,
         future_date: bool = False,
         offset: int | float = 0,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[t.Any] | None = None,
         messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
@@ -58,11 +56,11 @@ class DateTimeField(Field):
         self.format = format
 
         if after_date and isinstance(after_date, str):
-            after_date = self.to_python(after_date)
+            after_date = self.filter_value(after_date)
         self.after_date = t.cast(datetime.date | None, after_date)
 
         if before_date and isinstance(before_date, str):
-            before_date = self.to_python(before_date)
+            before_date = self.filter_value(before_date)
         self.before_date = t.cast(datetime.date | None, before_date)
 
         self.past_date = past_date
@@ -79,23 +77,21 @@ class DateTimeField(Field):
             if isinstance(one_of, str) or not isinstance(one_of, Iterable):
                 raise ValueError("`one_of` must be an iterable (but not a string) or `None`")
             one_of = [
-                self.to_python(date) if isinstance(date, str) else date
+                self.filter_value(date) if isinstance(date, str) else date
                 for date in one_of
             ]
         self.one_of = one_of
 
         if isinstance(default, str):
-            default = self.to_python(default)
+            default = self.filter_value(default)
 
         super().__init__(
             required=required,
             default=default,
-            before=before,
-            after=after,
             messages=messages,
         )
 
-    def to_python(self, value: str | datetime.datetime | None) -> datetime.datetime | None:
+    def filter_value(self, value: str | datetime.datetime | None) -> datetime.datetime | None:
         """
         Convert the value to a Python datetime.
         The datetime is expected to be in the format `DateField.format`.

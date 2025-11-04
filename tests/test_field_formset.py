@@ -77,8 +77,8 @@ def test_formset_field_object():
     assert form.skills.forms[0].level.name == "skills[5][level]"
     assert form.skills.forms[0].level.value == 5
 
-    assert form.skills.forms[0]._delete.name == f"skills[5][{f.DELETED}]"
-    assert form.skills.forms[0]._destroy.name == f"skills[5][{f.DELETED}]"
+    assert form.skills.forms[0]._delete.name == f"skills[5][{f.DELETED_NAME}]"
+    assert form.skills.forms[0]._destroy.name == f"skills[5][{f.DELETED_NAME}]"
     assert form.skills.forms[0]._delete.value is None
 
     assert form.skills.forms[1].name.name == "skills[7][name]"
@@ -87,8 +87,8 @@ def test_formset_field_object():
     assert form.skills.forms[1].level.name == "skills[7][level]"
     assert form.skills.forms[1].level.value == 3
 
-    assert form.skills.forms[1]._delete.name == f"skills[7][{f.DELETED}]"
-    assert form.skills.forms[1]._destroy.name == f"skills[7][{f.DELETED}]"
+    assert form.skills.forms[1]._delete.name == f"skills[7][{f.DELETED_NAME}]"
+    assert form.skills.forms[1]._destroy.name == f"skills[7][{f.DELETED_NAME}]"
     assert form.skills.forms[1]._delete.value is None
 
     data = form.save()

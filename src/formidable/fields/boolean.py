@@ -3,10 +3,9 @@ Formable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import typing as t
-from collections.abc import Iterable
 
 from .. import errors as err
-from .base import Field, TCustomValidator
+from .base import Field
 
 
 class BooleanField(Field):
@@ -16,8 +15,6 @@ class BooleanField(Field):
         self,
         *,
         default: t.Any = None,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         messages: dict[str, str] | None = None,
     ):
         """
@@ -38,18 +35,12 @@ class BooleanField(Field):
         Args:
             default:
                 Default value for the field. Defaults to `None`.
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             messages:
                 Overrides of the error messages, specifically for this field.
 
         """
         super().__init__(
             default=default,
-            before=before,
-            after=after,
             messages=messages,
         )
 
@@ -61,17 +52,16 @@ class BooleanField(Field):
         if value is None:
             value = self.default_value
 
-        for validator in self.before:
-            try:
-                value = validator(value)
-            except ValueError as e:
-                self.error = e.args[0] if e.args else err.INVALID
-                self.error_args = e.args[1] if len(e.args) > 1 else None
-                return
+        try:
+            value = self._custom_filter(value)
+        except ValueError as e:
+            self.error = e.args[0] if e.args else err.INVALID
+            self.error_args = e.args[1] if len(e.args) > 1 else None
+            return
 
-        self.value = self.to_python(value)
+        self.value = self.filter_value(value)
 
-    def to_python(self, value: str | bool | None) -> bool:
+    def filter_value(self, value: str | bool | None) -> bool:
         """
         Convert the value to a Python boolean type.
         """

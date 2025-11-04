@@ -14,10 +14,9 @@ def test_url_field():
         default_url = f.URLField(default="http://example.com/path")
 
     form = TestForm({"website": ["https://formidable.dev"]})
-    form.validate()
-    print(form.get_errors())
 
     assert form.is_valid
+    print(form.get_errors())
     assert form.website.value == "https://formidable.dev"
     assert form.default_url.value == "http://example.com/path"
 

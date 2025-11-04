@@ -111,9 +111,9 @@ def test_default():
         address = f.FormField(AddressForm, default=default_factory)
 
     form = TestForm({})
-    form.validate()
-    print(form.address.error)
+
     assert form.is_valid
+    print(form.address.error)
     data = form.save()
     print(data)
     assert data == {"address": default_factory()}

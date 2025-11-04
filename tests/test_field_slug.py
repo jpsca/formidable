@@ -14,10 +14,9 @@ def test_slug_field():
         default_slug = f.SlugField(default="default-slug")
 
     form = TestForm({"slug": ["my-custom-slug"]})
-    form.validate()
-    print(form.get_errors())
 
     assert form.is_valid
+    print(form.get_errors())
     assert form.slug.value == "my-custom-slug"
     assert form.default_slug.value == "default-slug"
 
@@ -34,7 +33,7 @@ def test_slug_field_invalid():
         slug = f.SlugField()
 
     form = TestForm({"slug": ["Not a valid slug!"]})
-    assert not form.is_valid
+    assert form.is_invalid
     assert form.slug.error == err.INVALID_SLUG
 
     form.slug.set("valid-slug_123")

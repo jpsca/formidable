@@ -127,15 +127,13 @@ When the user submits the form, let's use the information:
 def create():
     form = TeamForm(request.form)
 
-    if not form.is_valid():
+    if form.is_invalid():  # or `if not form.is_valid`
+        # There is an error, so re-render the form
+        # with the submitted values and error messages
+        return render_template("teams/new.html", form=form)
 
-  # There is an error, so re-render the form
-  # with the submitted values and error messages
-  return render_template("teams/new.html", form=form)
-
-    data = form.save()
-
-  # Happy path ↓
+  # Form is valid, so we proceed
+  data = form.save()
   create_team(**data)
   flash("Team created")
   return redirect(url_for("index"))

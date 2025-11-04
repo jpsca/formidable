@@ -7,7 +7,7 @@ import typing as t
 from collections.abc import Iterable
 
 from .. import errors as err
-from .base import Field, TCustomValidator
+from .base import Field
 
 
 class TextField(Field):
@@ -20,8 +20,6 @@ class TextField(Field):
         min_length: int | None = None,
         max_length: int | None = None,
         pattern: str | None = None,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[str] | None = None,
         messages: dict[str, str] | None = None,
     ):
@@ -42,10 +40,6 @@ class TextField(Field):
                 Maximum length of the text. Defaults to `None` (no maximum).
             pattern:
                 A regex pattern that the string must match. Defaults to `None`.
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             one_of:
                 List of values that the field value must be one of. Defaults to `None`.
             messages:
@@ -79,12 +73,10 @@ class TextField(Field):
         super().__init__(
             required=required,
             default=default,
-            before=before,
-            after=after,
             messages=messages,
         )
 
-    def to_python(self, value: str | None) -> str | None:
+    def filter_value(self, value: str | None) -> str | None:
         """
         Convert the value to a Python string type.
         """

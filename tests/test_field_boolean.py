@@ -45,35 +45,3 @@ def test_callable_default():
 
     form = TestForm()
     assert form.alive.value is True
-
-
-def test_before_hook():
-    """
-    Test that the before hook is called before setting the value.
-    """
-    def before_hook(value):
-        return not value
-
-
-    class TestForm(f.Form):
-        cat_alive = f.BooleanField(before=[before_hook])
-
-
-    form = TestForm({"cat_alive": "1"})
-    assert form.cat_alive.value is False
-
-
-def test_before_hook_error():
-    """
-    Test that ValueError raised in before hook is handled correctly.
-    """
-    def before_hook(value):
-        raise ValueError("Error in before hook", {"foo": "bar"})
-
-    class TestForm(f.Form):
-        cat_alive = f.BooleanField(before=[before_hook])
-
-
-    form = TestForm({})
-    assert form.cat_alive.error == "Error in before hook"
-    assert form.cat_alive.error_args == {"foo": "bar"}

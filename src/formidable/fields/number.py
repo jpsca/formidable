@@ -6,7 +6,7 @@ import typing as t
 from collections.abc import Iterable
 
 from .. import errors as err
-from .base import Field, TCustomValidator
+from .base import Field
 
 
 class NumberField(Field):
@@ -20,8 +20,6 @@ class NumberField(Field):
         lt: int | float | None = None,
         lte: int | float | None = None,
         multiple_of: int | float | None = None,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[t.Any] | None = None,
         messages: dict[str, str] | None = None,
     ):
@@ -43,10 +41,6 @@ class NumberField(Field):
                 Value must be less than or equal to this. Defaults to `None`.
             multiple_of:
                 Value must be a multiple of this. Defaults to `None`.
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             one_of:
                 List of values that the field value must be one of. Defaults to `None`.
             messages:
@@ -81,8 +75,6 @@ class NumberField(Field):
         super().__init__(
             required=required,
             default=default,
-            before=before,
-            after=after,
             messages=messages,
         )
 
@@ -127,7 +119,7 @@ class NumberField(Field):
 
 
 class FloatField(NumberField):
-    def to_python(self, value: str | int | float | None) -> float | None:
+    def filter_value(self, value: str | int | float | None) -> float | None:
         """
         Convert the value to a Python float type.
         """
@@ -137,7 +129,7 @@ class FloatField(NumberField):
 
 
 class IntegerField(NumberField):
-    def to_python(self, value: str | int | float | None) -> int | None:
+    def filter_value(self, value: str | int | float | None) -> int | None:
         """
         Convert the value to a Python integer type.
         """

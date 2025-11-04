@@ -8,7 +8,7 @@ import typing as t
 from collections.abc import Iterable
 
 from .. import errors as err
-from .base import Field, TCustomValidator
+from .base import Field
 
 
 class TimeField(Field):
@@ -36,8 +36,6 @@ class TimeField(Field):
         past_time: bool = False,
         future_time: bool = False,
         offset: int | float = 0,
-        before: Iterable[TCustomValidator] | None = None,
-        after: Iterable[TCustomValidator] | None = None,
         one_of: Iterable[t.Any] | None = None,
         messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
@@ -61,10 +59,6 @@ class TimeField(Field):
             offset:
                 Timezone offset in hours (floats are allowed) for calculating "now" when
                 `past_time` or `future_time` are used. Defaults to `0` (UTC timezone).
-            before:
-                List of custom validators to run before setting the value.
-            after:
-                List of custom validators to run after setting the value.
             one_of:
                 List of values that the field value must be one of. Defaults to `None`.
             messages:
@@ -74,11 +68,11 @@ class TimeField(Field):
         self.format = format
 
         if after_time and isinstance(after_time, str):
-            after_time = self.to_python(after_time)
+            after_time = self.filter_value(after_time)
         self.after_time = t.cast(datetime.time | None, after_time)
 
         if before_time and isinstance(before_time, str):
-            before_time = self.to_python(before_time)
+            before_time = self.filter_value(before_time)
         self.before_time = t.cast(datetime.time | None, before_time)
 
         self.past_time = past_time
@@ -92,23 +86,21 @@ class TimeField(Field):
             if isinstance(one_of, str) or not isinstance(one_of, Iterable):
                 raise ValueError("`one_of` must be an iterable (but not a string) or `None`")
             one_of = [
-                self.to_python(time) if isinstance(time, str) else time
+                self.filter_value(time) if isinstance(time, str) else time
                 for time in one_of if time is not None
             ]
         self.one_of = one_of
 
         if default is not None and isinstance(default, str):
-            default = self.to_python(default)
+            default = self.filter_value(default)
 
         super().__init__(
             required=required,
             default=default,
-            before=before,
-            after=after,
             messages=messages,
         )
 
-    def to_python(self, value: str | datetime.time | None) -> datetime.time | None:
+    def filter_value(self, value: str | datetime.time | None) -> datetime.time | None:
         """
         Convert the value to a Python time type.
         """

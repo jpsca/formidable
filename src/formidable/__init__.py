@@ -16,5 +16,5 @@ from .fields.text import TextField  # noqa
 from .fields.time import TimeField  # noqa
 from .fields.url import URLField  # noqa
 
-from .form import DELETED, Form  # noqa
+from .form import DELETED_NAME, RESERVED_NAMES, Form  # noqa
 from . import errors  # noqa
