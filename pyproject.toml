@@ -29,7 +29,8 @@ email = ["email-validator~= 2.3.0"]
 
 
 [project.urls]
-repository = "https://github.com/jpsca/formidable"
+Code = "https://github.com/jpsca/formidable"
+Documentation = "https://formidable.scaletti.dev/"
 
 
 [dependency-groups]
