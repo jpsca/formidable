@@ -11,6 +11,34 @@ from .base import Field
 
 
 class TextField(Field):
+    """
+    A text field for forms.
+    This field is used to capture text input from users.
+
+    Args:
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        strip:
+            Whether to strip whitespace from the text. Defaults to `True`.
+        min_length:
+            Minimum length of the text. Defaults to `None` (no minimum).
+        max_length:
+            Maximum length of the text. Defaults to `None` (no maximum).
+        pattern:
+            A regex pattern string that the text must match
+            (e.g., r"^[A-Za-z]+$" for letters only). Defaults to `None`.
+        one_of:
+            List of allowed values that the field value must match exactly.
+            Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+    """
+
     def __init__(
         self,
         *,
@@ -23,29 +51,6 @@ class TextField(Field):
         one_of: Iterable[str] | None = None,
         messages: dict[str, str] | None = None,
     ):
-        """
-        A text field for forms.
-        This field is used to capture text input from users.
-
-        Args:
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `None`.
-            strip:
-                Whether to strip whitespace from the text. Defaults to `True`.
-            min_length:
-                Minimum length of the text. Defaults to `None `(no minimum).
-            max_length:
-                Maximum length of the text. Defaults to `None` (no maximum).
-            pattern:
-                A regex pattern that the string must match. Defaults to `None`.
-            one_of:
-                List of values that the field value must be one of. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.
-
-        """
         self.strip = strip
 
         if min_length is not None and not isinstance(min_length, int):

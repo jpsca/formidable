@@ -6,17 +6,18 @@ import typing as t
 
 
 class ObjectManager:
+    """
+    A utility class for wrapping ORM objects and providing a consistent interface
+    for creatimg, accessing atttributes, updating, and deleting objects.
+
+    Args:
+        object:
+            The underlying data source. Can be a Multidict
+            implementation or a regular dict.
+
+    """
+
     def __init__(self, *, orm_cls: t.Any = None, object: t.Any = None):
-        """
-        A utility class for wrapping ORM objects and providing a consistent interface
-        for creatimg, accessing atttributes, updating, and deleting objects.
-
-        Args:
-            object:
-                The underlying data source. Can be a Multidict
-                implementation or a regular dict.
-
-        """
         self.orm_cls = orm_cls
         self.object = None if object is None else object
         self.is_dict = (object is not None) and isinstance(object, dict)

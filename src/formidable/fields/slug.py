@@ -4,58 +4,369 @@ Formable | Copyright (c) 2025 Juan-Pablo Scaletti
 
 import re
 import typing as t
-from collections.abc import Iterable
+import unicodedata
+from collections.abc import Callable, Iterable
 
-from .. import errors as err
 from .text import TextField
 
 
-class SlugField(TextField):
+CHAR_MAP = {
+    "à": "a",
+    "á": "a",
+    "â": "a",
+    "ã": "a",
+    "ä": "ae",
+    "ā": "a",
+    "ǎ": "a",
+    "ą": "a",
+    "ă": "a",
+    "å": "a",
+    "æ": "ae",
+    "ç": "c",
+    "ć": "c",
+    "č": "c",
+    "ĉ": "c",
+    "ċ": "c",
+    "ď": "d",
+    "đ": "d",
+    "è": "e",
+    "é": "e",
+    "ê": "e",
+    "ë": "e",
+    "ē": "e",
+    "ę": "e",
+    "ě": "e",
+    "ĕ": "e",
+    "ė": "e",
+    "ƒ": "f",
+    "ĝ": "g",
+    "ğ": "g",
+    "ġ": "g",
+    "ģ": "g",
+    "ĥ": "h",
+    "ħ": "h",
+    "ì": "i",
+    "í": "i",
+    "î": "i",
+    "ï": "i",
+    "ī": "i",
+    "ĩ": "i",
+    "ĭ": "i",
+    "į": "i",
+    "ı": "i",
+    "ĳ": "ij",
+    "ĵ": "j",
+    "ķ": "k",
+    "ĸ": "k",
+    "ł": "l",
+    "ľ": "l",
+    "ĺ": "l",
+    "ļ": "l",
+    "ŀ": "l",
+    "ñ": "n",
+    "ń": "n",
+    "ň": "n",
+    "ņ": "n",
+    "ŉ": "n",
+    "ŋ": "n",
+    "ò": "o",
+    "ó": "o",
+    "ô": "o",
+    "õ": "o",
+    "ǒ": "o",
+    "ö": "oe",
+    "ø": "o",
+    "ō": "o",
+    "ő": "o",
+    "ŏ": "o",
+    "œ": "oe",
+    "ŕ": "r",
+    "ř": "r",
+    "ŗ": "r",
+    "ś": "s",
+    "š": "s",
+    "ť": "t",
+    "ù": "u",
+    "ú": "u",
+    "û": "u",
+    "ü": "ue",
+    "ū": "u",
+    "ů": "u",
+    "ű": "u",
+    "ŭ": "u",
+    "ũ": "u",
+    "ų": "u",
+    "ŵ": "w",
+    "ÿ": "y",
+    "ý": "y",
+    "ŷ": "y",
+    "ż": "z",
+    "ź": "z",
+    "ž": "z",
+    "ß": "ss",
+    "ſ": "ss",
+    "α": "a",
+    "ά": "a",
+    "ἀ": "a",
+    "ἁ": "a",
+    "ἂ": "a",
+    "ἃ": "a",
+    "ἄ": "a",
+    "ἅ": "a",
+    "ἆ": "a",
+    "ἇ": "a",
+    "ᾀ": "a",
+    "ᾁ": "a",
+    "ᾂ": "a",
+    "ᾃ": "a",
+    "ᾄ": "a",
+    "ᾅ": "a",
+    "ᾆ": "a",
+    "ᾇ": "a",
+    "ὰ": "a",
+    "ά": "a",
+    "ᾰ": "a",
+    "ᾱ": "a",
+    "ᾲ": "a",
+    "ᾳ": "a",
+    "ᾴ": "a",
+    "ᾶ": "a",
+    "ᾷ": "a",
+    "β": "b",
+    "γ": "g",
+    "δ": "d",
+    "ε": "e",
+    "έ": "e",
+    "ἐ": "e",
+    "ἑ": "e",
+    "ἒ": "e",
+    "ἓ": "e",
+    "ἔ": "e",
+    "ἕ": "e",
+    "ὲ": "e",
+    "έ": "e",
+    "ζ": "z",
+    "η": "i",
+    "ή": "i",
+    "ἠ": "i",
+    "ἡ": "i",
+    "ἢ": "i",
+    "ἣ": "i",
+    "ἤ": "i",
+    "ἥ": "i",
+    "ἦ": "i",
+    "ἧ": "i",
+    "ᾐ": "i",
+    "ᾑ": "i",
+    "ᾒ": "i",
+    "ᾓ": "i",
+    "ᾔ": "i",
+    "ᾕ": "i",
+    "ᾖ": "i",
+    "ᾗ": "i",
+    "ὴ": "i",
+    "ή": "i",
+    "ῂ": "i",
+    "ῃ": "i",
+    "ῄ": "i",
+    "ῆ": "i",
+    "ῇ": "i",
+    "ι": "i",
+    "ί": "i",
+    "ϊ": "i",
+    "ΐ": "i",
+    "ἰ": "i",
+    "ἱ": "i",
+    "ἲ": "i",
+    "ἳ": "i",
+    "ἴ": "i",
+    "ἵ": "i",
+    "ἶ": "i",
+    "ἷ": "i",
+    "ὶ": "i",
+    "ί": "i",
+    "ῐ": "i",
+    "ῑ": "i",
+    "ῒ": "i",
+    "ΐ": "i",
+    "ῖ": "i",
+    "ῗ": "i",
+    "κ": "k",
+    "θ": "th",
+    "λ": "l",
+    "μ": "m",
+    "ν": "n",
+    "ξ": "ks",
+    "ο": "o",
+    "ό": "o",
+    "ὀ": "o",
+    "ὁ": "o",
+    "ὂ": "o",
+    "ὃ": "o",
+    "ὄ": "o",
+    "ὅ": "o",
+    "ὸ": "o",
+    "ό": "o",
+    "π": "p",
+    "ρ": "r",
+    "ῤ": "r",
+    "ῥ": "r",
+    "σ": "s",
+    "ς": "s",
+    "τ": "t",
+    "υ": "y",
+    "ύ": "y",
+    "ϋ": "y",
+    "ΰ": "y",
+    "ὐ": "y",
+    "ὑ": "y",
+    "ὒ": "y",
+    "ὓ": "y",
+    "ὔ": "y",
+    "ὕ": "y",
+    "ὖ": "y",
+    "ὗ": "y",
+    "ὺ": "y",
+    "ύ": "y",
+    "ῠ": "y",
+    "ῡ": "y",
+    "ῢ": "y",
+    "ΰ": "y",
+    "ῦ": "y",
+    "ῧ": "y",
+    "φ": "f",
+    "χ": "x",
+    "ψ": "ps",
+    "ω": "o",
+    "ώ": "o",
+    "ὠ": "o",
+    "ὡ": "o",
+    "ὢ": "o",
+    "ὣ": "o",
+    "ὤ": "o",
+    "ὥ": "o",
+    "ὦ": "o",
+    "ὧ": "o",
+    "ᾠ": "o",
+    "ᾡ": "o",
+    "ᾢ": "o",
+    "ᾣ": "o",
+    "ᾤ": "o",
+    "ᾥ": "o",
+    "ᾦ": "o",
+    "ᾧ": "o",
+    "ὼ": "o",
+    "ώ": "o",
+    "ῲ": "o",
+    "ῳ": "o",
+    "ῴ": "o",
+    "ῶ": "o",
+    "ῷ": "o",
+    "ð": "d",
+    "Ð": "D",
+    "þ": "th",
+    "Þ": "TH",
+    "ა": "a",
+    "ბ": "b",
+    "გ": "g",
+    "დ": "d",
+    "ე": "e",
+    "ვ": "v",
+    "ზ": "z",
+    "თ": "t",
+    "ი": "i",
+    "კ": "k",
+    "ლ": "l",
+    "მ": "m",
+    "ნ": "n",
+    "ო": "o",
+    "პ": "p",
+    "ჟ": "zh",
+    "რ": "r",
+    "ს": "s",
+    "ტ": "t",
+    "უ": "u",
+    "ფ": "p",
+    "ქ": "k",
+    "ღ": "gh",
+    "ყ": "q",
+    "შ": "sh",
+    "ჩ": "ch",
+    "ც": "ts",
+    "ძ": "dz",
+    "წ": "ts",
+    "ჭ": "ch",
+    "ხ": "kh",
+    "ჯ": "j",
+    "ჰ": "h",
+}
 
-    rx_slug = re.compile(r"^[-a-zA-Z0-9_]+\Z")
+
+def slugify(value: str) -> str:
+    """
+    A very simple function to convert a string to a slug.
+    """
+    value = unicodedata.normalize("NFKC", value).lower()
+    # Replace some non-ASCII characters
+    value = "".join(CHAR_MAP.get(c, c) for c in value)
+    # Remove any remaining non-ASCII characters
+    value = value.encode("ascii", "ignore").decode("ascii")
+    # Replace non-word characters with hyphens
+    value = re.sub(r"[^\w\s-]", "", value)
+    # Replace whitespace and hyphens with a single hyphen
+    return re.sub(r"[-\s]+", "-", value).strip("-_")
+
+
+class SlugField(TextField):
+    """
+    In web publishing, a "slug" is a part of a URL which identifies a page
+    in a human-readable way. It is usually a simplified version of the page
+    title, containing only letters, numbers, hyphens or underscores.
+
+    This field convert its input to a valid slug. It uses a very simple
+    slugify function that removes most non-latin-based characters (cyrillic,
+    arabic, hebrew, hindi, etc.). You can provided your own slugify function
+    with the `slugify` argument.
+
+    Args:
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        slugify:
+            Optional callable that replaces the default slugify function.
+            It should take a string and return a slugified version of it.
+        one_of:
+            List of values that the field value must be one of. Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
 
     def __init__(
         self,
         *,
         required: bool = True,
         default: t.Any = None,
+        slugify: Callable[[str], str] = slugify,
         one_of: Iterable[str] | None = None,
         messages: dict[str, str] | None = None,
     ):
-        """
-        Slug field.
-
-        Args:
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `None`.
-            one_of:
-                List of values that the field value must be one of. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.
-
-        """
         super().__init__(
             required=required,
             default=default,
             strip=True,
             one_of=one_of,
-            messages=messages
+            messages=messages,
         )
 
-    def validate_value(self) -> bool:
+    def filter_value(self, value: str) -> str:
         """
-        Validate the field value against the defined constraints.
+        Convert the value to a slugified string.
         """
-        if not super().validate_value():
-            return False
-
-        if not self.value or self.error:
-            return False
-
-        if not self.rx_slug.match(self.value):
-            self.error = err.INVALID_SLUG
-            return False
-
-        return True
+        if value is None:
+            return ""
+        return slugify(value)

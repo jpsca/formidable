@@ -10,6 +10,34 @@ from .base import Field
 
 
 class NumberField(Field):
+    """
+    A field that represents a number with optional constraints.
+
+    Args:
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        gt:
+            Value must be greater than this. Defaults to `None`.
+        gte:
+            Value must be greater than or equal to this. Defaults to `None`.
+        lt:
+            Value must be less than this. Defaults to `None`.
+        lte:
+            Value must be less than or equal to this. Defaults to `None`.
+        multiple_of:
+            Value must be a multiple of this. Defaults to `None`.
+        one_of:
+            List of values that the field value must be one of. Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
+
     def __init__(
         self,
         *,
@@ -23,30 +51,6 @@ class NumberField(Field):
         one_of: Iterable[t.Any] | None = None,
         messages: dict[str, str] | None = None,
     ):
-        """
-        A field that represents a number with optional constraints.
-
-        Args:
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `None`.
-            gt:
-                Value must be greater than this. Defaults to `None`.
-            gte:
-                Value must be greater than or equal to this. Defaults to `None`.
-            lt:
-                Value must be less than this. Defaults to `None`.
-            lte:
-                Value must be less than or equal to this. Defaults to `None`.
-            multiple_of:
-                Value must be a multiple of this. Defaults to `None`.
-            one_of:
-                List of values that the field value must be one of. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.
-
-        """
         if gt is not None and not isinstance(gt, (int, float)):
             raise ValueError("`gt` must be an integer or float")
         self.gt = gt
@@ -119,6 +123,34 @@ class NumberField(Field):
 
 
 class FloatField(NumberField):
+    """
+    A field that converts its input to a float.
+
+    Args:
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        gt:
+            Value must be greater than this. Defaults to `None`.
+        gte:
+            Value must be greater than or equal to this. Defaults to `None`.
+        lt:
+            Value must be less than this. Defaults to `None`.
+        lte:
+            Value must be less than or equal to this. Defaults to `None`.
+        multiple_of:
+            Value must be a multiple of this. Defaults to `None`.
+        one_of:
+            List of values that the field value must be one of. Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
+
     def filter_value(self, value: str | int | float | None) -> float | None:
         """
         Convert the value to a Python float type.
@@ -129,6 +161,34 @@ class FloatField(NumberField):
 
 
 class IntegerField(NumberField):
+    """
+    A field that converts its input to an integer.
+
+    Args:
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        gt:
+            Value must be greater than this. Defaults to `None`.
+        gte:
+            Value must be greater than or equal to this. Defaults to `None`.
+        lt:
+            Value must be less than this. Defaults to `None`.
+        lte:
+            Value must be less than or equal to this. Defaults to `None`.
+        multiple_of:
+            Value must be a multiple of this. Defaults to `None`.
+        one_of:
+            List of values that the field value must be one of. Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
+
     def filter_value(self, value: str | int | float | None) -> int | None:
         """
         Convert the value to a Python integer type.

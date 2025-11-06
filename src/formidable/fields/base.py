@@ -13,6 +13,22 @@ if t.TYPE_CHECKING:
 
 
 class Field:
+    """
+    Base class for all form fields.
+
+    Args:
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
+
     parent: "Form | None" = None
     name_format: str = "{name}"
     field_name: str = ""
@@ -32,18 +48,6 @@ class Field:
         default: t.Any = None,
         messages: dict[str, str] | None = None,
     ):
-        """
-        Base class for all form fields.
-
-        Args:
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.
-
-        """
         self.required = required
         self.default = default
         self.value = self.default_value
@@ -67,6 +71,10 @@ class Field:
     def error_message(self) -> str:
         """
         Returns the error message for the field, if any.
+
+        Returns:
+            str: The formatted error message using the field's error template and arguments.
+                Returns an empty string if there is no error.
         """
         if self.error is None or not isinstance(self.error, str):
             return ""

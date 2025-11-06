@@ -10,6 +10,38 @@ from .base import Field
 
 
 class ListField(Field):
+    """
+    A field that represents a list of same-type values.
+
+    A `type` is a function used to cast the items in the list. It can be a Python simple type like `int`,
+    or it can be your own function.
+
+    If `strict` is `True`, any casting error will raise an exception. If `strict` is `False` (the default), the error will
+    be ignored and the value will not be added to the final list.
+
+    Args:
+        type:
+            A callable that is used to cast the items in the list. Defaults to `None` (no casting).
+        strict:
+            Whether to enforce strict type checking. Defaults to `False`.
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `[]`.
+        min_items:
+            Minimum number of items in the list. Defaults to None (no minimum).
+        max_items:
+            Maximum number of items in the list. Defaults to None (no maximum).
+        one_of:
+            List of values that the field value must be one of. Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
+
     # The value of this field is a list of values.
     multiple: bool = True
 
@@ -17,6 +49,7 @@ class ListField(Field):
         self,
         type: t.Any = None,
         *,
+        strict: bool = False,
         required: bool = True,
         default: t.Any = None,
         min_items: int | None = None,
@@ -24,27 +57,8 @@ class ListField(Field):
         one_of: Iterable[t.Any] | None = None,
         messages: dict[str, str] | None = None,
     ):
-        """
-        A field that represents a list of items.
-
-        Args:
-            type:
-                The type of items in the list. Defaults to `None` (no casting).
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `[]`.
-            min_items:
-                Minimum number of items in the list. Defaults to None (no minimum).
-            max_items:
-                Maximum number of items in the list. Defaults to None (no maximum).
-            one_of:
-                List of values that the field value must be one of. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.
-
-        """
         self.type = type
+        self.strict = strict
 
         if min_items is not None and (not isinstance(min_items, int) or min_items < 0):
             raise ValueError("`min_items` must be a positive integer")
@@ -70,18 +84,25 @@ class ListField(Field):
     def set_name_format(self, name_format: str):
         self.name_format = f"{name_format}[]"
 
-    def filter_value(self, value: t.Any) -> t.Any:
+    def filter_value(self, items: t.Any) -> t.Any:
         """
         Convert the value to a Python type.
         """
-        if self.type is None:
-            return value
+        if not isinstance(items, list):
+            items = [items]
 
-        # TODO: Accept an instance of a Field subclass as type
-        if isinstance(value, list):
-            return [self.type(item) for item in value]
-        else:
-            return [self.type(value)]
+        if self.type is None:
+            return items
+
+        values = []
+        for item in items:
+            try:
+                values.append(self.type(item))
+            except Exception as e:
+                if self.strict:
+                    raise e
+
+        return values
 
     def validate_value(self) -> bool:
         """

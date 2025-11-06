@@ -11,6 +11,37 @@ from .base import Field
 
 
 class DateTimeField(Field):
+    """
+    A field that converts its input to a `datetime.datetime` without timezone.
+
+    Args:
+        format:
+            The format of the date string. Defaults to '%Y-%m-%d'.
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        after_date:
+            A date that the field value must be after. Defaults to `None`.
+        before_date:
+            A date that the field value must be before. Defaults to `None`.\
+        past_date:
+            Whether the date must be in the past. Defaults to `False`.
+        future_date:
+            Whether the date must be in the future. Defaults to `False`.
+        offset:
+            Timezone offset in hours (floats are allowed) for calculating "now" when
+            `past_date` or `future_date` are used. Defaults to `0` (UTC timezone).
+        one_of:
+            List of values that the field value must be one of. Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
+
     def __init__(
         self,
         format="%Y-%m-%dT%H:%M:%S",
@@ -26,33 +57,6 @@ class DateTimeField(Field):
         messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
     ):
-        """
-        A field that represents a datetime.
-
-        Args:
-            format:
-                The format of the date string. Defaults to '%Y-%m-%d'.
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `None`.
-            after_date:
-                A date that the field value must be after. Defaults to `None`.
-            before_date:
-                A date that the field value must be before. Defaults to `None`.\
-            past_date:
-                Whether the date must be in the past. Defaults to `False`.
-            future_date:
-                Whether the date must be in the future. Defaults to `False`.
-            offset:
-                Timezone offset in hours (floats are allowed) for calculating "now" when
-                `past_date` or `future_date` are used. Defaults to `0` (UTC timezone).
-            one_of:
-                List of values that the field value must be one of. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.a
-
-        """
         self.format = format
 
         if after_date and isinstance(after_date, str):

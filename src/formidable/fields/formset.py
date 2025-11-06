@@ -27,6 +27,25 @@ def get_pk(obj: t.Any, pk: str) -> t.Any:  # pragma: no cover
 
 
 class FormSet(Field):
+    """
+    A field that represents a set of forms, allowing for dynamic addition and removal of forms.
+
+    Args:
+        FormClass:
+            The class of the form to be used as a sub-form.
+        min_items:
+            Minimum number of form in the set. Defaults to None (no minimum).
+        max_items:
+            Maximum number of form in the set. Defaults to None (no maximum).
+        default:
+            Default value for the field. Defaults to `None`.
+        allow_delete:
+            Whether the form allows deletion of objects.
+            If set to `True`, the form will delete objects of form when the "_deleted"
+            field is present. Defaults to `True`.
+
+    """
+
     def __init__(
         self,
         FormClass: "type[Form]",
@@ -36,24 +55,6 @@ class FormSet(Field):
         default: t.Any = None,
         allow_delete: bool = True,
     ):
-        """
-        A field that represents a set of forms, allowing for dynamic addition and removal of forms.
-
-        Args:
-            FormClass:
-                The class of the form to be used as a sub-form.
-            min_items:
-                Minimum number of form in the set. Defaults to None (no minimum).
-            max_items:
-                Maximum number of form in the set. Defaults to None (no maximum).
-            default:
-                Default value for the field. Defaults to `None`.
-            allow_delete:
-                Whether the form allows deletion of objects.
-                If set to `True`, the form will delete objects of form when the "_deleted"
-                field is present. Defaults to `True`.
-
-        """
         self.FormClass = FormClass
         self.empty_form = FormClass()
 

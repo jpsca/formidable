@@ -1,5 +1,0 @@
----
-title: Slug
----
-
-::: formidable.SlugField

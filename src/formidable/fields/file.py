@@ -12,7 +12,13 @@ class FileField(Field):
     """
     A field for rendering a file input.
 
-    It does not perform any processing or uploading.
+    **This field does not perform any processing or uploading**.
+
+    Your web framework typically doesn't even make the file data available
+    in the request object, just the filename(s), so you are responsible for
+    handling the uploaded file data in the view/controller that processes
+    the form submission.
+
     """
 
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):

@@ -9,6 +9,32 @@ from .base import Field
 
 
 class BooleanField(Field):
+    """
+    A field that represents a boolean value.
+
+    Boolean fields are treated specially because of how browsers handle checkboxes:
+
+    - If not checked: the browser doesn't send the field at all.
+    - If checked: It sends the "value" attribute, but this is optional, so it could
+        send an empty string instead.
+
+    For these reasons:
+
+    - A missing field (a `None` value) will become `False`.
+    - A string value in the `FALSE_VALUES` tuple (case-insensitive) will become `False`.
+    - Any other value, including an empty string, will become `True`.
+
+    Args:
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
+
     FALSE_VALUES = ("false", "0", "no")
 
     def __init__(
@@ -17,28 +43,6 @@ class BooleanField(Field):
         default: t.Any = None,
         messages: dict[str, str] | None = None,
     ):
-        """
-        A field that represents a boolean value.
-
-        Boolean fields are treated specially because of how browsers handle checkboxes:
-
-        - If not checked: the browser doesn't send the field at all.
-        - If checked: It sends the "value" attribute, but this is optional, so it could
-          send an empty string instead.
-
-        For these reasons:
-
-        - A missing field (a `None` value) will become `False`.
-        - A string value in the `FALSE_VALUES` tuple (case-insensitive) will become `False`.
-        - Any other value, including an empty string, will become `True`.
-
-        Args:
-            default:
-                Default value for the field. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.
-
-        """
         super().__init__(
             default=default,
             messages=messages,

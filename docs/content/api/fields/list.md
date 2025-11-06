@@ -1,5 +1,0 @@
----
-title: List
----
-
-::: formidable.ListField

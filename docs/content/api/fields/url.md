@@ -1,5 +1,0 @@
----
-title: URL
----
-
-::: formidable.URLField

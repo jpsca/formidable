@@ -1,5 +1,0 @@
----
-title: Boolean
----
-
-::: formidable.BooleanField

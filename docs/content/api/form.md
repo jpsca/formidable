@@ -1,5 +1,0 @@
----
-title: Form
----
-
-::: formidable.Form

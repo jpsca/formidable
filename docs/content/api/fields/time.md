@@ -1,5 +1,0 @@
----
-title: Time
----
-
-::: formidable.TimeField

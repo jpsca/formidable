@@ -17,6 +17,48 @@ from .base import Field
 
 
 class EmailField(Field):
+    """
+    A field for normalizing and validating email addresses.
+    **This field requires the [`email_validator`](https://pypi.org/project/email-validator/)
+    Python library to be installed.**
+
+    It uses the `email_validator` library for normalization, which includes:
+
+    - Lowercasing the domain part of the email address, because domain names are case-insensitive.
+    - Unicode "NFC" normalization of the whole address, which turns characters plus combining
+        characters into precomposed characters where possible and replaces certain Unicode
+        characters (such as angstrom and ohm) with other equivalent code points
+        (a-with-ring and omega), replacement of fullwidth and halfwidth characters in the domain
+        part, and possibly other UTS46 mappings on the domain part.
+
+    Args:
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        check_dns:
+            If `True`, DNS queries are made to check that the domain name in the email
+            address (the part after the @-sign) can receive mail. Defaults to `False`.
+        allow_smtputf8:
+            Accept non-ASCII characters in the local part of the address
+            (before the @-sign). These email addresses require that your mail
+            submission library and the mail servers along the route to the destination,
+            including your own outbound mail server, all support the
+            SMTPUTF8 extension (RFC 6531, https://tools.ietf.org/html/rfc6531).
+            By default this is set to `False`.
+        strict:
+            if `True`, validates that the local part of the email is at most
+            64 characters long.
+        one_of:
+            List of values that the field value must be one of. Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
+
     def __init__(
         self,
         *,
@@ -28,42 +70,6 @@ class EmailField(Field):
         one_of: Iterable[str] | None = None,
         messages: dict[str, str] | None = None,
     ):
-        """
-        A field for normalizing and validating email addresses.
-
-        Uses the "JoshData/python-email-validator" library for the normalization, which includes:
-
-        - Lowercasing the domain part of the email address, because domain names are case-insensitive.
-        - Unicode "NFC" normalization of the whole address, which turns characters plus combining
-          characters into precomposed characters where possible and replaces certain Unicode
-          characters (such as angstrom and ohm) with other equivalent code points
-          (a-with-ring and omega), replacement of fullwidth and halfwidth characters in the domain
-          part, and possibly other UTS46 mappings on the domain part.
-
-        Args:
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `None`.
-            check_dns:
-                If `True`, DNS queries are made to check that the domain name in the email
-                address (the part after the @-sign) can receive mail. Defaults to `False`.
-            allow_smtputf8:
-                Accept non-ASCII characters in the local part of the address
-                (before the @-sign). These email addresses require that your mail
-                submission library and the mail servers along the route to the destination,
-                including your own outbound mail server, all support the
-                [SMTPUTF8 (RFC 6531)](https://tools.ietf.org/html/rfc6531) extension.
-                By default this is set to `False`.
-            strict:
-                if `True`, validates that the local part of the email is at most
-                64 characters long.
-            one_of:
-                List of values that the field value must be one of. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.
-
-        """
         self.check_dns = check_dns
         self.allow_smtputf8 = allow_smtputf8
         self.strict = strict

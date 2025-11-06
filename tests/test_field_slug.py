@@ -28,18 +28,27 @@ def test_slug_field():
     }
 
 
-def test_slug_field_invalid():
-    class TestForm(f.Form):
-        slug = f.SlugField()
+@pytest.mark.parametrize("input,expected", (
+    ("This is a Test!", "this-is-a-test"),
+    ("Café au lait", "cafe-au-lait"),
+    ("100% Effective", "100-effective"),
+    ("Hello, World!!!", "hello-world"),
+    ("   Leading and trailing spaces   ", "leading-and-trailing-spaces"),
+    ("Multiple    spaces", "multiple-spaces"),
+    ("Special #$&* Characters", "special-characters"),
+    ("Ünicöde Tëxt", "uenicoede-text"),
+    ("Dashes - and underscores_", "dashes-and-underscores"),
+    ("Nín hǎo. Wǒ shì zhōng guó rén", "nin-hao-wo-shi-zhong-guo-ren"),
+    ("Привет мир", ""),  # Cyrillic characters removed
+    ("مرحبا بالعالم", ""),  # Arabic characters removed
+    ("שלום עולם", ""),  # Hebrew characters removed
+    ("नमस्ते दुनिया", ""),  # Hindi characters removed
+))
+def test_slug_field_slugify(input, expected):
+    field = f.SlugField()
+    field.set(input)
+    assert field.value == expected
 
-    form = TestForm({"slug": ["Not a valid slug!"]})
-    assert form.is_invalid
-    assert form.slug.error == err.INVALID_SLUG
-
-    form.slug.set("valid-slug_123")
-    form.validate()
-    assert form.slug.error is None
-    assert form.is_valid
 
 
 def test_validate_one_of():

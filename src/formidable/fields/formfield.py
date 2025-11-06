@@ -13,6 +13,20 @@ if t.TYPE_CHECKING:
 
 
 class FormField(Field):
+    """
+    A field that represents a single sub-form.
+
+    Args:
+        FormClass:
+            The class of the form to be used as a sub-form.
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+
+    """
+
     def __init__(
         self,
         FormClass: "type[Form]",
@@ -20,18 +34,6 @@ class FormField(Field):
         required: bool = True,
         default: t.Any = None,
     ):
-        """
-        A field that represents a single sub-form.
-
-        Args:
-            FormClass:
-                The class of the form to be used as a sub-form.
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `None`.
-
-        """
         self.form = FormClass()
         super().__init__(required=required, default=default)
 

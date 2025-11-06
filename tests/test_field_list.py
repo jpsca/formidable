@@ -57,16 +57,26 @@ def test_empty_value():
     assert field.error is None
 
 
-def test_invalid_list():
-    field = f.ListField(type=int)
+def test_not_a_list_value():
+    field = f.ListField()
 
     field.set("not a list")
     field.validate()
-    assert field.error == err.INVALID
+    assert field.error is None
+    assert field.value == ["not a list"]
 
 
 def test_invalid_list_type():
-    field = f.ListField(type=int)
+    field = f.ListField(type=int, strict=False)
+
+    field.set(["no", "not an int", "nope"])
+    field.validate()
+    assert field.error is None
+    assert field.value == []
+
+
+def test_invalid_list_type_strict():
+    field = f.ListField(type=int, strict=True)
 
     field.set(["no", "not an int", "nope"])
     field.validate()

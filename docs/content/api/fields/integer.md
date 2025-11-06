@@ -1,5 +1,0 @@
----
-title: Integer
----
-
-::: formidable.IntegerField

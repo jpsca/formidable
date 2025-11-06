@@ -11,33 +11,50 @@ from writeadoc import Docs
 pages = [
     "quickstart.md",
     "forms.md",
-    "fields.md",
-    "nested.md",
     {
-        "title": "API",
+        "path": "fields.md",
         "closed": True,
         "pages": [
-            "api/form.md",
             {
-                "title": "Fields",
+                "title": "Basic fields",
                 "pages": [
-                    "api/fields/text.md",
-                    "api/fields/boolean.md",
-                    "api/fields/integer.md",
-                    "api/fields/float.md",
-                    "api/fields/date.md",
-                    "api/fields/datetime.md",
-                    "api/fields/time.md",
-                    "api/fields/slug.md",
-                    "api/fields/email.md",
-                    "api/fields/url.md",
-                    "api/fields/list.md",
-                    "api/fields/formfield.md",
-                    "api/fields/formset.md",
+                    "fields/text.md",
+                    "fields/boolean.md",
+                    "fields/integer.md",
+                    "fields/float.md",
+                    "fields/file.md",
+
+                ]
+            },
+            {
+                "title": "Date fields",
+                "pages": [
+                    "fields/date.md",
+                    "fields/datetime.md",
+                    "fields/time.md",
+                ]
+            },
+            {
+                "title": "Convenience fields",
+                "pages": [
+                    "fields/email.md",
+                    "fields/url.md",
+                    "fields/slug.md",
+                    "fields/list.md",
+                ]
+            },
+            {
+                "title": "Form fields",
+                "pages": [
+                    "fields/form.md",
+                    "fields/formset.md",
                 ]
             },
         ]
-    }
+    },
+    "nested.md",
+    "orm.md",
+    "messages.md",
 ]
 
 docs = Docs(

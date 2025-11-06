@@ -1,5 +1,0 @@
----
-title: Date
----
-
-::: formidable.DateField

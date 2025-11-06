@@ -19,8 +19,7 @@ RESERVED_NAMES = (
     "get_errors",
     "save",
     "validate",
-    "validate_form",
-    "form",
+    "after_validation",
 )
 
 logger = logging.getLogger("formidable")
@@ -40,6 +39,25 @@ class DefaultMeta:
 
 
 class Form():
+    """
+    Base class for creating forms.
+
+    Args:
+        reqdata:
+            The request data to parse and set the form fields. Defaults to `None`.
+        object:
+            An object to use as the source of the initial data for the form.
+            Will be updates on `save()`. Defaults to `None`.
+        name_format:
+            A format string for the field names. Defaults to "{name}".
+        messages:
+            Custom messages for validation errors. Defaults to `None`, which uses the default messages.
+            The messages are inherited to the forms of `FormSet` and `FormField` fields, however,
+            if those forms have their own `messages` defined, those will take precendence over the
+            parent messages.
+
+    """
+
     # The class to use for wrapping objects in the form.
     _ObjectManager: type[ObjectManager] = ObjectManager
 
@@ -64,23 +82,6 @@ class Form():
         name_format: str = "{name}",
         messages: dict[str, str] | None = None,
     ):
-        """
-
-        Args:
-            reqdata:
-                The request data to parse and set the form fields. Defaults to `None`.
-            object:
-                An object to use as the source of the initial data for the form.
-                Will be updates on `save()`. Defaults to `None`.
-            name_format:
-                A format string for the field names. Defaults to "{name}".
-            messages:
-                Custom messages for validation errors. Defaults to `None`, which uses the default messages.
-                The messages are inherited to the forms of `FormSet` and `FormField` fields, however,
-                if those forms have their own `messages` defined, those will take precendence over the
-                parent messages.
-
-        """
         self._fields = {}
 
         # Instead of regular dir(), that sorts by name
@@ -182,7 +183,26 @@ class Form():
                 errors[name] = field.error
         return errors
 
-    def save(self) -> t.Any:
+    def save(self, **extra) -> t.Any:
+        """
+        Saves the form data.
+
+        If the form is valid, this method will collect all the field values and:
+
+        a) If the form is not connected to an ORM model and it wasn't instantiate with
+           an object, it will return the data as a dictionary.
+        b) If it *was* instantiate with an object, it will update and return the object
+           (even if the "object" in question is a dictionary).
+        c) If it *wasn't* instantiate with an object, but it is connected to an ORM model,
+           it will create a new object and return it.
+
+        Args:
+            **extra:
+                Extra data to pass to add to the data before saving. This is useful
+                to set fields that are not part of the form (e.g.: foreign keys).
+
+        """
+
         if not self._deleted and not self.is_valid:
             raise ValueError("Form is not valid", self.get_errors())
 
@@ -199,9 +219,17 @@ class Form():
         for name, field in self._fields.items():
             data[name] = field.save()
 
+        data.update(extra)
         return self._object.save(data)
 
     def validate(self) -> bool:
+        """
+        Triggers validation of each of the fields and the form itself.
+
+        Returns:
+            `True` or `False`, whether the form is valid after validation.
+
+        """
         self._valid = True
 
         for field in self._fields.values():
@@ -215,9 +243,9 @@ class Form():
 
     def after_validate(self) -> bool:
         """
-        Method called after individual field validation.
+        Called after the individual field validations.
 
-        You can use to validate the relation between fields (e.g.: password1 == password2)
+        You can use to validate the relation between fields (e.g.: `password1 == password2`)
         or to modify the field values before saving.
 
         To indicate validation errors, set the `error` attribute of the individual fields.

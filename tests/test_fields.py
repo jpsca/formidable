@@ -86,7 +86,6 @@ def test_reqdata_over_objvalue(FieldType, objvalue):
         f.EmailField,
         f.FloatField,
         f.IntegerField,
-        f.ListField,
         f.SlugField,
         f.TextField,
         f.TimeField,

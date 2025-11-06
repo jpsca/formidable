@@ -12,6 +12,35 @@ from .base import Field
 
 
 class TimeField(Field):
+    """
+    A field that converts its input to a `datetime.time` without timezone.
+
+    Args:
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        after_time:
+            A time that the field value must be after. Defaults to `None`.
+        before_time:
+            A time that the field value must be before. Defaults to `None`.\
+        past_time:
+            Whether the time must be in the past. Defaults to `False`.
+        future_time:
+            Whether the time must be in the future. Defaults to `False`.
+        offset:
+            Timezone offset in hours (floats are allowed) for calculating "now" when
+            `past_time` or `future_time` are used. Defaults to `0` (UTC timezone).
+        one_of:
+            List of values that the field value must be one of. Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
+
     RX_TIME = re.compile(
         (
             r"^(?:"
@@ -40,31 +69,6 @@ class TimeField(Field):
         messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
     ):
-        """
-        A field that represents a time value.
-
-        Args:
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `None`.
-            after_time:
-                A time that the field value must be after. Defaults to `None`.
-            before_time:
-                A time that the field value must be before. Defaults to `None`.\
-            past_time:
-                Whether the time must be in the past. Defaults to `False`.
-            future_time:
-                Whether the time must be in the future. Defaults to `False`.
-            offset:
-                Timezone offset in hours (floats are allowed) for calculating "now" when
-                `past_time` or `future_time` are used. Defaults to `0` (UTC timezone).
-            one_of:
-                List of values that the field value must be one of. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.
-
-        """
         self.format = format
 
         if after_time and isinstance(after_time, str):

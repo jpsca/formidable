@@ -14,6 +14,36 @@ from .base import Field
 
 
 class URLField(Field):
+    """
+    A field for validating URLs.
+
+    Even if the format is valid, it cannot guarantee that the URL is real. The
+    purpose of this function is to alert the user of a typing mistake.
+
+    Perform an UTS-46 normalization of the domain, which includes lowercasing
+    (domain names are case-insensitive), NFC normalization, and converting all label
+    separators (the period/full stop, fullwidth full stop, ideographic full stop, and
+    halfwidth ideographic full stop) to basic periods.
+
+    Args:
+        required:
+            Whether the field is required. Defaults to `True`.
+        default:
+            Default value for the field. Can be a static value or a callable.
+            Defaults to `None`.
+        schemes:
+            URL/URI scheme list to validate against. If not provided,
+            the default list is ["http", "https"].
+        pattern:
+            A regex pattern that the string must match. Defaults to `None`.
+        one_of:
+            List of values that the field value must be one of. Defaults to `None`.
+        messages:
+            Dictionary of error codes to custom error message templates.
+            These override the default error messages for this specific field.
+            Example: {"required": "This field cannot be empty"}.
+
+    """
 
     def __init__(
         self,
@@ -24,33 +54,6 @@ class URLField(Field):
         one_of: Iterable[str] | None = None,
         messages: dict[str, str] | None = None,
     ):
-        """
-        A field for validating URLs.
-
-        Even if the format is valid, it cannot guarantee that the URL is real. The
-        purpose of this function is to alert the user of a typing mistake.
-
-        Perform an UTS-46 normalization of the domain, which includes lowercasing
-        (domain names are case-insensitive), NFC normalization, and converting all label
-        separators (the period/full stop, fullwidth full stop, ideographic full stop, and
-        halfwidth ideographic full stop) to basic periods.
-
-        Args:
-            required:
-                Whether the field is required. Defaults to `True`.
-            default:
-                Default value for the field. Defaults to `None`.
-            schemes:
-                URL/URI scheme list to validate against. If not provided,
-                the default list is ["http", "https"].
-            pattern:
-                A regex pattern that the string must match. Defaults to `None`.
-            one_of:
-                List of values that the field value must be one of. Defaults to `None`.
-            messages:
-                Overrides of the error messages, specifically for this field.
-
-        """
         self.schemes = schemes = schemes or ["http", "https"]
         self.rx_url = self._compile_url_regex(schemes=schemes)
 
