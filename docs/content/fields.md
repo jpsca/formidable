@@ -109,7 +109,6 @@ but some override it:
 One level below the `render()` method, are these helpers methods that you can use to render labels, input controls, and errors separately.
 
 /// details | Labels
-    type: example
     open: True
 
 ### `label()`
@@ -129,7 +128,6 @@ One level below the `render()` method, are these helpers methods that you can us
 <!--  -->
 
 /// details | Classic controls
-    type: example
     open: True
 
 ### `text_input()`
@@ -185,7 +183,6 @@ One level below the `render()` method, are these helpers methods that you can us
 <!--  -->
 
 /// details | More controls
-    type: example
     open: false
 
 ### `color_input()`

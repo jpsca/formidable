@@ -2,6 +2,8 @@
 title: Nested forms
 ---
 
+![Under construction](/assets/images/construction.gif){.center title="Best viewed with Netscape Navigator :P"}
+
 As your application grows, you may need to create more complex forms, beyond editing a single object. For example, when creating a `Person` you can allow the user to create multiple `Address` records (home, work, etc.) within the same form. When editing a `Person` record later, the user should be able to add, remove, or update addresses as well.
 
 ```python {hl_lines="10"}

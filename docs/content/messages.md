@@ -22,7 +22,6 @@ When a form field has an error, there are three attributes related to that error
 You can see the full (short) default dictionary of error messages in `formidable.errors.MESSAGES`. The dictionary uses the error codes as keys and the human-readable messages as values.
 
 /// details | The full list of default messages
-    type: tip
 
 ```python
 MESSAGES = {
