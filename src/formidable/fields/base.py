@@ -186,10 +186,11 @@ class Field:
 
         Args:
             label:
-                The text to display inside the label.
-                If `None`, is not included
+                The text to display inside the label. If `None`, is not included
             method:
                 The rendering method to use (e.g., "text_input", "textarea").
+                If `None`, uses the field's `default_render_method`, which its
+                `"text_input"` except for some field types that override it.
             **attrs:
                 Additional HTML attributes to include in the rendered input element.
 
@@ -319,10 +320,10 @@ class Field:
         attr_str = self._render_html_attrs(attributes)
 
         options_html = ""
-        values = map(str, self.value) if self.multiple else [str(self.value)]
+        values = self.value if self.multiple else [self.value]
 
         for value, display in options:
-            selected_attr = " selected" if str(value) in values else ""
+            selected_attr = " selected" if value in values else ""
             options_html += f'<option value="{value}"{selected_attr}>{display}</option>\n'
 
         return Markup(f"<select {attr_str}>\n{options_html}</select>")

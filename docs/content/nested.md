@@ -27,22 +27,14 @@ class PersonForm(f.Form):
   <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 
   <label>Name</label>
-  {{ form.name.label("Name") }}
-  {{ form.name.text_input() }}
-  {{ form.name.error_tag() }}
+  {{ form.name.render("Name") }}
 
   <fieldset>
     <legend>Addresses</legend>
     {% for address in form.addresses.forms %}
       <div>
-        {{ form.kind.label("Kind") }}
-        {{ form.kind.text_input() }}
-        {{ form.kind.error_tag() }}
-
-        {{ form.street.label("Street") }}
-        {{ form.street.text_input() }}
-        {{ form.street.error_tag() }}
-
+        <div>{{ form.kind.render("Kind") }}</div>
+        <div>{{ form.street.render("Street") }}<div>
         ...
       </div>
     {% endfor %}

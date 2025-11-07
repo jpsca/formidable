@@ -134,6 +134,23 @@ def test_select():
     assert 'class="custom-class"' in result
 
 
+def test_select_multiple():
+    field = f.ListField()
+    field.field_name = "test"
+    field.value = ["2", "3"]
+
+    options = [("1", "One"), ("2", "Two"), ("3", "Three")]
+    result = field.select(options)
+    expected = (
+        f'<select id="{field.id}" name="test" multiple required>\n'
+        f'<option value="1">One</option>\n'
+        f'<option value="2" selected>Two</option>\n'
+        f'<option value="3" selected>Three</option>\n'
+        f'</select>'
+    )
+    assert result == expected
+
+
 def test_select_not_required():
     field = f.TextField(required=False)
     field.field_name = "test"
