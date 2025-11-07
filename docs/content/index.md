@@ -6,6 +6,7 @@ title: Formidable
 
 * Dynamic nested forms
 * Customizable/translatable messages
+* Works with any template engine, but has helper methods
 * Custom filters and validators
 * Can read, update, and create objects of any ORM
 * Framework independent

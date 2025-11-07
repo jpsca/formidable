@@ -24,7 +24,7 @@ Field names can be any valid python identifier, with the following restrictions:
 
 * Field names are case-sensitive.
 * Field names may not begin with "_" (underscore)
-* Field cannot be named `is_valid`, `is_invalid`, `get_errors`, `save`, `validate`, or `after_validation`, since those are properties and methods of the form itself.
+* Field cannot be named `is_valid`, `is_invalid`, `delete_tag`, `get_errors`, `save`, `validate`, or `after_validate`, since those are properties and methods of the form itself.
 
 
 ### Form Inheritance
@@ -48,7 +48,7 @@ class ModeratorPostForm(BasePostForm):
 ```
 
 /// warning
-Deep hierarchies can become hard to debug. Limit to max levels and favor composition where possible (e.g., mixins for reusable snippets).
+Deep hierarchies can become hard to debug. Limit to two (plus a base form) max levels and favor composition where possible (e.g., mixins for reusable snippets).
 ///
 
 
@@ -154,7 +154,7 @@ These properties have a side effect: they trigger validation of all fields and t
 
 You don't usually need to directly call this method, since the `is_valid`/`is_invalid` properties does it for you if needed.
 
-The method triggers validation of each of its fields and, if there are no errors, it calls the [`after_validation`](#after_validation) method of the form, if one is defined.
+The method triggers validation of each of its fields and, if there are no errors, it calls the [`after_validate`](#after_validate) method of the form, if one is defined.
 
 Returns `True` or `False`, whether the form is valid after validation.
 
@@ -192,9 +192,9 @@ print(product.user_id)  # 123
 ```
 
 
-## Form-level validation {id=after_validation}
+## Form-level validation {id=after_validate}
 
-If you add an `after_validation` method to the form, it will be called at the end of the validation process, after the individual field validations.
+If you add an `after_validate` method to the form, it will be called at the end of the validation process, after the individual field validations.
 
 You can use to validate the relation between fields, for example in a update password scenario, or to modify the field values before saving.
 
@@ -205,7 +205,7 @@ class PasswordChangeForm(f.Form):
     password1 = f.TextField()
     password2 = f.TextField()
 
-    def after_validation(self) -> bool:
+    def after_validate(self) -> bool:
         password1 = self.password1.value
         password2 = self.password2.value
         if password1 != password2:

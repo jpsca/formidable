@@ -19,7 +19,7 @@ RESERVED_NAMES = (
     "get_errors",
     "save",
     "validate",
-    "after_validation",
+    "after_validate",
 )
 
 logger = logging.getLogger("formidable")
@@ -52,7 +52,7 @@ class Form():
             A format string for the field names. Defaults to "{name}".
         messages:
             Custom messages for validation errors. Defaults to `None`, which uses the default messages.
-            The messages are inherited to the forms of `FormSet` and `FormField` fields, however,
+            The messages are inherited to the forms of `NestedForms` and `FormField` fields, however,
             if those forms have their own `messages` defined, those will take precendence over the
             parent messages.
 
@@ -86,7 +86,7 @@ class Form():
 
         # Instead of regular dir(), that sorts by name
         for name in self.__dir__():
-            if name.startswith("_") or name in ("is_valid", "is_invalid"):
+            if name.startswith("_") or name in ("is_valid", "is_invalid", "delete_tag"):
                 continue
 
             field = getattr(self, name)
@@ -172,6 +172,14 @@ class Form():
     def _destroy(self) -> TextField:
         """An alias to `Form._delete`."""
         return self._delete
+
+    @property
+    def delete_tag(self) -> str:
+        """
+        Returns the HTML tag for the hidden input to indicate
+        that the object linked to this form should be deleted.
+        """
+        return self._delete.hidden_input()
 
     def get_errors(self) -> dict[str, str]:
         """

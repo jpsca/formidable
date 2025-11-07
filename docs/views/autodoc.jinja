@@ -1,6 +1,7 @@
 {# def ds, level=2 #}
 {# import "autodoc.jinja" as Autodoc #}
 
+{%- if ds.symbol or ds.name %}
 <h{{ level }}>
   <code class="autodoc-symbol autodoc-symbol-{{ ds.symbol }}">{{ ds.symbol }}</code>
   <span class="autodoc-name autodoc-name-{{ ds.symbol }}">{{ ds.name }}</span>
@@ -8,6 +9,7 @@
   <code class="autodoc-label autodoc-label-{{ ds.label }}">{{ ds.label }}</code>
   {%- endif %}
 </h{{ level }}>
+{% endif -%}
 
 {%- if ds.short_description -%}
 <div class="autodoc-short-description">

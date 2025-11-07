@@ -26,7 +26,7 @@ def get_pk(obj: t.Any, pk: str) -> t.Any:  # pragma: no cover
     return str(value)
 
 
-class FormSet(Field):
+class NestedForms(Field):
     """
     A field that represents a set of forms, allowing for dynamic addition and removal of forms.
 
@@ -41,7 +41,7 @@ class FormSet(Field):
             Default value for the field. Defaults to `None`.
         allow_delete:
             Whether the form allows deletion of objects.
-            If set to `True`, the form will delete objects of form when the "_deleted"
+            If set to `True`, the form will delete objects of form when the "_destroy"
             field is present. Defaults to `True`.
 
     """
@@ -137,7 +137,7 @@ class FormSet(Field):
 
     def save(self) -> list[t.Any]:
         """
-        Save the forms in the formset and return a list of the results.
+        Save the forms in the forms set and return a list of the results.
         """
         results = []
         for form in self.forms:

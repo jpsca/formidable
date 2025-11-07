@@ -8,13 +8,13 @@ import formidable as f
 from formidable import errors as err
 
 
-def test_formset_field():
+def test_nested_field():
     class SkillForm(f.Form):
         name = f.TextField()
         level = f.IntegerField(default=1)
 
     class TestForm(f.Form):
-        skills = f.FormSet(SkillForm)
+        skills = f.NestedForms(SkillForm)
 
     form = TestForm(
         {
@@ -51,13 +51,26 @@ def test_formset_field():
     }
 
 
-def test_formset_field_object():
+def test_empty_initi():
     class SkillForm(f.Form):
         name = f.TextField()
         level = f.IntegerField(default=1)
 
     class TestForm(f.Form):
-        skills = f.FormSet(SkillForm)
+        skills = f.NestedForms(SkillForm)
+
+    form = TestForm()
+    form.skills.set(None, [{}, {}])
+    assert len(form.skills.forms) == 2
+
+
+def test_nested_field_object():
+    class SkillForm(f.Form):
+        name = f.TextField()
+        level = f.IntegerField(default=1)
+
+    class TestForm(f.Form):
+        skills = f.NestedForms(SkillForm)
 
     form = TestForm(
         object={
@@ -101,13 +114,13 @@ def test_formset_field_object():
     }
 
 
-def test_formset_field_object_updated():
+def test_nested_field_object_updated():
     class SkillForm(f.Form):
         name = f.TextField()
         level = f.IntegerField(default=1)
 
     class TestForm(f.Form):
-        skills = f.FormSet(SkillForm)
+        skills = f.NestedForms(SkillForm)
 
     form = TestForm(
         {
@@ -151,9 +164,9 @@ class ChildForm(f.Form):
     meh = f.TextField(required=False)
 
 
-def test_empty_formset():
+def test_empty_nested():
     class TestForm(f.Form):
-        items = f.FormSet(ChildForm)
+        items = f.NestedForms(ChildForm)
 
     form = TestForm()
     data = form.save()
@@ -165,7 +178,7 @@ def test_subforms_with_errors():
     class ChildForm(f.Form):
         meh = f.TextField(required=True)
 
-    field = f.FormSet(ChildForm)
+    field = f.NestedForms(ChildForm)
     field.set({
         "0": {"meh": ""},
         "1": {"meh": "Hello"},
@@ -182,7 +195,7 @@ def test_subforms_with_errors():
 
 
 def test_validate_min_items():
-    field = f.FormSet(ChildForm, min_items=3)
+    field = f.NestedForms(ChildForm, min_items=3)
 
     field.set({
         "0": {"meh": "1"},
@@ -202,7 +215,7 @@ def test_validate_min_items():
 
 
 def test_validate_mixed_min_items():
-    field = f.FormSet(ChildForm, min_items=3)
+    field = f.NestedForms(ChildForm, min_items=3)
 
     field.set(
         {
@@ -244,11 +257,11 @@ def test_validate_mixed_min_items():
 
 def test_invalid_min_items():
     with pytest.raises(ValueError):
-        f.FormSet(ChildForm, min_items="not an int")  # type: ignore
+        f.NestedForms(ChildForm, min_items="not an int")  # type: ignore
 
 
 def test_validate_max_items():
-    field = f.FormSet(ChildForm, max_items=3)
+    field = f.NestedForms(ChildForm, max_items=3)
 
     field.set({
         "0": {"meh": "1"},
@@ -274,7 +287,7 @@ def test_validate_max_items():
 
 
 def test_validate_mixed_max_items():
-    field = f.FormSet(ChildForm, max_items=3)
+    field = f.NestedForms(ChildForm, max_items=3)
 
     field.set(
         {
@@ -321,4 +334,4 @@ def test_validate_mixed_max_items():
 
 def test_invalid_max_items():
     with pytest.raises(ValueError):
-        f.FormSet(ChildForm, max_items="not an int")  # type: ignore
+        f.NestedForms(ChildForm, max_items="not an int")  # type: ignore

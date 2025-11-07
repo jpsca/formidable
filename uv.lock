@@ -153,6 +153,7 @@ version = "0.10"
 source = { editable = "." }
 dependencies = [
     { name = "idna" },
+    { name = "markupsafe" },
 ]
 
 [package.optional-dependencies]
@@ -181,6 +182,7 @@ test = [
 requires-dist = [
     { name = "email-validator", marker = "extra == 'email'", specifier = "~=2.3.0" },
     { name = "idna", specifier = ">=3.10" },
+    { name = "markupsafe", specifier = ">=3.0.3" },
 ]
 provides-extras = ["email"]
 

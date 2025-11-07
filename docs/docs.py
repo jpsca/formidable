@@ -13,7 +13,6 @@ pages = [
     "forms.md",
     {
         "path": "fields.md",
-        "closed": True,
         "pages": [
             {
                 "title": "Basic fields",
@@ -23,7 +22,7 @@ pages = [
                     "fields/integer.md",
                     "fields/float.md",
                     "fields/file.md",
-
+                    "fields/list.md",
                 ]
             },
             {
@@ -40,14 +39,13 @@ pages = [
                     "fields/email.md",
                     "fields/url.md",
                     "fields/slug.md",
-                    "fields/list.md",
                 ]
             },
             {
                 "title": "Form fields",
                 "pages": [
                     "fields/form.md",
-                    "fields/formset.md",
+                    "fields/nested.md",
                 ]
             },
         ]

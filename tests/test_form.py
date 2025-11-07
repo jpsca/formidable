@@ -188,7 +188,7 @@ def test_messages_override_with_form_field():
     assert form.ff.form.name.error_message == MSG_CHILD  # type: ignore
 
 
-def test_messages_inheritance_with_formset_field():
+def test_messages_inheritance_with_nested_field():
     MSG = "parent"
 
     class ChildForm(f.Form):
@@ -198,7 +198,7 @@ def test_messages_inheritance_with_formset_field():
         class Meta:
             messages = {"required": MSG}
 
-        myset = f.FormSet(ChildForm)
+        myset = f.NestedForms(ChildForm)
 
     form = ParentForm({"myset[0][name]": ""})
     form.validate()
@@ -207,7 +207,7 @@ def test_messages_inheritance_with_formset_field():
     assert form.myset.forms[0].name.error_message == MSG
 
 
-def test_messages_override_with_formset_field():
+def test_messages_override_with_nested_field():
     MSG_PARENT = "parent"
     MSG_CHILD = "child"
 
@@ -221,7 +221,7 @@ def test_messages_override_with_formset_field():
         class Meta:
             messages = {"required": MSG_PARENT}
 
-        myset = f.FormSet(ChildForm)
+        myset = f.NestedForms(ChildForm)
 
     form = ParentForm({"myset[0][name]": ""})
     form.validate()

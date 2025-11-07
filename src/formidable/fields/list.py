@@ -13,11 +13,15 @@ class ListField(Field):
     """
     A field that represents a list of same-type values.
 
-    A `type` is a function used to cast the items in the list. It can be a Python simple type like `int`,
-    or it can be your own function.
+    This is the field to use when you expect multiple values for a single field, like
+    a `<select multiple>` HTML input or a group of checkboxes with the same name.
 
-    If `strict` is `True`, any casting error will raise an exception. If `strict` is `False` (the default), the error will
-    be ignored and the value will not be added to the final list.
+    A `type` is a function used to cast the items in the list. It can be a simple Python
+    type like `int` or it can be your own function.
+
+    If `strict` is `True`, any casting error will raise an exception. If `strict` is
+    `False` (the default), the error will be ignored and the value will not be added
+    to the final list.
 
     Args:
         type:

@@ -4,10 +4,13 @@ Formable | Copyright (c) 2025 Juan-Pablo Scaletti
 
 from unittest.mock import MagicMock
 
+import pytest
+
 import formidable as f
 
 
-class Object:
+class PeeweeObject:
+    """A mock Peewee ORM-like object for testing purposes."""
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.delete_instance = MagicMock(return_value=None)
@@ -17,7 +20,15 @@ class Object:
         return cls(**kwargs)
 
 
-def test_create_object():
+class OtherObject:
+    """A mock of a different ORM-like object for testing purposes."""
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self.delete = MagicMock(return_value=None)
+
+
+@pytest.mark.parametrize("Object", [PeeweeObject, OtherObject])
+def test_create_object(Object):
     class ProductForm(f.Form):
         class Meta:
             orm_cls = Object
@@ -46,7 +57,7 @@ def test_update_object():
         price = f.FloatField(gt=0)
 
 
-    existing_obj = Object(name="Old Product", price=5.0)
+    existing_obj = PeeweeObject(name="Old Product", price=5.0)
     form = ProductForm(
         {
             "name": ["Updated Product"],
@@ -64,7 +75,8 @@ def test_update_object():
     assert updated_obj.price == 15.0
 
 
-def test_delete_object():
+@pytest.mark.parametrize("Object", [PeeweeObject, OtherObject])
+def test_delete_object(Object):
     class ChildForm(f.Form):
         class Meta:
             orm_cls = Object
@@ -72,7 +84,7 @@ def test_delete_object():
         name = f.TextField()
 
     class ProductForm(f.Form):
-        tags = f.FormSet(ChildForm)
+        tags = f.NestedForms(ChildForm)
 
     tag1 = Object(id=3, name="cool")
     tag2 = Object(id=6, name="new")
@@ -93,7 +105,11 @@ def test_delete_object():
     assert form.is_valid
     updated_obj = form.save()
 
-    tag2.delete_instance.assert_called_once()
+    if Object is PeeweeObject:
+        tag2.delete_instance.assert_called_once()
+    else:
+        tag2.delete.assert_called_once_with()
+
     print(updated_obj.tags)
     assert updated_obj.tags == [tag1, tag3]
 
@@ -103,12 +119,12 @@ def test_delete_not_allowed():
         name = f.TextField()
 
     class ProductForm(f.Form):
-        tags = f.FormSet(ChildForm, allow_delete=False)
+        tags = f.NestedForms(ChildForm, allow_delete=False)
 
-    tag1 = Object(id=3, name="cool")
-    tag2 = Object(id=6, name="new")
-    tag3 = Object(id=9, name="awesome")
-    existing_obj = Object(name="Test Product", tags=[tag1, tag2, tag3])
+    tag1 = PeeweeObject(id=3, name="cool")
+    tag2 = PeeweeObject(id=6, name="new")
+    tag3 = PeeweeObject(id=9, name="awesome")
+    existing_obj = PeeweeObject(name="Test Product", tags=[tag1, tag2, tag3])
 
     form = ProductForm(
         {
@@ -134,12 +150,12 @@ def test_empty_delete_field_is_no_delete():
         name = f.TextField()
 
     class ProductForm(f.Form):
-        tags = f.FormSet(ChildForm, allow_delete=False)
+        tags = f.NestedForms(ChildForm, allow_delete=False)
 
-    tag1 = Object(id=3, name="cool")
-    tag2 = Object(id=6, name="new")
-    tag3 = Object(id=9, name="awesome")
-    existing_obj = Object(name="Test Product", tags=[tag1, tag2, tag3])
+    tag1 = PeeweeObject(id=3, name="cool")
+    tag2 = PeeweeObject(id=6, name="new")
+    tag3 = PeeweeObject(id=9, name="awesome")
+    existing_obj = PeeweeObject(name="Test Product", tags=[tag1, tag2, tag3])
 
     form = ProductForm(
         {
@@ -165,9 +181,9 @@ def test_delete_without_object():
         name = f.TextField()
 
     class ProductForm(f.Form):
-        tags = f.FormSet(ChildForm)
+        tags = f.NestedForms(ChildForm)
 
-    existing_obj = Object(name="Test Product", tags=[])
+    existing_obj = PeeweeObject(name="Test Product", tags=[])
 
     form = ProductForm(
         {

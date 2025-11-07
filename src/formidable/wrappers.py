@@ -74,7 +74,9 @@ class ObjectManager:
 
         """
         assert self.orm_cls is not None
-        return self.orm_cls.create(**data)
+        if hasattr(self.orm_cls, "create"):
+            return self.orm_cls.create(**data)
+        return self.orm_cls(**data)
 
     def update(self, data: dict[str, t.Any]) -> t.Any:
         """
@@ -102,4 +104,6 @@ class ObjectManager:
 
         """
         assert self.object is not None
-        return self.object.delete_instance()
+        if hasattr(self.object, "delete_instance"):
+            return self.object.delete_instance()
+        return self.object.delete()

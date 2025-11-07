@@ -1,8 +1,8 @@
 ---
-title: FormSet
+title: NestedForms
 ---
 
-::: formidable.FormSet members=no
+::: formidable.NestedForms members=no
 
 This is a powerful field. The idea is to allow users to dynamically add or remove one or more instances of a subform.
 
@@ -15,7 +15,7 @@ class IngredientForm(f.Form):
 class RecipeForm(f.Form):
     title = f.TextField()
     instructions = f.TextField()
-    ingredients = f.FormSet(IngredientForm)
+    ingredients = f.NestedForms(IngredientForm)
 
 ```
 

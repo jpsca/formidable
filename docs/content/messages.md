@@ -101,14 +101,10 @@ The other way to translate your messages is to ignore the `messages` altogether,
 
 ```html+jinja {hl_lines="9"}
 <div class="form-field">
-  <label for="{{ field.id }}">{{ label }}</label>
-  <input type="text"
-    id="{{ field.id }}"
-    name="{{ field.name }}"
-    value="{{ field.value }}"
-  />
+  {{ field.label("Label") }}
+  {{ field.text_input() }}
   {% if field.error -%}
-    <div class="form-error">{{ _(field.error) }}</div>
+    <div class="field-error">{{ _(field.error) }}</div>
   {%- endif %}
 </div>
 ```
