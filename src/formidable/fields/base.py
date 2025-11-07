@@ -1,5 +1,5 @@
 """
-Formable | Copyright (c) 2025 Juan-Pablo Scaletti
+Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import typing as t
@@ -40,6 +40,7 @@ class Field:
     error: str | dict[str, t.Any] | None = None
     error_args: dict[str, t.Any] | None = None
     messages: dict[str, str]
+    default_render_method: str = "text_input"
 
     # Whether the value of this field is a list of values.
     multiple: bool = False
@@ -178,7 +179,7 @@ class Field:
 
     # Helper methods for rendering HTML forms
 
-    def render(self, label: str | None, method: str, **attrs: t.Any) -> str:
+    def render(self, label: str | None = None, method: str | None = None, **attrs: t.Any) -> str:
         """
         A shortcut method to call the label, input, and error_tag rendering methods
         in one go.
@@ -195,6 +196,7 @@ class Field:
         """
         label_html = self.label(label) if label else ""
 
+        method = method or self.default_render_method
         render_method = getattr(self, method, None)
         if not callable(render_method):
             raise ValueError(f"Invalid render method: {method}")
@@ -240,9 +242,9 @@ class Field:
             return Markup("")
 
         tag = tag.lower()
-        attrs.setdefault("class", "field-error")
         attributes = {
             "id": f"{self.id}-error",
+            "class": "field-error",
             **attrs,
         }
         attr_str = self._render_html_attrs(attributes)
@@ -275,9 +277,13 @@ class Field:
             "id": self.id,
             "name": self.name,
             "required": self.required,
-            **attrs,
         }
+        if self.error:
+            attributes["aria-invalid"] = "true"
+            attributes["aria-errormessage"] = f"{self.id}-error"
+        attributes.update(attrs)
         attr_str = self._render_html_attrs(attributes)
+
         value_str = "" if self.value is None else str(self.value)
         return Markup(f"<textarea {attr_str}>{value_str}</textarea>")
 
@@ -305,15 +311,18 @@ class Field:
             "name": self.name,
             "multiple": self.multiple,
             "required": self.required,
-            **attrs,
         }
+        if self.error:
+            attributes["aria-invalid"] = "true"
+            attributes["aria-errormessage"] = f"{self.id}-error"
+        attributes.update(attrs)
         attr_str = self._render_html_attrs(attributes)
 
         options_html = ""
         values = map(str, self.value) if self.multiple else [str(self.value)]
 
         for value, display in options:
-            selected_attr = ' selected="selected"' if str(value) in values else ""
+            selected_attr = " selected" if str(value) in values else ""
             options_html += f'<option value="{value}"{selected_attr}>{display}</option>\n'
 
         return Markup(f"<select {attr_str}>\n{options_html}</select>")
@@ -335,8 +344,11 @@ class Field:
             "id": self.id,
             "name": self.name,
             "checked": bool(self.value),
-            **attrs,
         }
+        if self.error:
+            attributes["aria-invalid"] = "true"
+            attributes["aria-errormessage"] = f"{self.id}-error"
+        attributes.update(attrs)
         attr_str = self._render_html_attrs(attributes)
         return Markup(f"<input {attr_str} />")
 
@@ -363,12 +375,41 @@ class Field:
             "name": self.name,
             "value": radio_value,
             "checked": str(self.value) == str(radio_value),
-            **attrs,
         }
+        if self.error:
+            attributes["aria-invalid"] = "true"
+            attributes["aria-errormessage"] = f"{self.id}-error"
+        attributes.update(attrs)
         attr_str = self._render_html_attrs(attributes)
         return Markup(f"<input {attr_str} />")
 
     radio_input = radio  # Alias
+
+    def _input(self, input_type: str = "text", **attrs: t.Any) -> str:
+        """
+        Renders the field as an HTML `<input>` element.
+
+        Args:
+            input_type:
+                The type of the input element (e.g., "text", "email", "number").
+                Defaults to "text".
+            **attrs:
+                Additional HTML attributes to include in the input element.
+
+        """
+        attributes = {
+            "type": input_type,
+            "id": self.id,
+            "name": self.name,
+            "value": "" if self.value is None else str(self.value),
+            "required": self.required,
+        }
+        if self.error:
+            attributes["aria-invalid"] = "true"
+            attributes["aria-errormessage"] = f"{self.id}-error"
+        attributes.update(attrs)
+        attr_str = self._render_html_attrs(attributes)
+        return Markup(f"<input {attr_str} />")
 
     def file_input(self, **attrs: t.Any) -> str:
         """
@@ -395,7 +436,14 @@ class Field:
                 Additional HTML attributes to include in the hidden input element.
 
         """
-        return self._input(input_type="hidden", **attrs)
+        attributes = {
+            "type": "hidden",
+            "name": self.name,
+            "value": "" if self.value is None else str(self.value),
+            **attrs,
+        }
+        attr_str = self._render_html_attrs(attributes)
+        return Markup(f"<input {attr_str} />")
 
     def password_input(self, **attrs: t.Any) -> str:
         """
@@ -595,37 +643,18 @@ class Field:
                 A dictionary of HTML attributes to render.
 
         """
-        html_attrs = []
         html_props = []
+        clean_attrs = {}
         for key, value in attrs.items():
+            if key == "class_":
+                key = "class"
             key = key.replace("_", "-")
             if isinstance(value, bool):
                 if value:
                     html_props.append(key)
             else:
-                html_attrs.append(f'{key}="{value}"')
+                clean_attrs[key] = value
+
+        html_attrs = [f'{key}="{value}"' for key, value in clean_attrs.items()]
 
         return " ".join(html_attrs + html_props)
-
-    def _input(self, input_type: str = "text", **attrs: t.Any) -> str:
-        """
-        Renders the field as an HTML `<input>` element.
-
-        Args:
-            input_type:
-                The type of the input element (e.g., "text", "email", "number").
-                Defaults to "text".
-            **attrs:
-                Additional HTML attributes to include in the input element.
-
-        """
-        attributes = {
-            "type": input_type,
-            "id": self.id,
-            "name": self.name,
-            "value": "" if self.value is None else str(self.value),
-            "required": self.required,
-            **attrs,
-        }
-        attr_str = self._render_html_attrs(attributes)
-        return Markup(f"<input {attr_str} />")

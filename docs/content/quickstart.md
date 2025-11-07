@@ -106,15 +106,10 @@ Here is the `teams/new.html` template, which takes advantage of the helpers:
 ```html+jinja {title="teams/new.html"}
 <form method="POST" action="/teams/create">
   <div class="form-field">
-    {{ form.name.label("Name") }}
-    {{ form.name.text_input() }}
-    {{ form.name.error_tag() }}
+    {{ form.name.render("Name", "text_input") }}
   </div>
-
   <div class="form-field">
-    {{ form.description.label("Description") }}
-    {{ form.description.textarea() }}
-    {{ form.description.error_tag() }}
+    {{ form.description.render("Description", "textarea") }}
   </div>
 
   <button type="submit">Create</button>

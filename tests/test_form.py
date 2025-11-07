@@ -1,5 +1,5 @@
 """
-Formable | Copyright (c) 2025 Juan-Pablo Scaletti
+Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import pytest
@@ -325,3 +325,12 @@ def test_form_validation():
 
     form = TestForm({"password1": "abc", "password2": "def"})
     assert form.is_invalid
+
+
+def test_delete_tag():
+    class TestForm(f.Form):
+        name = f.TextField()
+
+    form = TestForm()
+    expected = f'<input type="hidden" name="{f.DELETED_NAME}" value="" />'
+    assert str(form.delete_tag) == expected

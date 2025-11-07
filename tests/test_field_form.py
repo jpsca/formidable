@@ -1,5 +1,5 @@
 """
-Formable | Copyright (c) 2025 Juan-Pablo Scaletti
+Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import formidable as f

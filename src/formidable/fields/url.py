@@ -1,5 +1,5 @@
 """
-Formable | Copyright (c) 2025 Juan-Pablo Scaletti
+Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 import re
@@ -44,6 +44,7 @@ class URLField(Field):
             Example: {"required": "This field cannot be empty"}.
 
     """
+    default_render_method = "url_input"
 
     def __init__(
         self,
