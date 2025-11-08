@@ -40,14 +40,6 @@ html {
   --font-family: Inter, sans-serif;
   --font-family-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
   --font-size: min(calc(1.6em + 1vw), 2.3rem);
-  --font-size-xx-small: 0.5rem;
-  --font-size-x-small: 0.6rem;
-  --font-size-small: 0.75rem;
-  --font-size-medium: 1rem;
-  --font-size-large: 1.15rem;
-  --font-size-x-large: 1.5rem;
-  --font-size-xx-large: 1.8rem;
-  --font-size-xxx-large: 2.5rem;
   --space-small: 0.5em;
   --space-medium: 1em;
   --space-large: 2em;
@@ -82,6 +74,29 @@ html.cs-dark {
   --rgb-white: var(--rgb-base-dark);
   --rgb-black: 255, 255, 255;
   --rgb-accent: 118, 215, 0;
+}
+
+html {
+  --font-size-xx-small: 0.5rem;
+  --font-size-x-small: 0.6rem;
+  --font-size-small: 0.75rem;
+  --font-size-medium: 1rem;
+  --font-size-large: 1rem;
+  --font-size-x-large: 1.2rem;
+  --font-size-xx-large: 1.3rem;
+  --font-size-xxx-large: 1.8rem;
+}
+@media (min-width: 64rem) {
+  html {
+    --font-size-xx-small: 0.5rem;
+    --font-size-x-small: 0.6rem;
+    --font-size-small: 0.75rem;
+    --font-size-medium: 1rem;
+    --font-size-large: 1.15rem;
+    --font-size-x-large: 1.5rem;
+    --font-size-xx-large: 1.8rem;
+    --font-size-xxx-large: 2.5rem;
+  }
 }
 
 /******* RESET *******/
@@ -756,6 +771,8 @@ html.cs-dark .highlight {
   font-weight: 500;
   letter-spacing: 0.1em;
   line-height: 1;
+  width: 100%;
+  text-align: center;
 }
 
 .page__content blockquote {
