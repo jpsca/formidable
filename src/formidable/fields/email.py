@@ -19,7 +19,8 @@ from .base import Field
 class EmailField(Field):
     """
     A field for normalizing and validating email addresses.
-    **This field requires the [`email_validator`](https://pypi.org/project/email-validator/)
+    **This field requires the
+    [`email_validator`](https://pypi.org/project/email-validator/){target="_blank"}
     Python library to be installed.**
 
     It uses the `email_validator` library for normalization, which includes:
@@ -58,7 +59,6 @@ class EmailField(Field):
             Example: {"required": "This field cannot be empty"}.
 
     """
-    default_render_method = "email_input"
 
     def __init__(
         self,

@@ -11,8 +11,9 @@ from writeadoc import Docs
 pages = [
     "quickstart.md",
     "forms.md",
+    "fields.md",
     {
-        "path": "fields.md",
+        "title": "Included fields",
         "pages": [
             {
                 "title": "Basic fields",

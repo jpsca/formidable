@@ -74,42 +74,9 @@ class MyForm(f.Form):
 You can read more about error codes and messages in the ["Custom error messages"](/docs/messages/) page.
 
 
-## Render shortcut
+## Render methods {#render-methods}
 
-This is a shortcut method that renders a label, an input control, and an error tag.
-
-While you can always write your HTML by hand using the [helper methods](#helper-methods) below
-or plain HTML plus the [field attributes](#field-attributes), this method is practical and handles
-most common use cases.
-
-
-### `render()`
-
-::: formidable.fields.Field:render name=false
-
-/// note
-The `method` argument is optional and defaults to `"text_input"` for most fields,
-but some override it:
-
-| Field Type    | Default Method   |
-| --------------|----------------- |
-| DateField     | "date_input"     |
-| DateTimeField | "datetime_input" |
-| EmailField    | "email_input"    |
-| FileField     | "file_input"     |
-| FloatField    | "number_input"   |
-| IntegerField  | "number_input"   |
-| TimeField     | "time_input"     |
-| URLField      | "url_input"      |
-///
-
-
-## Render helper methods {#helper-methods}
-
-One level below the `render()` method, are these helpers methods that you can use to render labels, input controls, and errors separately.
-
-/// details | Labels
-    open: True
+While you can always write your HTML by hand using the [field attributes](#field-attributes) discussed later, using these methods is the most practical way to render your forms.
 
 ### `label()`
 
@@ -123,12 +90,7 @@ One level below the `render()` method, are these helpers methods that you can us
 
 ----
 
-///
-
 <!--  -->
-
-/// details | Classic controls
-    open: True
 
 ### `text_input()`
 
@@ -178,11 +140,10 @@ One level below the `render()` method, are these helpers methods that you can us
 
 ----
 
-///
-
 <!--  -->
 
 /// details | More controls
+    type: example
     open: false
 
 ### `color_input()`
@@ -257,6 +218,7 @@ One level below the `render()` method, are these helpers methods that you can us
 
 ///
 
+----
 
 ## Field attributes/properties {#field-attributes}
 

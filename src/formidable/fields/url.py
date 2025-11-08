@@ -44,7 +44,6 @@ class URLField(Field):
             Example: {"required": "This field cannot be empty"}.
 
     """
-    default_render_method = "url_input"
 
     def __init__(
         self,

@@ -1,5 +1,5 @@
 from .base import Field  # noqa
-from .boolean import BooleanField  # noqa
+from .boolean import BooleanField, BoolField  # noqa
 from .date import DateField  # noqa
 from .datetime import DateTimeField  # noqa
 from .email import EmailField  # noqa

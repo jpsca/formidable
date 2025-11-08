@@ -40,7 +40,6 @@ class TimeField(Field):
             Example: {"required": "This field cannot be empty"}.
 
     """
-    default_render_method = "time_input"
 
     RX_TIME = re.compile(
         (

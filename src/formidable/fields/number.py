@@ -37,7 +37,6 @@ class NumberField(Field):
             Example: {"required": "This field cannot be empty"}.
 
     """
-    default_render_method = "number_input"
 
     def __init__(
         self,

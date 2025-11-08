@@ -78,3 +78,6 @@ class BooleanField(Field):
             if value in self.FALSE_VALUES:
                 return False
         return True
+
+
+BoolField = BooleanField  # Alias

@@ -34,10 +34,10 @@ def test_error_tag():
     # Test with error
     field.error = "test_error"
     result = field.error_tag()
-    assert result == f'<span id="{field.id}-error" class="field-error">This is a test error</span>'
+    assert result == f'<div id="{field.id}-error" class="field-error">This is a test error</div>'
 
-    # Test with custom tag and attributes
-    result = field.error_tag(tag="div", class_="custom-error", test=True)
+    # Test with custom attributes
+    result = field.error_tag(class_="custom-error", test=True)
     expected = f'<div id="{field.id}-error" class="custom-error" test>This is a test error</div>'
     assert result == expected
 
@@ -353,72 +353,4 @@ def test_special_inputs_error(method_name, input_type):
         f'<input type="{input_type}" id="{field.id}" name="test" value=""'
         f' aria-invalid="true" aria-errormessage="{field.id}-error" />'
     )
-    assert result == expected
-
-
-def test_render():
-    field = f.TextField()
-    field.field_name = "test"
-    field.value = "test value"
-
-    # Test basic render with text input
-    result = field.render("Test Label", "text_input")
-    expected = (
-        f'<label for="{field.id}">Test Label</label>\n'
-        f'<input type="text" id="{field.id}" name="test" value="test value" required />'
-    )
-    assert result == expected
-
-    # Test no label
-    result = field.render("", "text_input")
-    expected = (
-        f'<input type="text" id="{field.id}" name="test" value="test value" required />'
-    )
-    assert result == expected
-
-    # Test with custom attributes
-    result = field.render("Test Label", "text_input", class_="custom-class")
-    expected = (
-        f'<label for="{field.id}">Test Label</label>\n'
-        f'<input type="text" id="{field.id}" name="test" value="test value" class="custom-class" required />'
-    )
-    assert result == expected
-
-    # Test with invalid method
-    with pytest.raises(ValueError):
-        field.render("Test Label", "invalid_method")
-
-
-def test_render_with_error():
-    field = f.TextField(required=False)
-    field.field_name = "test"
-    field.error = "test_error"
-
-    result = field.render("Test Label", "text_input")
-    expected = (
-        f'<label for="{field.id}">Test Label</label>\n'
-        f'<input type="text" id="{field.id}" name="test" value=""'
-        f' aria-invalid="true" aria-errormessage="{field.id}-error" />\n'
-        f'<span id="{field.id}-error" class="field-error">test_error</span>'
-    )
-    assert result == expected
-
-
-@pytest.mark.parametrize("field_class,input_type", [
-    (f.DateField, "date"),
-    (f.DateTimeField, "datetime-local"),
-    (f.EmailField, "email"),
-    (f.FileField, "file"),
-    (f.FloatField, "number"),
-    (f.IntegerField, "number"),
-    (f.TextField, "text"),
-    (f.TimeField, "time"),
-    (f.URLField, "url"),
-])
-def test_default_render_method(field_class, input_type):
-    field = field_class(required=False)
-    field.field_name = "test"
-
-    result = field.render()
-    expected = f'<input type="{input_type}" id="{field.id}" name="test" value="" />'
     assert result == expected

@@ -20,7 +20,6 @@ class FileField(Field):
     the form submission.
 
     """
-    default_render_method = "file_input"
 
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):
         self.error = None

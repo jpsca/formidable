@@ -88,16 +88,9 @@ Formidable fields include some helper functions to write the HTML. They are very
   {{ form.field.error_tag() }}
 </div>
 ```
-
-or **even better**:
-
-```html+jinja {title="With the shortcut"}
-<div class="form-field">
-  {{ form.field.render("My label", "text_input") }}
-</div>
 ```
 
-You can read more about these helpers in the [Fields page](/docs/fields/#render-shortcut).
+You can read more about these render methods in the [Fields page](/docs/fields/#render-methods).
 
 ///
 
@@ -105,11 +98,16 @@ Here is the `teams/new.html` template, which takes advantage of the helpers:
 
 ```html+jinja {title="teams/new.html"}
 <form method="POST" action="/teams/create">
-  <div class="form-field">
-    {{ form.name.render("Name", "text_input") }}
+  <div class="field">
+    {{ form.name.label("Name") }}
+    {{ form.name.text_input() }}
+    {{ form.name.error_tag() }}
   </div>
-  <div class="form-field">
-    {{ form.description.render("Description", "textarea") }}
+
+  <div class="field">
+    {{ form.description.label("Description") }}
+    {{ form.description.textarea() }}
+    {{ form.description.error_tag() }}
   </div>
 
   <button type="submit">Create</button>

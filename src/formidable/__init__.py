@@ -5,6 +5,7 @@ Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 from . import errors  # noqa
 from .fields import (
   BooleanField,  # noqa
+  BoolField,  # noqa
   DateField,  # noqa
   DateTimeField,  # noqa
   EmailField,  # noqa

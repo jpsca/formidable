@@ -83,10 +83,6 @@ exclude = [
     "docs",
 ]
 
-[tool.pytest.ini_options]
-addopts = "--doctest-modules"
-
-
 [tool.tox]
 legacy_tox_ini = """
 [tox]

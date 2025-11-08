@@ -40,7 +40,6 @@ class Field:
     error: str | dict[str, t.Any] | None = None
     error_args: dict[str, t.Any] | None = None
     messages: dict[str, str]
-    default_render_method: str = "text_input"
 
     # Whether the value of this field is a list of values.
     multiple: bool = False
@@ -179,34 +178,6 @@ class Field:
 
     # Helper methods for rendering HTML forms
 
-    def render(self, label: str | None = None, method: str | None = None, **attrs: t.Any) -> str:
-        """
-        A shortcut method to call the label, input, and error_tag rendering methods
-        in one go.
-
-        Args:
-            label:
-                The text to display inside the label. If `None`, is not included
-            method:
-                The rendering method to use (e.g., "text_input", "textarea").
-                If `None`, uses the field's `default_render_method`, which its
-                `"text_input"` except for some field types that override it.
-            **attrs:
-                Additional HTML attributes to include in the rendered input element.
-
-        """
-        label_html = self.label(label) if label else ""
-
-        method = method or self.default_render_method
-        render_method = getattr(self, method, None)
-        if not callable(render_method):
-            raise ValueError(f"Invalid render method: {method}")
-        field_html = render_method(**attrs)
-
-        error_html = self.error_tag()
-
-        return Markup(f"{label_html}\n{field_html}\n{error_html}".strip())
-
     def label(self, text: str | None = None, **attrs: t.Any) -> str:
         """
         Renders the field as an HTML `<label>` element. Adds a `for` attribute
@@ -218,6 +189,18 @@ class Field:
             **attrs:
                 Additional HTML attributes to include in the label element.
 
+        Example:
+            ```pycon
+            >>> import formidable as f
+            >>> field = f.TextField()
+
+            >>> print(field.label("My label"))
+            <label for="f-123abc">My label</label>
+
+            >>> print(field.label("My label", class_="text-sm"))
+            <label for="f-123abc" class="text-sm">My label</label>
+            ```
+
         """
         attributes = {
             "for": self.id,
@@ -227,29 +210,39 @@ class Field:
         label_text = text if text is not None else self.field_name.capitalize()
         return Markup(f"<label {attr_str}>{label_text}</label>")
 
-    def error_tag(self, *, tag: str = "span", **attrs: t.Any) -> str:
+    def error_tag(self, **attrs: t.Any) -> str:
         """
         If the field has an error, renders the field's error message as an
-        HTML element. Default tag is `<span>`.
+        HTML element..
 
         Args:
-            tag:
-                The HTML tag to use for the error message. Defaults to "span".
             **attrs:
                 Additional HTML attributes to include in the error element.
+
+        Example:
+            ```pycon
+            >>> import formidable as f
+            >>> field = f.TextField()
+            >>> field.error = "required"
+
+            >>> print(field.error_tag())
+            <div id="f-123abc-error" class="field-error">This field is required</div>
+
+            >>> print(field.label("My label", class_="text-red-500"))
+            <div id="f-123abc-error" class="text-red-500">This field is required</div>
+            ```
 
         """
         if self.error is None:
             return Markup("")
 
-        tag = tag.lower()
         attributes = {
             "id": f"{self.id}-error",
             "class": "field-error",
             **attrs,
         }
         attr_str = self._render_html_attrs(attributes)
-        return Markup(f"<{tag} {attr_str}>{self.error_message}</{tag}>")
+        return Markup(f"<div {attr_str}>{self.error_message}</div>")
 
     def text_input(self, **attrs: t.Any) -> str:
         """
@@ -259,7 +252,23 @@ class Field:
             **attrs:
                 Additional HTML attributes to include in the text input element.
 
+        Example:
+            ```pycon
+            >>> import formidable as f
+            >>> field = f.TextField()
+
+            >>> print(field.text_input())
+            <input type="text" id="f-123abc" name="field_name" value="field_value" required />
+
+            # With an error
+            >>> field.error = "required"
+            >>> print(field.text_input())
+            <input type="text" id="f-123abc" name="field_name" value="field_value"
+                aria-invalid="true" aria-errormessage="f-123abc-error" required />
+            ```
+
         """
+
         return self._input(input_type="text", **attrs)
 
     def textarea(
@@ -272,6 +281,21 @@ class Field:
         Args:
             **attrs:
                 Additional HTML attributes to include in the textarea element.
+
+        Example:
+            ```pycon
+            >>> import formidable as f
+            >>> field = f.TextField()
+
+            >>> print(field.textarea())
+            <textarea id="f-123abc" name="field_name" required></textarea>
+
+            # With an error
+            >>> field.error = "required"
+            >>> print(field.textarea())
+            <textarea id="f-123abc" name="field_name" aria-invalid="true"
+                aria-errormessage="f-123abc-error" required></textarea>
+            ```
 
         """
         attributes = {
@@ -306,6 +330,31 @@ class Field:
             **attrs:
                 Additional HTML attributes to include in the select element.
 
+        Example:
+            ```pycon
+            >>> import formidable as f
+
+            >>> field = f.TextField()
+            >>> options = [("val1", "Option 1"), ("val2", "Option 2"), ("val3", "Option 3")]
+            >>> field.value = "val2"
+            >>> print(field.select(options))
+            <select id="f-123abc" name="field_name" required>
+            <option value="val1">Option 1</option>
+            <option value="val2" selected>Option 2</option>
+            <option value="val3">Option 3</option>
+            </select>
+
+            # With multiple selection
+            >>> field = f.ListField()
+            >>> field.value = ["val1", "val3"]
+            >>> print(field.select(options))
+            <select id="f-123abc" name="field_name" multiple required>
+            <option value="val1" selected>Option 1</option>
+            <option value="val2">Option 2</option>
+            <option value="val3" selected>Option 3</option>
+            </select>
+            ```
+
         """
         attributes = {
             "id": self.id,
@@ -339,6 +388,26 @@ class Field:
             **attrs:
                 Additional HTML attributes to include in the checkbox input element.
 
+        Example:
+            ```pycon
+            >>> import formidable as f
+            >>> field = f.BooleanField()
+
+            >>> print(field.checkbox())
+            <input type="checkbox" id="f-123abc" name="field_name" />
+
+            # When checked
+            >>> field.value = True
+            >>> print(field.checkbox())
+            <input type="checkbox" id="f-123abc" name="field_name" checked />
+
+            # With an error
+            >>> field.error = "required"
+            >>> print(field.checkbox())
+            <input type="checkbox" id="f-123abc" name="field_name" checked
+                aria-invalid="true" aria-errormessage="f-123abc-error" />
+            ```
+
         """
         attributes = {
             "type": "checkbox",
@@ -368,6 +437,20 @@ class Field:
                 the radio button will be rendered as checked.
             **attrs:
                 Additional HTML attributes to include in the radio input element.
+
+        Example:
+            ```pycon
+            >>> import formidable as f
+            >>> field = f.TextField()
+
+            >>> print(field.radio("option1"))
+            <input type="radio" id="f-123abc" name="field_name" value="option1" />
+
+            # When selected
+            >>> field.value = "option1"
+            >>> print(field.radio("option1"))
+            <input type="radio" id="f-123abc" name="field_name" value="option1" checked />
+            ```
 
         """
         attributes = {

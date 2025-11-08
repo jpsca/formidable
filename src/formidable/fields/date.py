@@ -41,7 +41,6 @@ class DateField(Field):
             Example: {"required": "This field cannot be empty"}.
 
     """
-    default_render_method = "date_input"
 
     def __init__(
         self,
