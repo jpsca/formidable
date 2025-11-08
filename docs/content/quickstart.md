@@ -97,7 +97,7 @@ or **even better**:
 </div>
 ```
 
-You can read more about these helpers in the [Fields page](/docs/fields/).
+You can read more about these helpers in the [Fields page](/docs/fields/#render-shortcut).
 
 ///
 

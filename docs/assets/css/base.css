@@ -892,6 +892,15 @@ html.cs-dark .highlight {
   opacity: 0.8;
 }
 
+.page__content .text-center {
+  text-align: center;
+}
+.page__content .text-right {
+  text-align: right;
+}
+.page__content .text-left {
+  text-align: left;
+}
 
 /******* Page - Images *******/
 

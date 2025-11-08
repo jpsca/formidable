@@ -439,7 +439,7 @@ html.cs-light .color-scheme button.light {
 }
 
 .page__content {
-  padding: 1rem;
+  padding: 1.5rem 1rem 3rem;
   font-size: 1rem;
   width: 100%;
   max-width: 60rem;
@@ -448,7 +448,7 @@ html.cs-light .color-scheme button.light {
 @media (min-width: 64rem) {
   .page__content {
     font-size: 1.1rem;
-    padding: 2rem;
+    padding: 2rem 2rem 3rem;
     margin-left: 1rem;
     margin-right: auto;
   }
