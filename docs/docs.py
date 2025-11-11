@@ -12,8 +12,12 @@ pages = [
     "quickstart.md",
     "forms.md",
     "fields.md",
+    "nested.md",
+    "orm.md",
+    "messages.md",
     {
         "title": "Included fields",
+        "closed": True,
         "pages": [
             {
                 "title": "Basic fields",
@@ -51,9 +55,6 @@ pages = [
             },
         ]
     },
-    "nested.md",
-    "orm.md",
-    "messages.md",
 ]
 
 docs = Docs(

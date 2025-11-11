@@ -2,7 +2,9 @@
 title: Nested forms
 ---
 
-![Under construction](/assets/images/construction.gif){.center title="Best viewed with Netscape Navigator :P"}
+![Under construction](/assets/images/construction.gif){.center title="Best viewed with Netscape Navigator 6.0"}
+
+----
 
 As applications grow in complexity, you may need forms that go beyond editing a single object. For example, when creating a `Person` record, you might want users to add multiple `Address` records (home, work, etc.) within the same form. Later, when editing that `Person` record, users should be able to add, remove, or update any of those addresses.
 
@@ -157,9 +159,12 @@ There is one important difference when using nested forms to update existing obj
 ```
 
 
-The `hidden_tags` property returns two hidden input tags: one named "_destroy", which, if filled, indicates that the associated object should be deleted; and another named "_id", which contains the primary key of the associated object.
+The `hidden_tags` property returns two hidden input tags: one named `_destroy`, which, if filled, indicates that the associated object should be deleted; and another named `_id`, which contains the primary key of the associated object.
 
 /// warning | Is that safe?
 Don't worry about malicious users editing the hidden `_id` field. The value is ignored if it does not belong to one of the objects used to instantiate the form, so a user cannot update an object they are not authorized to modify.
 ///
 
+----
+
+![Under construction](/assets/images/construction.gif){.center title="Best viewed with Internet Explorer 5.0"}

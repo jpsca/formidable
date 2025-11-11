@@ -37,6 +37,13 @@
   }
 }
 
+.headline .badges {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
 .page-index {
   background-image: linear-gradient(var(--color-base) 4px, transparent 4px);
   background-size: 8px 8px;
