@@ -2,14 +2,14 @@
 title: Forms
 ---
 
-Forms provide the highest level API in Formidable. They contain your field definitions, delegate validation, take input, and orchestrate everything together.
+Forms provide the highest-level API in Formidable. They contain your field definitions, handle validation, process input, and orchestrate everything together.
 
 ::: formidable.Form members=no
 
 
 ## Defining Forms
 
-To define a form, one makes a subclass of `formidable.Form` and defines the fields declaratively as class attributes:
+To define a form, create a subclass of `formidable.Form` and define the fields declaratively as class attributes:
 
 ```python
 import formidable as f
@@ -24,7 +24,7 @@ Field names can be any valid python identifier, with the following restrictions:
 
 * Field names are case-sensitive.
 * Field names may not begin with "_" (underscore)
-* Field cannot be named `is_valid`, `is_invalid`, `delete_tag`, `get_errors`, `save`, `validate`, or `after_validate`, since those are properties and methods of the form itself.
+* Fields cannot be named `is_valid`, `is_invalid`, `hidden_tags`, `get_errors`, `save`, `validate`, or `after_validate`, as these names are reserved for form properties and methods.
 
 
 ### Form Inheritance
@@ -54,9 +54,7 @@ Deep hierarchies can become hard to debug. Limit to two (plus a base form) max l
 
 ## Using Forms
 
-When we’re dealing with a form we typically instantiate it in a controller.
-
-When we instantiate a form, we can opt to leave it empty or prepopulate it:
+Forms are typically instantiated in a controller. When creating a form instance, you can either leave it empty or prepopulate it:
 
 ```python
 form = MyForm()                      # 1
@@ -85,8 +83,8 @@ class PostForm(f.Form):
 
 ```python
 form = PostForm()
-print(title.value)    # None
-print(content.value)  # None
+print(form.title.value)    # None
+print(form.content.value)  # None
 ```
 
 The fields values remain `None`.
@@ -97,8 +95,8 @@ Because the `title` field is required, this form will fail validation, but we ca
 
 ```python
 form = PostForm({"title": ["Hello world!"]})
-print(title.value)    # "Hello world!"
-print(content.value)  # None
+print(form.title.value)    # "Hello world!"
+print(form.content.value)  # None
 ```
 
 This is the typical scenario when you have filled a form and submit it.
@@ -115,8 +113,8 @@ form = PostForm(
     "content": "Lorem ipsum",
   }
 )
-print(title.value)    # "Hi"
-print(content.value)  # "Lorem ipsum"
+print(form.title.value)    # "Hi"
+print(form.content.value)  # "Lorem ipsum"
 ```
 
 This is the typical scenario when you use a form to edit an object.
@@ -134,8 +132,8 @@ form = PostForm(
     "content": "Lorem ipsum",
   }
 )
-print(title.value)    # "Hello world!"
-print(content.value)  # "Lorem ipsum"
+print(form.title.value)    # "Hello world!"
+print(form.content.value)  # "Lorem ipsum"
 ```
 
 The value for `title` in the request data takes precedence over the one in the object.
@@ -152,7 +150,7 @@ These properties have a side effect: they trigger validation of all fields and t
 
 ### `validate()`
 
-You don't usually need to directly call this method, since the `is_valid`/`is_invalid` properties does it for you if needed.
+You don't usually need to directly call this method, since the `is_valid`/`is_invalid` properties do it for you if needed.
 
 The method triggers validation of each of its fields and, if there are no errors, it calls the [`after_validate`](#after_validate) method of the form, if one is defined.
 

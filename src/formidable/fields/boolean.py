@@ -25,6 +25,8 @@ class BooleanField(Field):
     - Any other value, including an empty string, will become `True`.
 
     Args:
+        required:
+            Whether the field value *must* be `True`. Defaults to `False`.
         default:
             Default value for the field. Can be a static value or a callable.
             Defaults to `None`.
@@ -40,10 +42,12 @@ class BooleanField(Field):
     def __init__(
         self,
         *,
+        required: bool = False,
         default: t.Any = None,
         messages: dict[str, str] | None = None,
     ):
         super().__init__(
+            required=required,
             default=default,
             messages=messages,
         )
@@ -64,6 +68,9 @@ class BooleanField(Field):
             return
 
         self.value = self.filter_value(value)
+
+        if self.required and not self.value:
+            self.error = err.REQUIRED
 
     def filter_value(self, value: str | bool | None) -> bool:
         """

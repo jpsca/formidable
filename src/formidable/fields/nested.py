@@ -6,24 +6,12 @@ import typing as t
 from collections.abc import Iterable
 
 from .. import errors as err
+from ..common import PK_NAME, get_pk
 from .base import Field
 
 
 if t.TYPE_CHECKING:
     from ..form import Form
-
-
-def get_pk(obj: t.Any, pk: str) -> t.Any:  # pragma: no cover
-    """
-    Helper function to get the primary key from an object.
-    """
-    if isinstance(obj, dict):
-        value = obj.get(pk, None)
-    else:
-        value = getattr(obj, pk, None)
-    if value is None:
-        return None
-    return str(value)
 
 
 class NestedForms(Field):
@@ -74,7 +62,7 @@ class NestedForms(Field):
         super().__init__(
             required=bool(min_items),
             default=default,
-            messages={**self.empty_form._messages}
+            messages={**self.empty_form._messages},
         )
         self.set_name_format(self.name_format)
 
@@ -106,27 +94,30 @@ class NestedForms(Field):
         pks_used = set()
 
         reqvalue, objvalue = self._custom_filter(reqvalue, objvalue)
+        index = 0
 
         if reqvalue:
             objects = {get_pk(obj, self.pk): obj for obj in objvalue}
-            for pk, data in reqvalue.items():
-                name_format = self.sub_name_format.replace("NEW_RECORD", pk)
-                form = self.FormClass(
-                    data,
-                    object=objects.get(pk),
-                    name_format=name_format,
-                    messages=self.messages,
+            for data in reqvalue.values():
+                pk = data.get(PK_NAME, None)
+                # get_pk return str for non-None values, so this must be str as well
+                pk = str(pk) if pk is not None else None
+
+                self._add_form(
+                    data=data,
+                    object=objects.get(pk) if pk else None,
+                    key=index,
                 )
-                form._allow_delete = self.allow_delete
-                self.forms.append(form)
-                pks_used.add(pk)
+                if pk:
+                    pks_used.add(pk)
+                index += 1
 
         if objvalue:
             for obj in objvalue:
                 pk = get_pk(obj, self.pk)
-                if pk in pks_used:
+                if pk and pk in pks_used:
                     continue
-                name_format = self.sub_name_format.replace("NEW_RECORD", str(pk))
+                name_format = self.sub_name_format.replace("NEW_RECORD", str(index))
                 form = self.FormClass(
                     object=obj,
                     name_format=name_format,
@@ -134,6 +125,34 @@ class NestedForms(Field):
                 )
                 form._allow_delete = self.allow_delete
                 self.forms.append(form)
+                if pk:
+                    pks_used.add(pk)
+                index += 1
+
+    def build(self, num: int = 1) -> None:
+        """
+        Build a form and add it to the forms set.
+        """
+        for _ in range(num):
+            self._add_form()
+
+    def _add_form(
+        self,
+        data: t.Any = None,
+        object: t.Any = None,
+        key: int | None = None,
+    ) -> "Form":
+        key = key if key is not None else len(self.forms)
+        name_format = self.sub_name_format.replace("NEW_RECORD", str(key))
+        form = self.FormClass(
+            data,
+            object=object,
+            name_format=name_format,
+            messages=self.messages,
+        )
+        form._allow_delete = self.allow_delete
+        self.forms.append(form)
+        return form
 
     def save(self) -> list[t.Any]:
         """
@@ -179,3 +198,4 @@ class NestedForms(Field):
         objvalue: Iterable[t.Any],
     ) -> tuple[dict[str, t.Any] | None, Iterable[t.Any]]:
         return reqvalue, objvalue
+

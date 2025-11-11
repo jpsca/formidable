@@ -327,10 +327,31 @@ def test_form_validation():
     assert form.is_invalid
 
 
-def test_delete_tag():
+def test_hidden_tags():
     class TestForm(f.Form):
         name = f.TextField()
 
     form = TestForm()
-    expected = f'<input type="hidden" name="{f.DELETED_NAME}" value="" />'
-    assert str(form.delete_tag) == expected
+    expected = f'<input type="hidden" name="{f.DELETED_NAME}" />'
+    assert str(form.hidden_tags) == expected
+
+
+def test_hidden_tags_with_pk():
+    class TestForm(f.Form):
+        name = f.TextField()
+
+    form = TestForm(object={"id": 42})
+    expected = (
+        f'<input type="hidden" name="{f.DELETED_NAME}" />\n'
+        f'<input type="hidden" name="{f.PK_NAME}" value="42" />'
+    )
+    assert str(form.hidden_tags) == expected
+
+
+def test_hidden_tags_fake_object():
+    class TestForm(f.Form):
+        name = f.TextField()
+
+    form = TestForm(object={"name": "meh"})
+    expected = f'<input type="hidden" name="{f.DELETED_NAME}" />'
+    assert str(form.hidden_tags) == expected

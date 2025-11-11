@@ -45,3 +45,13 @@ def test_callable_default():
 
     form = TestForm()
     assert form.alive.value is True
+
+
+def test_boolean_required():
+    class TestForm(f.Form):
+        agree = f.BooleanField(required=True)
+
+    form = TestForm({})
+    assert form.agree.error == f.errors.REQUIRED
+    assert form.agree.value is False
+

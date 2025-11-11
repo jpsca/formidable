@@ -55,7 +55,7 @@ class Field:
         self.default = default
         self.value = self.default_value
         self.messages = messages if messages is not None else {}
-        self.id = f"f-{uuid4().hex}"
+        self.id = f"f{uuid4().hex}"
 
     def __repr__(self):
         attrs = [
@@ -485,7 +485,7 @@ class Field:
             "type": input_type,
             "id": self.id,
             "name": self.name,
-            "value": "" if self.value is None else str(self.value),
+            "value": False if self.value is None else str(self.value),
             "required": self.required,
         }
         if self.error:
@@ -523,7 +523,7 @@ class Field:
         attributes = {
             "type": "hidden",
             "name": self.name,
-            "value": "" if self.value is None else str(self.value),
+            "value": False if self.value is None else str(self.value),
             **attrs,
         }
         attr_str = self._render_html_attrs(attributes)

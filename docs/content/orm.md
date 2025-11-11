@@ -2,7 +2,7 @@
 title: ORM integration
 ---
 
-Instead of returning a dictionary, Formidable can instead directly work with ORM models and create records in your database.
+In addition to returning dictionaries, Formidable can directly work with ORM models to create and update records in your database.
 
 ## Connecting Forms to Models
 
@@ -25,7 +25,9 @@ class PageForm(f.Form):
 
 For these ORMs, the integration is automatic.
 
-The only thing that you should worry about is to "commit" the change after calling `form.save()`. For Pony ORM, use `db_session.commit()`, and for the other two, use `myobject.save()`.
+After calling `form.save()`, you only need to commit the changes to the database:
+- For Pony ORM, use `db_session.commit()`
+- For Peewee and Tortoise ORM, use `myobject.save()`
 
 ### SQLAlchemy and SQLModel
 
@@ -81,7 +83,9 @@ class PageForm(f.Form):
 
     title = f.TextField()
     content = f.TextField()
-    metadata = f.FormField(MetadataForm)
+    metadata = f.FormField(
+        MetadataForm
+    )
 
 ```
 
@@ -96,7 +100,9 @@ class PageForm(f.Form):
 
     title = f.TextField()
     content = f.TextField()
-    metadata = f.FormField(MetadataForm)
+    metadata = f.FormField(
+        MetadataForm
+    )
 
 ```
 
@@ -124,7 +130,9 @@ class RecipeForm(f.Form):
 
     title = f.TextField()
     instructions = f.TextField()
-    ingredients = f.NestedForms(IngredientForm)
+    ingredients = f.NestedForms(
+        IngredientForm
+    )
 ```
 
 ```python {title="Scenario 2"}
@@ -138,7 +146,9 @@ class RecipeForm(f.Form):
 
     title = f.TextField()
     instructions = f.TextField()
-    ingredients = f.NestedForms(IngredientForm)
+    ingredients = f.NestedForms(
+        IngredientForm
+    )
 ```
 </div>
 
@@ -147,9 +157,9 @@ class RecipeForm(f.Form):
 
 ### Custom primary keys
 
-When dealing with objects, `NestedForms` fields use the primary keys of those objects to track them.
+`NestedForms` fields use the primary keys of objects to track them.
 
-If the primary key of the connected model *is not* a field named `"id"`, you must declare the actual name using the `pk` attribute in the `Meta` object of the form,
+If your model uses a primary key field with a name other than `"id"`, you must specify the actual field name using the `pk` attribute in the form's `Meta` class:
 
 ```python {hl_lines="4"}
 class IngredientForm(f.Form):
@@ -164,7 +174,7 @@ class IngredientForm(f.Form):
 
 ### Deleting objects
 
-Nested forms are the only ones that are allowed to delete objects. A nested form is marked for deletion if its request data includes a hidden field named `_destroy`. This is explained in more detail in the [Nested Forms](/docs/nested/) section.
+Only nested forms can delete objects. A nested form will be marked for deletion when its request data includes a hidden field named `_destroy`. For more details about this feature, see the [Nested Forms](/docs/nested/) section.
 
 You can, however, disable the deletion of nested forms by using `allow_delete=False` when instantiating a `NestedForms` field:
 

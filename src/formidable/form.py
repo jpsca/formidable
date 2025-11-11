@@ -6,14 +6,14 @@ import logging
 import typing as t
 from copy import copy
 
+from markupsafe import Markup
+
+from .common import DELETED_NAME, PK_NAME, get_pk
 from .fields.base import Field
 from .fields.text import TextField
 from .parser import parse
 from .wrappers import ObjectManager
 
-
-# Instead of "_delete", we use "_destroy" to be compatible with Rails forms.
-DELETED_NAME = "_destroy"
 
 RESERVED_NAMES = (
     "get_errors",
@@ -86,7 +86,7 @@ class Form():
 
         # Instead of regular dir(), that sorts by name
         for name in self.__dir__():
-            if name.startswith("_") or name in ("is_valid", "is_invalid", "delete_tag"):
+            if name.startswith("_") or name in ("is_valid", "is_invalid", "hidden_tags"):
                 continue
 
             field = getattr(self, name)
@@ -157,29 +157,43 @@ class Form():
         return not self.is_valid
 
     @property
-    def _delete(self) -> TextField:
+    def hidden_tags(self) -> str:
         """
-        Returns a fake field to render a hidden input to indicate
-        that the object linked to this form should be deleted.
+        Returns hidden inputs for dealing with objects in nested forms
         """
-        field = TextField(required=False)
-        field.parent = self
-        field.field_name = DELETED_NAME
-        field.name_format = self._name_format
-        return field
+        delete_tag = self._delete_tag
+        pk_tag = self._pk_tag
+        if pk_tag:
+            return Markup(f"{delete_tag}\n{pk_tag}")
+        return Markup(delete_tag)
 
     @property
-    def _destroy(self) -> TextField:
-        """An alias to `Form._delete`."""
-        return self._delete
+    def _delete_tag(self) -> str:
+        """
+        Returns a hidden input for marking the form as deleted.
+        """
+        delete_field = TextField(required=False)
+        delete_field.parent = self
+        delete_field.field_name = DELETED_NAME
+        delete_field.name_format = self._name_format
+        return delete_field.hidden_input()
 
     @property
-    def delete_tag(self) -> str:
+    def _pk_tag(self) -> str:
         """
-        Returns the HTML tag for the hidden input to indicate
-        that the object linked to this form should be deleted.
+        Returns a hidden input for the primary key of the object.
         """
-        return self._delete.hidden_input()
+        if self._object.exists():
+            pk_name = getattr(self.Meta, "pk", "id")
+            pk = get_pk(self._object.object, pk_name)
+            if pk:
+                pk_field = TextField(required=False)
+                pk_field.parent = self
+                pk_field.field_name = PK_NAME
+                pk_field.name_format = self._name_format
+                pk_field.value = pk
+                return pk_field.hidden_input()
+        return ""
 
     def get_errors(self) -> dict[str, str]:
         """

@@ -791,7 +791,8 @@ html.cs-dark .highlight {
 .page__content .highlight {
   border-radius: 0.4rem;
   position: relative;
-  display: flow-root;
+  display: flex;
+  flex-direction: column;
 }
 
 .page__content .highlight pre {
@@ -800,6 +801,7 @@ html.cs-dark .highlight {
   white-space: pre;
   letter-spacing: normal;
   line-height: 1.2;
+  flex-grow: 1;
 }
 
 .page__content .highlight pre code {

@@ -94,9 +94,14 @@ def test_delete_object(Object):
     form = ProductForm(
         {
             "tags[3][name]": ["cool"],
+            f"tags[3][{f.PK_NAME}]": ["3"],
+
             f"tags[6][{f.DELETED_NAME}]": ["1"],
+            f"tags[6][{f.PK_NAME}]": ["6"],
             "tags[6][name]": ["meh"],
+
             "tags[9][name]": ["awesome"],
+            f"tags[9][{f.PK_NAME}]": ["9"],
         },
         object=existing_obj
     )
@@ -129,9 +134,14 @@ def test_delete_not_allowed():
     form = ProductForm(
         {
             "tags[3][name]": ["cool"],
+            f"tags[3][{f.PK_NAME}]": ["3"],
+
             f"tags[6][{f.DELETED_NAME}]": ["1"],
+            f"tags[6][{f.PK_NAME}]": ["6"],
             "tags[6][name]": ["meh"],
+
             "tags[9][name]": ["awesome"],
+            f"tags[9][{f.PK_NAME}]": ["9"],
         },
         object=existing_obj
     )
@@ -160,9 +170,14 @@ def test_empty_delete_field_is_no_delete():
     form = ProductForm(
         {
             "tags[3][name]": ["cool"],
+            f"tags[3][{f.PK_NAME}]": ["3"],
+
             f"tags[6][{f.DELETED_NAME}]": [""],
+            f"tags[6][{f.PK_NAME}]": ["6"],
             "tags[6][name]": ["meh"],
+
             "tags[9][name]": ["awesome"],
+            f"tags[9][{f.PK_NAME}]": ["9"],
         },
         object=existing_obj
     )
@@ -188,6 +203,7 @@ def test_delete_without_object():
     form = ProductForm(
         {
             f"tags[6][{f.DELETED_NAME}]": ["1"],
+            f"tags[6][{f.PK_NAME}]": ["6"],
             "tags[6][name]": ["meh"],
         },
         object=existing_obj

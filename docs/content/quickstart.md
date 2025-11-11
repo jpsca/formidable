@@ -26,7 +26,7 @@ uv add formidable
 ## Create a form
 
 
-Create a new file in your project, which could be inside a `forms` folder.
+Create a new file in your project, typically inside a `forms` folder:
 
 ```python {title="forms/team.py"}
 import formidable as f
@@ -38,9 +38,9 @@ class TeamForm(f.Form):
 ```
 
 
-## In the View
+## In the Controller/View
 
-In your framework of choice, add it to your view. Here's how it looks:
+Add the form to your controller in your framework of choice. Here's an example using Flask:
 
 ```python {hl_lines="2 8"}
 from flask import Flask, request, render_template
@@ -61,9 +61,9 @@ def index():
 Now let's look at the template side.
 
 /// note | Render helpers
-Formidable fields include some helper functions to write the HTML. They are very practical but completely optional. See for yourself:
+Formidable fields provide helper functions to simplify HTML generation. These helpers are practical but entirely optional. Compare the two approaches:
 
-*Without* helper functions:
+*Without* helper functions (standard HTML):
 
 ```html+jinja {title="Manual HTML"}
 <div class="form-field">
@@ -88,7 +88,6 @@ Formidable fields include some helper functions to write the HTML. They are very
   {{ form.field.error_tag() }}
 </div>
 ```
-```
 
 You can read more about these render methods in the [Fields page](/docs/fields/#render-methods).
 
@@ -98,6 +97,8 @@ Here is the `teams/new.html` template, which takes advantage of the helpers:
 
 ```html+jinja {title="teams/new.html"}
 <form method="POST" action="/teams/create">
+  <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
   <div class="field">
     {{ form.name.label("Name") }}
     {{ form.name.text_input() }}
@@ -120,8 +121,7 @@ Here is the `teams/new.html` template, which takes advantage of the helpers:
 
 ## Validate the Form
 
-When the user submits the form, let's process the information:
-
+When the user submits the form, process the information like this:
 
 ```python {hl_lines="3"}
 @app.route("/teams/create", methods=["POST"])
@@ -133,15 +133,15 @@ def create():
         # with the submitted values and error messages
         return render_template("teams/new.html", form=form)
 
-  # Form is valid, so we proceed
-  data = form.save()
-  create_team(**data)
-  flash("Team created")
-  return redirect(url_for("index"))
+    # Form is valid, proceed with saving
+    data = form.save()
+    create_team(**data)
+    flash("Team created")
+    return redirect(url_for("index"))
 
 ```
 
 ---
 
-This is the basic pattern you will use for every form.
-Keep reading for more customizations, field types, and additional details.
+This demonstrates the basic pattern for handling forms with Formidable.
+For more advanced features, customization options, and additional field types, continue reading the documentation.

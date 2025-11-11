@@ -84,34 +84,27 @@ def test_nested_field_object():
     assert form.skills.empty_form.name.name == "skills[NEW_RECORD][name]"  # type: ignore
     assert form.skills.empty_form.level.name == "skills[NEW_RECORD][level]"  # type: ignore
 
-    assert form.skills.forms[0].name.name == "skills[5][name]"
+    assert form.skills.forms[0].name.name == "skills[0][name]"
     assert form.skills.forms[0].name.value == "Python"
 
-    assert form.skills.forms[0].level.name == "skills[5][level]"
+    assert form.skills.forms[0].level.name == "skills[0][level]"
     assert form.skills.forms[0].level.value == 5
 
-    assert form.skills.forms[0]._delete.name == f"skills[5][{f.DELETED_NAME}]"
-    assert form.skills.forms[0]._destroy.name == f"skills[5][{f.DELETED_NAME}]"
-    assert form.skills.forms[0]._delete.value is None
+    assert form.skills.forms[0].hidden_tags == (
+        f'<input type="hidden" name="skills[0][{f.DELETED_NAME}]" />\n'
+        f'<input type="hidden" name="skills[0][{f.PK_NAME}]" value="5" />'
+    )
 
-    assert form.skills.forms[1].name.name == "skills[7][name]"
+    assert form.skills.forms[1].name.name == "skills[1][name]"
     assert form.skills.forms[1].name.value == "JavaScript"
 
-    assert form.skills.forms[1].level.name == "skills[7][level]"
+    assert form.skills.forms[1].level.name == "skills[1][level]"
     assert form.skills.forms[1].level.value == 3
 
-    assert form.skills.forms[1]._delete.name == f"skills[7][{f.DELETED_NAME}]"
-    assert form.skills.forms[1]._destroy.name == f"skills[7][{f.DELETED_NAME}]"
-    assert form.skills.forms[1]._delete.value is None
-
-    data = form.save()
-    print(data)
-    assert data == {
-        "skills": [
-            {"id": 5, "name": "Python", "level": 5},
-            {"id": 7, "name": "JavaScript", "level": 3},
-        ]
-    }
+    assert form.skills.forms[1].hidden_tags == (
+        f'<input type="hidden" name="skills[1][{f.DELETED_NAME}]" />\n'
+        f'<input type="hidden" name="skills[1][{f.PK_NAME}]" value="7" />'
+    )
 
 
 def test_nested_field_object_updated():
@@ -124,8 +117,9 @@ def test_nested_field_object_updated():
 
     form = TestForm(
         {
-            "skills[7][name]": ["Go"],
-            "skills[7][level]": ["2"],
+            "skills[0][name]": ["Go"],
+            "skills[0][level]": ["2"],
+            f"skills[0][{f.PK_NAME}]": ["7"],
         },
         object={
             "skills": [
@@ -138,16 +132,16 @@ def test_nested_field_object_updated():
     assert form.skills.empty_form.name.name == "skills[NEW_RECORD][name]"  # type: ignore
     assert form.skills.empty_form.level.name == "skills[NEW_RECORD][level]"  # type: ignore
 
-    assert form.skills.forms[0].name.name == "skills[7][name]"
+    assert form.skills.forms[0].name.name == "skills[0][name]"
     assert form.skills.forms[0].name.value == "Go"
 
-    assert form.skills.forms[0].level.name == "skills[7][level]"
+    assert form.skills.forms[0].level.name == "skills[0][level]"
     assert form.skills.forms[0].level.value == 2
 
-    assert form.skills.forms[1].name.name == "skills[5][name]"
+    assert form.skills.forms[1].name.name == "skills[1][name]"
     assert form.skills.forms[1].name.value == "Python"
 
-    assert form.skills.forms[1].level.name == "skills[5][level]"
+    assert form.skills.forms[1].level.name == "skills[1][level]"
     assert form.skills.forms[1].level.value == 5
 
     data = form.save()
@@ -217,6 +211,7 @@ def test_validate_min_items():
 def test_validate_mixed_min_items():
     field = f.NestedForms(ChildForm, min_items=3)
 
+    # One new and one existing = 2
     field.set(
         {
             "0": {"meh": "1"},
@@ -229,6 +224,7 @@ def test_validate_mixed_min_items():
     assert field.error == err.MIN_ITEMS
     assert field.error_args == {"min_items": 3}
 
+    # One new and two existing = 3
     field.set(
         {
             "0": {"meh": "1"},
@@ -241,9 +237,10 @@ def test_validate_mixed_min_items():
     field.validate()
     assert field.error is None
 
+    # One update (id=1) and one existing = 2
     field.set(
         {
-            "1": {"meh": "1"},  # update object
+            "0": {f.PK_NAME: 1, "meh": "1"},  # update object
         },
         [
             {"id": 1, "meh": "2"},
@@ -263,6 +260,7 @@ def test_invalid_min_items():
 def test_validate_max_items():
     field = f.NestedForms(ChildForm, max_items=3)
 
+    # Four new items
     field.set({
         "0": {"meh": "1"},
         "1": {"meh": "2"},
@@ -273,6 +271,7 @@ def test_validate_max_items():
     assert field.error == err.MAX_ITEMS
     assert field.error_args == {"max_items": 3}
 
+    # Three new items
     field.set({
         "0": {"meh": "1"},
         "1": {"meh": "2"},
@@ -289,6 +288,11 @@ def test_validate_max_items():
 def test_validate_mixed_max_items():
     field = f.NestedForms(ChildForm, max_items=3)
 
+    field.set({})
+    field.validate()
+    assert field.error is None
+
+    # One new and three existing = 4
     field.set(
         {
             "0": {"meh": "1"},
@@ -303,9 +307,10 @@ def test_validate_mixed_max_items():
     assert field.error == err.MAX_ITEMS
     assert field.error_args == {"max_items": 3}
 
+    # One update and two existing = 3
     field.set(
         {
-            "1": {"meh": "1"},  # update object
+            "0": {f.PK_NAME: 1, "meh": "1"},  # update object
         },
         [
             {"id": 1, "meh": "2"},
@@ -316,6 +321,7 @@ def test_validate_mixed_max_items():
     field.validate()
     assert field.error is None
 
+    # Three existing
     field.set(
         {},
         [
@@ -327,11 +333,27 @@ def test_validate_mixed_max_items():
     field.validate()
     assert field.error is None
 
-    field.set({})
-    field.validate()
-    assert field.error is None
-
 
 def test_invalid_max_items():
     with pytest.raises(ValueError):
         f.NestedForms(ChildForm, max_items="not an int")  # type: ignore
+
+
+def test_nested_build():
+    class SkillForm(f.Form):
+        name = f.TextField()
+        level = f.IntegerField(default=1)
+
+    class TestForm(f.Form):
+        skills = f.NestedForms(SkillForm)
+
+    form = TestForm()
+    form.skills.build(num=3)
+
+    assert len(form.skills.forms) == 3
+    assert form.skills.forms[0].name.error is None
+    assert form.skills.forms[0].level.error is None
+    assert form.skills.forms[1].name.error is None
+    assert form.skills.forms[1].level.error is None
+    assert form.skills.forms[2].name.error is None
+    assert form.skills.forms[2].level.error is None

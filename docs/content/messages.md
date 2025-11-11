@@ -2,22 +2,22 @@
 title: Custom error messages
 ---
 
-There are many reasons to want to edit the default error messages:
+There are several common reasons to customize error messages:
 
-* You want to add new, more specific, error messages
-* To make them fit with the "personality" of your application
-* To translate them to the language of your users
+* Adding new, more specific error messages
+* Matching your application's tone and personality
+* Translating messages to your users' language
 
-For whatever reason you have, it's easy to do with Formidable forms.
+Formidable makes it easy to customize error messages for any of these purposes.
 
 
 ## Messages format
 
-When a form field has an error, there are three attributes related to that error in a field:
+When a form field has an error, it exposes three error-related attributes:
 
-- `field.error` contains an error *code*, like "invalid";
-- `field.error_args` is an optional dict of extra information related to the error (we will see more about this in moment); and
-- `field.error_message` that is not actually an attribute but a *property* that uses the error code to search for a human-readable message in the `messages` dictionary of its parent form.
+- `field.error`: Contains an error *code*, such as "invalid"
+- `field.error_args`: An optional dictionary of extra information related to the error (explained in detail below)
+- `field.error_message`: A *property* that uses the error code to retrieve a human-readable message from the form's `messages` dictionary
 
 You can see the full (short) default dictionary of error messages in `formidable.errors.MESSAGES`. The dictionary uses the error codes as keys and the human-readable messages as values.
 
@@ -54,9 +54,9 @@ MESSAGES = {
 
 ///
 
-They are generic by design, for example the message for a `"required"` error is `"Field is required"`, which can be good enough in some cases but it *feels* generic.
+These messages are intentionally generic. For example, the `"required"` error message is simply `"Field is required"` - functional but generic.
 
-Some of the messages have placeholders, for example the `"min_length"` error - when a text is shorter than required - is `"Must have at least {min_length} characters"`. The `{min_length}` part will be replaced by a value of that name in the `field.error_args` dictionary. That way, the same message can be reused for different settings. You can do the same with your custom messages.
+Some messages include placeholders. For example, the `"min_length"` error message (used when text is shorter than required) is `"Must have at least {min_length} characters"`. The `{min_length}` placeholder is replaced with the corresponding value from the `field.error_args` dictionary. This system allows messages to be reused with different parameters, and you can use the same approach in your custom messages.
 
 
 ## Global messages
@@ -69,7 +69,7 @@ import formidable as f
 class BaseForm(f.Form):
   class Meta:
     messages = {
-      "required": "Give me the value!"
+      "required": "Give me the value!",
       "lorem-ipsum": "I don't speak Latin"
     }
 
@@ -80,7 +80,7 @@ class MyForm(BaseForm):
 
 ```
 
-The custom messages dictionary does not replace the default one, but *extends* it. In this example, the default "required" message is overwritten, and a new "lorem-ipsum" error is added, while the rest of the messages stay the same.
+The custom messages dictionary extends rather than replaces the default one. In this example, the default "required" message is overwritten and a new "lorem-ipsum" error is added, while all other default messages remain unchanged.
 
 
 ## Custom form messages

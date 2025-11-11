@@ -71,7 +71,7 @@ def test_text_input_error():
 
     result = field.text_input()
     expected = (
-        f'<input type="text" id="{field.id}" name="test" value=""'
+        f'<input type="text" id="{field.id}" name="test"'
         f' aria-invalid="true" aria-errormessage="{field.id}-error" />'
     )
     assert result == expected
@@ -242,7 +242,7 @@ def test_file_input():
     field.field_name = "test"
 
     result = field.file_input()
-    expected = f'<input type="file" id="{field.id}" name="test" value="" required />'
+    expected = f'<input type="file" id="{field.id}" name="test" required />'
     assert result == expected
 
 
@@ -253,7 +253,7 @@ def test_file_input_error():
 
     result = field.file_input()
     expected = (
-        f'<input type="file" id="{field.id}" name="test" value=""'
+        f'<input type="file" id="{field.id}" name="test"'
         f' aria-invalid="true" aria-errormessage="{field.id}-error" />'
     )
     assert result == expected
@@ -291,7 +291,7 @@ def test_password_error():
 
     result = field.password_input()
     expected = (
-        f'<input type="password" id="{field.id}" name="test" value=""'
+        f'<input type="password" id="{field.id}" name="test"'
         f' aria-invalid="true" aria-errormessage="{field.id}-error" />'
     )
     assert result == expected
@@ -350,7 +350,7 @@ def test_special_inputs_error(method_name, input_type):
 
     result = method()
     expected = (
-        f'<input type="{input_type}" id="{field.id}" name="test" value=""'
+        f'<input type="{input_type}" id="{field.id}" name="test"'
         f' aria-invalid="true" aria-errormessage="{field.id}-error" />'
     )
     assert result == expected
