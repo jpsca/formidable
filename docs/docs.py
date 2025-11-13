@@ -5,6 +5,8 @@
 - `python docs.py build` to build the documentation for deployment.
 
 """
+from pathlib import Path
+
 from writeadoc import Docs
 
 
@@ -69,7 +71,6 @@ docs = Docs(
         "source_code": "https://github.com/jpsca/formidable/",
     },
 )
-
 
 if __name__ == "__main__":
     docs.cli()

@@ -332,8 +332,8 @@ def test_hidden_tags():
         name = f.TextField()
 
     form = TestForm()
-    expected = f'<input type="hidden" name="{f.DELETED_NAME}" />'
-    assert str(form.hidden_tags) == expected
+    expected = '<input type="hidden" name="_destroy" />'
+    assert str(form.hidden_tags()) == expected
 
 
 def test_hidden_tags_with_pk():
@@ -342,10 +342,10 @@ def test_hidden_tags_with_pk():
 
     form = TestForm(object={"id": 42})
     expected = (
-        f'<input type="hidden" name="{f.DELETED_NAME}" />\n'
-        f'<input type="hidden" name="{f.PK_NAME}" value="42" />'
+        '<input type="hidden" name="_destroy" />\n'
+        '<input type="hidden" name="_id" value="42" />'
     )
-    assert str(form.hidden_tags) == expected
+    assert str(form.hidden_tags()) == expected
 
 
 def test_hidden_tags_fake_object():
@@ -353,5 +353,5 @@ def test_hidden_tags_fake_object():
         name = f.TextField()
 
     form = TestForm(object={"name": "meh"})
-    expected = f'<input type="hidden" name="{f.DELETED_NAME}" />'
-    assert str(form.hidden_tags) == expected
+    expected = '<input type="hidden" name="_destroy" />'
+    assert str(form.hidden_tags()) == expected

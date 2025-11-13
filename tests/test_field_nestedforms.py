@@ -90,9 +90,9 @@ def test_nested_field_object():
     assert form.skills.forms[0].level.name == "skills[0][level]"
     assert form.skills.forms[0].level.value == 5
 
-    assert form.skills.forms[0].hidden_tags == (
-        f'<input type="hidden" name="skills[0][{f.DELETED_NAME}]" />\n'
-        f'<input type="hidden" name="skills[0][{f.PK_NAME}]" value="5" />'
+    assert form.skills.forms[0].hidden_tags() == (
+        '<input type="hidden" name="skills[0][_destroy]" />\n'
+        '<input type="hidden" name="skills[0][_id]" value="5" />'
     )
 
     assert form.skills.forms[1].name.name == "skills[1][name]"
@@ -101,9 +101,9 @@ def test_nested_field_object():
     assert form.skills.forms[1].level.name == "skills[1][level]"
     assert form.skills.forms[1].level.value == 3
 
-    assert form.skills.forms[1].hidden_tags == (
-        f'<input type="hidden" name="skills[1][{f.DELETED_NAME}]" />\n'
-        f'<input type="hidden" name="skills[1][{f.PK_NAME}]" value="7" />'
+    assert form.skills.forms[1].hidden_tags() == (
+        '<input type="hidden" name="skills[1][_destroy]" />\n'
+        '<input type="hidden" name="skills[1][_id]" value="7" />'
     )
 
 
@@ -119,7 +119,7 @@ def test_nested_field_object_updated():
         {
             "skills[0][name]": ["Go"],
             "skills[0][level]": ["2"],
-            f"skills[0][{f.PK_NAME}]": ["7"],
+            "skills[0][_id]": ["7"],
         },
         object={
             "skills": [
@@ -240,7 +240,7 @@ def test_validate_mixed_min_items():
     # One update (id=1) and one existing = 2
     field.set(
         {
-            "0": {f.PK_NAME: 1, "meh": "1"},  # update object
+            "0": {"_id": 1, "meh": "1"},  # update object
         },
         [
             {"id": 1, "meh": "2"},
@@ -310,7 +310,7 @@ def test_validate_mixed_max_items():
     # One update and two existing = 3
     field.set(
         {
-            "0": {f.PK_NAME: 1, "meh": "1"},  # update object
+            "0": {"_id": 1, "meh": "1"},  # update object
         },
         [
             {"id": 1, "meh": "2"},

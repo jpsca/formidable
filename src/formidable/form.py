@@ -8,7 +8,7 @@ from copy import copy
 
 from markupsafe import Markup
 
-from .common import DELETED_NAME, PK_NAME, get_pk
+from .common import get_pk
 from .fields.base import Field
 from .fields.text import TextField
 from .parser import parse
@@ -17,6 +17,7 @@ from .wrappers import ObjectManager
 
 RESERVED_NAMES = (
     "get_errors",
+    "hidden_tags",
     "save",
     "validate",
     "after_validate",
@@ -70,7 +71,7 @@ class Form():
     _deleted: bool = False
 
     # Whether the form allows deletion of objects.
-    # If set to True, the form will delete objects of form when the "_deleted"
+    # If set to True, the form will delete objects of form when the "_destroy"
     # field is present.
     _allow_delete: bool = False
 
@@ -86,7 +87,7 @@ class Form():
 
         # Instead of regular dir(), that sorts by name
         for name in self.__dir__():
-            if name.startswith("_") or name in ("is_valid", "is_invalid", "hidden_tags"):
+            if name.startswith("_") or name in ("is_valid", "is_invalid"):
                 continue
 
             field = getattr(self, name)
@@ -155,45 +156,6 @@ class Form():
         Returns whether the form is invalid.
         """
         return not self.is_valid
-
-    @property
-    def hidden_tags(self) -> str:
-        """
-        Returns hidden inputs for dealing with objects in nested forms
-        """
-        delete_tag = self._delete_tag
-        pk_tag = self._pk_tag
-        if pk_tag:
-            return Markup(f"{delete_tag}\n{pk_tag}")
-        return Markup(delete_tag)
-
-    @property
-    def _delete_tag(self) -> str:
-        """
-        Returns a hidden input for marking the form as deleted.
-        """
-        delete_field = TextField(required=False)
-        delete_field.parent = self
-        delete_field.field_name = DELETED_NAME
-        delete_field.name_format = self._name_format
-        return delete_field.hidden_input()
-
-    @property
-    def _pk_tag(self) -> str:
-        """
-        Returns a hidden input for the primary key of the object.
-        """
-        if self._object.exists():
-            pk_name = getattr(self.Meta, "pk", "id")
-            pk = get_pk(self._object.object, pk_name)
-            if pk:
-                pk_field = TextField(required=False)
-                pk_field.parent = self
-                pk_field.field_name = PK_NAME
-                pk_field.name_format = self._name_format
-                pk_field.value = pk
-                return pk_field.hidden_input()
-        return ""
 
     def get_errors(self) -> dict[str, str]:
         """
@@ -278,6 +240,19 @@ class Form():
         """
         return True
 
+    def hidden_tags(self) -> str:
+        """
+        Returns hidden inputs for dealing with objects in nested forms
+        """
+        tags = []
+        delete_tag = self._delete_tag()
+        if delete_tag:
+            tags.append(delete_tag)
+        pk_tag = self._pk_tag()
+        if pk_tag:
+            tags.append(pk_tag)
+        return Markup("\n".join(tags))
+
     # Private methods
 
     def _set_meta(self):
@@ -320,8 +295,36 @@ class Form():
             orm_cls=self.Meta.orm_cls,
             object=object,
         )
-        self._deleted = bool(reqdata.get(DELETED_NAME, None))
+        self._deleted = bool(reqdata.get("_destroy", None))
 
         if not self._deleted:
             for name, field in self._fields.items():
                 field.set(reqdata.get(name), self._object.get(name))
+
+    def _delete_tag(self) -> str:
+        """
+        Returns a hidden input for marking the form as deleted.
+        """
+        if self._allow_delete:
+            delete_field = TextField(required=False)
+            delete_field.parent = self
+            delete_field.field_name = "_destroy"
+            delete_field.name_format = self._name_format
+            return delete_field.hidden_input()
+        return ""
+
+    def _pk_tag(self) -> str:
+        """
+        Returns a hidden input for the primary key of the object.
+        """
+        if self._object.exists():
+            pk_name = getattr(self.Meta, "pk", "id")
+            pk = get_pk(self._object.object, pk_name)
+            if pk:
+                pk_field = TextField(required=False)
+                pk_field.parent = self
+                pk_field.field_name = "_id"
+                pk_field.name_format = self._name_format
+                pk_field.value = pk
+                return pk_field.hidden_input()
+        return ""

@@ -6,7 +6,7 @@ import typing as t
 from collections.abc import Iterable
 
 from .. import errors as err
-from ..common import PK_NAME, get_pk
+from ..common import get_pk
 from .base import Field
 
 
@@ -41,7 +41,7 @@ class NestedForms(Field):
         min_items: int | None = None,
         max_items: int | None = None,
         default: t.Any = None,
-        allow_delete: bool = True,
+        allow_delete: bool = False,
     ):
         self.FormClass = FormClass
         self.empty_form = FormClass()
@@ -99,7 +99,7 @@ class NestedForms(Field):
         if reqvalue:
             objects = {get_pk(obj, self.pk): obj for obj in objvalue}
             for data in reqvalue.values():
-                pk = data.get(PK_NAME, None)
+                pk = data.get("_id", None)
                 # get_pk return str for non-None values, so this must be str as well
                 pk = str(pk) if pk is not None else None
 

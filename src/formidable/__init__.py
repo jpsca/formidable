@@ -3,7 +3,6 @@ Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
 from . import errors  # noqa
-from .common import DELETED_NAME, PK_NAME  # noqa
 from .fields import (
   BooleanField,  # noqa
   BoolField,  # noqa
