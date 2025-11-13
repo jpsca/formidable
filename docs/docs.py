@@ -64,10 +64,10 @@ docs = Docs(
     pages=pages,
     site={
         "name": "Formidable",
-        "description": "A small but powerful library for processing web forms",
+        "description": "A small but powerful Python library for rendering and processing web forms",
         "base_url": "https://formidable.scaletti.dev",
         "lang": "en",
-        "version": "0",
+        "version": "1.0",
         "source_code": "https://github.com/jpsca/formidable/",
     },
 )

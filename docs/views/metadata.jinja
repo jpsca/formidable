@@ -11,10 +11,11 @@
   "description": "{{ description }}",
   "url": "{{ site.base_url }}{{ page.url }}",
   "image": "{{ image }}",
-  "datePublished": "{{ page.meta.get('date', _now.strftime('%Y-%m-%d')) }}",
-	{%- if page.meta.get('keywords') %}
-	"keywords": "{{ page.meta.get('keywords') | join(', ') | striptags }}"
-	{%- endif %}
+  "datePublished": "{{ page.meta.get('date', _now.isoformat()) }}",
+  "keywords": "{{ page.meta.get('keywords', '') | join(', ') | striptags }}",
+  "author": [
+    {"@type": "Person", "name": "Juan-Pablo Scaletti", "url": "https://jpscaletti.com"}
+  ]
 }
 </script>
 
