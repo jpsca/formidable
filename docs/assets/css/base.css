@@ -303,6 +303,9 @@ html.cs-light .only-dark {
   display: none !important;
 }
 
+.hidden {
+  display: none !important;
+}
 
 /******* BUTTONS *******/
 
