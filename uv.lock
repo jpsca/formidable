@@ -149,7 +149,7 @@ wheels = [
 
 [[package]]
 name = "formidable"
-version = "0.13"
+version = "0.14"
 source = { editable = "." }
 dependencies = [
     { name = "idna" },

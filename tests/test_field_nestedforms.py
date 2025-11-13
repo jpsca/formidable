@@ -51,7 +51,7 @@ def test_nested_field():
     }
 
 
-def test_empty_initi():
+def test_empty_init():
     class SkillForm(f.Form):
         name = f.TextField()
         level = f.IntegerField(default=1)
@@ -70,7 +70,7 @@ def test_nested_field_object():
         level = f.IntegerField(default=1)
 
     class TestForm(f.Form):
-        skills = f.NestedForms(SkillForm)
+        skills = f.NestedForms(SkillForm, allow_delete=True)
 
     form = TestForm(
         object={

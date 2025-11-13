@@ -84,7 +84,7 @@ def test_delete_object(Object):
         name = f.TextField()
 
     class ProductForm(f.Form):
-        tags = f.NestedForms(ChildForm)
+        tags = f.NestedForms(ChildForm, allow_delete=True)
 
     tag1 = Object(id=3, name="cool")
     tag2 = Object(id=6, name="new")
@@ -196,7 +196,7 @@ def test_delete_without_object():
         name = f.TextField()
 
     class ProductForm(f.Form):
-        tags = f.NestedForms(ChildForm)
+        tags = f.NestedForms(ChildForm, allow_delete=True)
 
     existing_obj = PeeweeObject(name="Test Product", tags=[])
 

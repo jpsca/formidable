@@ -81,3 +81,25 @@
   color: var(--color-gray-light);
   max-width: 100%;
 }
+
+.btn-start {
+  display: block;
+  width: fit-content;
+  margin: 3rem auto 2rem;
+  text-decoration: none;
+  font-family: monospace;
+  font-weight: 700;
+  background: var(--color-white);
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 8px;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-slow);
+}
+.btn-start:hover {
+  background: var(--color-gray);
+  color: var(--color-white);
+  border-color: var(--color-white);
+}

@@ -46,7 +46,6 @@ html {
   --space-x-large: 3em;
   --space-xx-large: 4em;
   --transition-slow: 0.15s ease;
-  --transition-slow-slow: 0.3s ease;
 }
 
 @media (prefers-color-scheme: dark) {

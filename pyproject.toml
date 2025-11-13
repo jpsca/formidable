@@ -4,7 +4,7 @@ requires = ["setuptools"]
 
 [project]
 name = "formidable"
-version = "0.13"
+version = "0.14"
 description = "Small but powerful library for rendering and processing web forms"
 authors = [{ name = "Juan-Pablo Scaletti", email = "juanpablo@jpscaletti.com" }]
 license = "MIT"
