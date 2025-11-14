@@ -6,14 +6,16 @@
   margin: 2rem auto;
   width: 100%;
   max-width: 48rem;
+  background: var(--color-base);
 
   h2 {
-    color: #0f172a;
     font-weight: 600;
     font-size: 1.1rem;
     line-height: 1.5rem;
     margin: 0;
     margin-bottom: 1rem;
+    text-shadow: none;
+    font-family: var(--font-family-sans);
   }
   .nested-form-wrapper {
     margin-top: 1rem;
@@ -40,6 +42,8 @@
     border-top-left-radius: .375rem;
     width: 100%;
     font-size: 100%;
+    color: inherit;
+    background: var(--color-white);
   }
   [data-action="nested-form#remove"] {
     display: inline-flex;

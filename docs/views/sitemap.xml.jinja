@@ -7,4 +7,17 @@
 		<lastmod>{{ page.meta.get('date', now) }}</lastmod>
 	</url>
 	{%- endfor %}
+
+	{%- for variant in docs.variants.values() %}
+	<url>
+		<loc>{{ variant.site.base_url }}/</loc>
+		<lastmod>{{ now }}</lastmod>
+	</url>
+		{% for page in variant.site.pages -%}
+	<url>
+		<loc>{{ site.base_url }}{{ page.url }}</loc>
+		<lastmod>{{ page.meta.get('date', now) }}</lastmod>
+	</url>
+		{%- endfor %}
+	{%- endfor %}
 </urlset>
