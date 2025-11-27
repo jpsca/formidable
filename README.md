@@ -8,14 +8,33 @@
 
 ### A small but powerful library for rendering and processing web forms
 
-
 ## Features
 
-- Dynamic nested forms
-- Subforms
-- Translatable/customizable messages
-- Custom filters and validators
-- Integration with any ORM and template system
+Formidable is small, modern, and handles the advanced scenarios you'll actually encounter in production applications.
+
+- **Dynamic Nested Forms That Actually Work**
+
+  Formidable's NestedForms field handles complex scenarios like users dynamically adding/removing subforms with proper deletion tracking, primary key management, and JavaScript integration out of the box.
+
+- **Subforms**
+
+  FormField elegantly handles nested data structures (JSON fields, one-to-one relationships).
+
+- **Multiple ORM Support**
+
+  Out-of-the-box integration with Peewee, Pony ORM, Tortoise ORM, SQLAlchemy, and SQLModel.
+
+- **Translatable/customizable messages**
+
+  Formidable's validation messages were designed to be easily translated or replaced.
+
+- **Modern HTML-First Philosophy**
+
+  Built for the modern era of HTMX, Turbo, and "HTML over the wire" patterns. Formidable embraces native HTML forms instead of fighting them, while still providing optional render helpers when you need them.
+
+- **Render flexibility**
+
+  Unlike other libraries where you're often stuck between manual HTML or opinionated widgets, Formidable lets you choose and mix and match as needed.
 
 
 ## Vision
@@ -28,17 +47,6 @@ However, in the world of Python web frameworks there is a problem: web forms had
 
 That's why I built **Formidable**, a library that, although small, can handle all the advanced scenarios like subforms, dynamic nested forms, custom validators, translatable messages, integration with any ORM and template system, and more. I hope you enjoy it.
 
-## Why not WTForms?
-
-WTForms has served the Python community well, but it shows its age:
-
-- Nested forms are awkward with `FieldList`. Formidable's `NestedForms` handles dynamic add/remove scenarios elegantly.
-- Limited ORM support. Formidable supports Peewee, Pony, Tortoise, SQLAlchemy, and SQLModel out of the box.
-- All-or-nothing rendering. Formidable lets you use render helpers or write plain HTML
-- Poor internationalization support. Formidable validation messages were designed to be easily translated or replaced.
-- Verbose API. More boilerplate, less clarity
-
-Formidable is small, modern, and handles the advanced scenarios you'll actually encounter in production applications.
 
 ## Contributing Back
 

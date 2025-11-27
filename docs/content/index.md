@@ -41,6 +41,8 @@ title: Formidable
 
 ## Features
 
+Formidable is small, modern, and handles the advanced scenarios you'll actually encounter in production applications.
+
 <article class="card" markdown="1">
 ### Dynamic Nested Forms That Actually Work
 
