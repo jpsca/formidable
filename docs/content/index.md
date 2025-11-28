@@ -84,7 +84,7 @@ Unlike other libraries where you're often stuck between manual HTML or opinionat
 
 By Internet standards, HTML forms are an ancient technology. At some point, we even forgot they existed, and for about 10 years, everyone was super excited about sending JSON over everything, all of the time.
 
-But now we are realizing *"Oh, do you know what? HTML is actually really good!" It can be sent directly to a browser, and the browser can send form data back without any translation step. This native functionality is powerful and efficient.
+But now we are realizing *"Oh, do you know what? HTML is actually really good!"*. It can be sent directly to a browser, and the browser can send form data back without any translation step. This native functionality is powerful and efficient.
 
 However, in the world of Python web frameworks there is a problem: web forms had always been somewhat awkward. In fact, they were a big reason to use JavaScript in the first place. The existing libraries lack support for features like nested forms and/or are embedded in a particular framework.
 
