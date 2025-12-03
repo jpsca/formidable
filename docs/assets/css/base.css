@@ -846,12 +846,6 @@ html.cs-dark .highlight {
 }
 
 .page__content h1,
-.page__content h2,
-.page__content h3 {
-  font-family: var(--font-family-mono);
-}
-
-.page__content h1,
 .page__content h2 {
   text-shadow: 1px 1px 0 rgb(255 255 255 / 50%);
 }

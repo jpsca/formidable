@@ -7,6 +7,7 @@ title: Formidable
   method="post"
   data-controller="nested-form"
   novalidate
+  markdown="0"
 >
   <h2>Nested Forms</h2>
 
@@ -38,6 +39,7 @@ title: Formidable
   </div>
 </form>
 
+[Get started! »](/docs/){.btn-start}
 
 ## Features
 
@@ -91,7 +93,7 @@ However, in the world of Python web frameworks there is a problem: web forms had
 That's why I built **Formidable**, a library that, although small, can handle all the advanced scenarios like subforms, dynamic nested forms, custom validators, translatable messages, integration with any ORM and template system, and more. I hope you enjoy it.
 
 
-[Get started!](/docs/){.btn-start}
+[Get started! »](/docs/){.btn-start}
 
 
 ## Contributing Back

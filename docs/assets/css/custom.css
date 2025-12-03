@@ -1,3 +1,9 @@
+.page__content h1,
+.page__content h2,
+.page__content h3 {
+  font-family: var(--font-family-mono);
+}
+
 .page-index {
   background-image: linear-gradient(rgba(var(--rgb-base), 0.4) 4px, transparent 4px);
   background-size: 8px 8px;
@@ -28,7 +34,7 @@
       }
 
       @media (min-width: 64rem) {
-        padding: 4rem;
+        padding: 4rem 4rem 0;
 
         h1 { font-size: 3rem; }
         h2 { font-size: 2rem; }
@@ -102,18 +108,22 @@
   .btn-start {
     display: block;
     width: fit-content;
-    margin: 5rem auto 3rem;
+    margin: 3rem auto;
     text-decoration: none;
     font-family: monospace;
     font-weight: 700;
     background: var(--color-white);
-    padding: 0.75rem 1.5rem;
+    padding: 1rem 2rem;
     border: 2px solid var(--color-accent);
     border-radius: 8px;
     line-height: 1;
     text-align: center;
     cursor: pointer;
     transition: all var(--transition-slow);
+
+    @media (max-width: 36rem) {
+      width: 100%;
+    }
   }
   .btn-start:hover {
     background: var(--color-gray);
