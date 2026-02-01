@@ -82,6 +82,8 @@ directory = "covreport"
 [tool.ty.src]
 exclude = [
     "docs",
+    "tests",
+    "covreport",
 ]
 
 [tool.tox]

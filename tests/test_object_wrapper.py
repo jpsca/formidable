@@ -47,8 +47,8 @@ def test_create_object(Object):
     obj = form.save()
 
     assert isinstance(obj, Object)
-    assert obj.name == "Test Product"  # type: ignore
-    assert obj.price == 10.0  # type: ignore
+    assert obj.name == "Test Product"
+    assert obj.price == 10.0
 
 
 def test_update_object():

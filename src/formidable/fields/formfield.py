@@ -68,5 +68,9 @@ class FormField(Field):
     def save(self) -> t.Any:
         return self.form.save()
 
-    def _custom_filter(self, reqvalue: t.Any, objvalue: t.Any) -> tuple[t.Any, t.Any]:
+    def _custom_filter(
+        self,
+        reqvalue: t.Any,
+        objvalue: t.Any,
+    ) -> tuple[t.Any, t.Any]:  # type:ignore
         return reqvalue, objvalue

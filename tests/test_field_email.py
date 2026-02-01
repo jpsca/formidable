@@ -71,4 +71,4 @@ def test_validate_one_of():
 
 def test_invalid_one_of():
     with pytest.raises(ValueError):
-        f.EmailField(one_of="not a list")  # type: ignore
+        f.EmailField(one_of="not a list")

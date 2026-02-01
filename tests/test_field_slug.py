@@ -67,4 +67,4 @@ def test_validate_one_of():
 
 def test_invalid_one_of():
     with pytest.raises(ValueError):
-        f.SlugField(one_of="not a list")  # type: ignore
+        f.SlugField(one_of="not a list")

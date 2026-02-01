@@ -122,4 +122,4 @@ def test_validate_one_of():
 
 def test_invalid_one_of():
     with pytest.raises(ValueError):
-        f.URLField(one_of="not a list")  # type: ignore
+        f.URLField(one_of="not a list")

@@ -196,6 +196,6 @@ class NestedForms(Field):
         self,
         reqvalue: dict[str, t.Any] | None,
         objvalue: Iterable[t.Any],
-    ) -> tuple[dict[str, t.Any] | None, Iterable[t.Any]]:
+    ) -> tuple[dict[str, t.Any] | None, Iterable[t.Any]]:  # type:ignore
         return reqvalue, objvalue
 

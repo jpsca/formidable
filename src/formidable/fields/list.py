@@ -88,7 +88,7 @@ class ListField(Field):
     def set_name_format(self, name_format: str):
         self.name_format = f"{name_format}[]"
 
-    def filter_value(self, items: t.Any) -> t.Any:
+    def filter_value(self, items: t.Any) -> t.Any:  # type:ignore
         """
         Convert the value to a Python type.
         """

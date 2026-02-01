@@ -363,7 +363,7 @@ class SlugField(TextField):
             messages=messages,
         )
 
-    def filter_value(self, value: str) -> str:
+    def filter_value(self, value: str | None) -> str:
         """
         Convert the value to a slugified string.
         """
