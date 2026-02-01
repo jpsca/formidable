@@ -2,4 +2,6 @@
 title: BooleanField
 ---
 
-::: formidable.BooleanField members=no
+::: api formidable.BooleanField
+:show_members: false
+:::

@@ -2,8 +2,9 @@
 title: FormField
 ---
 
-::: formidable.FormField members=no
-
+::: api formidable.FormField
+:show_members: false
+:::
 ----
 
 This is a form field that contains another form as its value. For example:
@@ -44,26 +45,26 @@ print(form.save())
 
 This field is useful when you want to store those group of fields separated, for example:
 
-* In a different model with a one-to-one relationship to the main model
+In a different model with a one-to-one relationship to the main model
 
-  ```python
-  class Settings(Model):
-      locale = Text()
-      timezone = Text()
-      email_notifications = Bool()
+```python
+class Settings(Model):
+    locale = Text()
+    timezone = Text()
+    email_notifications = Bool()
 
-  class Profile(Model):
-      name = Text()
-      settings = ForeignKey(Settings, backref="profile", lazy_load=True)
+class Profile(Model):
+    name = Text()
+    settings = ForeignKey(Settings, backref="profile", lazy_load=True)
 
-  ```
+```
 
-  \- or -
+\- or -
 
-* In a JSON field, that you want to validate before saving.
+In a JSON field, that you want to validate before saving.
 
-  ```python
-  class Profile(Model):
-      name = Text()
-      settings = JSON()
-  ```
+```python
+class Profile(Model):
+    name = Text()
+    settings = JSON()
+```

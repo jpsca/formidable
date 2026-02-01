@@ -2,4 +2,6 @@
 title: SlugField
 ---
 
-::: formidable.SlugField members=no
+::: api formidable.SlugField
+:show_members: false
+:::

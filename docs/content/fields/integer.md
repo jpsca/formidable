@@ -2,4 +2,6 @@
 title: IntegerField
 ---
 
-::: formidable.IntegerField members=no
+::: api formidable.IntegerField
+:show_members: false
+:::

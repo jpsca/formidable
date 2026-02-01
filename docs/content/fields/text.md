@@ -2,4 +2,6 @@
 title: TextField
 ---
 
-::: formidable.TextField members=no
+::: api formidable.TextField
+:show_members: false
+:::

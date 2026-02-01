@@ -2,4 +2,6 @@
 title: TimeField
 ---
 
-::: formidable.TimeField members=no
+::: api formidable.TimeField
+:show_members: false
+:::

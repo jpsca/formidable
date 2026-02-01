@@ -4,7 +4,9 @@ title: Forms
 
 Forms provide the highest-level API in Formidable. They contain your field definitions, handle validation, process input, and orchestrate everything together.
 
-::: formidable.Form members=no
+::: api formidable.Form
+:show_members: false
+:::
 
 
 ## Defining Forms
@@ -47,9 +49,9 @@ class ModeratorPostForm(BasePostForm):
 
 ```
 
-/// warning
+::: warning
 Deep hierarchies can become hard to debug. Limit to two (plus a base form) max levels and favor composition where possible (e.g., mixins for reusable snippets).
-///
+:::
 
 
 ## Using Forms

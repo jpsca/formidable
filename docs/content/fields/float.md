@@ -2,4 +2,6 @@
 title: FloatField
 ---
 
-::: formidable.FloatField members=no
+::: api formidable.FloatField
+:show_members: false
+:::

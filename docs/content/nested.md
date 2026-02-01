@@ -121,9 +121,9 @@ Remember the `{{ address.hidden_tags() }}` from before? You must add this to *ea
 * Another named `_destroy`, which is relevant when the user can add or remove forms and, if filled, indicates that the associated object should be deleted.
 
 
-/// warning | Is sending ids safe?
+::: warning | Is sending ids safe?
 Don't worry about malicious users editing the hidden `_id` field. The value is ignored if it does not belong to one of the objects used to instantiate the form, so users cannot update objects they are not authorized to modify.
-///
+:::
 
 In the example above, the `_id` hidden inputs weren't added because the forms were empty, and neither were the `_destroy` ones because we hadn't allowed removing associated objects.
 
@@ -226,7 +226,7 @@ class TodoListForm(f.Form):
     todo = f.NestedForms(TodoForm, allow_delete=True)
 ```
 
-... and a template. I'm using a macro to render the `TodoForm` (because later we are going to need to render it more than once):
+... and a template. I'm using a macro to render the `TodoForm` (because later we are going to need to render it more than once:
 
 ```html+jinja
 {% macro render_todo(form, label) -%}

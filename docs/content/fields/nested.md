@@ -2,8 +2,9 @@
 title: NestedForms
 ---
 
-::: formidable.NestedForms members=no
-
+::: api formidable.NestedForms
+:show_members: false
+:::
 This is a powerful field. The idea is to allow users to dynamically add or remove one or more instances of a subform.
 
 ```python

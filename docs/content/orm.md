@@ -67,7 +67,7 @@ class PageForm(BaseForm):
 
 ## Using Sub-forms (`FormField`)
 
-<div class="columns" markdown="1">
+::: div columns
 
 ```python {title="Scenario 1"}
 class MetadataForm(f.Form):
@@ -106,7 +106,7 @@ class PageForm(f.Form):
 
 ```
 
-</div>
+:::
 
 * If the subform is connected to a model (scenario 1), an object will be created and returned.
 * If the subform is *not* connected (scenario 2), `metadata` will be a dictionary.
@@ -114,7 +114,7 @@ class PageForm(f.Form):
 
 ## Using nested forms (`NestedForms`)
 
-<div class="columns" markdown="1">
+::: div columns
 
 ```python {title="Scenario 1"}
 class IngredientForm(f.Form):
@@ -150,7 +150,7 @@ class RecipeForm(f.Form):
         IngredientForm
     )
 ```
-</div>
+:::
 
 * If the nested form is connected to a model (scenario 1), a *list of objects* will be returned.
 * If the nested form is *not* connected (scenario 2), `ingredients` will be a *list of dictionaries*.

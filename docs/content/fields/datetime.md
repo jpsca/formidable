@@ -2,4 +2,6 @@
 title: DateTimeField
 ---
 
-::: formidable.DateTimeField members=no
+::: api formidable.DateTimeField
+:show_members: false
+:::

@@ -1,3 +1,17 @@
+html {
+  --rgb-base: 246, 241, 238;
+  --rgb-accent: 83, 151, 0;
+}
+@media (prefers-color-scheme: dark) {
+  html:not(.cs-light) {
+    --rgb-base: 42, 41, 41;
+    --rgb-accent: 118, 215, 0;
+  }
+}
+html.cs-dark {
+  --rgb-accent: 118, 215, 0;
+}
+
 .page__content h1,
 .page__content h2,
 .page__content h3 {

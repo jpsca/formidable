@@ -2,4 +2,6 @@
 title: FileField
 ---
 
-::: formidable.FileField members=no
+::: api formidable.FileField
+:show_members: false
+:::

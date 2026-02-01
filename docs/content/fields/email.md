@@ -2,4 +2,6 @@
 title: EmailField
 ---
 
-::: formidable.EmailField members=no
+::: api formidable.EmailField
+:show_members: false
+:::

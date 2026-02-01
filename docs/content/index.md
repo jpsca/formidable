@@ -45,41 +45,41 @@ title: Formidable
 
 Formidable is small, modern, and handles the advanced scenarios you'll actually encounter in production applications.
 
-<article class="card" markdown="1">
+::: div card
 ### Dynamic Nested Forms That Actually Work
 
 Formidable's `NestedForms` field handles complex scenarios like users dynamically adding/removing subforms with proper deletion tracking, primary key management, and JavaScript integration out of the box.
-</article>
+:::
 
-<article class="card card--l2" markdown="1">
+::: div card card--l2
 ### Subforms
 
 `FormField` elegantly handles nested data structures (JSON fields, one-to-one relationships)
-</article>
+:::
 
-<article class="card" markdown="1">
+::: div card
 ### Multiple ORM Support
 
 Out-of-the-box integration with Peewee, Pony ORM, Tortoise ORM, SQLAlchemy, and SQLModel.
-</article>
+:::
 
-<article class="card" markdown="1">
+::: div card
 ### Translatable/customizable messages
 
 Formidable's validation messages were designed to be easily translated or replaced.
-</article>
+:::
 
-<article class="card" markdown="1">
+::: div card
 ### Modern HTML-First Philosophy
 
 Built for the modern era of HTMX, Turbo, and "HTML over the wire" patterns. Formidable embraces native HTML forms instead of fighting them, while still providing optional render helpers when you need them.
-</article>
+:::
 
-<article class="card card--l2" markdown="1">
+::: div card card--l2
 ### Render flexibility
 
 Unlike other libraries where you're often stuck between manual HTML or opinionated widgets, Formidable lets you choose and mix and match as needed.
-</article>
+:::
 
 
 ## Vision

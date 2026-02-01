@@ -23,6 +23,7 @@ requires-python = ">=3.12,<4"
 dependencies = [
     "idna>=3.10",
     "markupsafe>=3.0.3",
+    "writeadoc",
 ]
 
 [project.optional-dependencies]
@@ -44,7 +45,7 @@ dev = [
     "tox-uv",
 ]
 doc = [
-    "writeadoc>=0.8.1",
+    "writeadoc>=0.11.0",
 ]
 test = [
     "pytest",
@@ -176,3 +177,6 @@ select = [
 known-first-party = ["formidable"]
 # Use two line after imports.
 lines-after-imports = 2
+
+[tool.uv.sources]
+writeadoc = { path = "../writeadoc", editable = true }

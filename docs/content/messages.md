@@ -21,7 +21,8 @@ When a form field has an error, it exposes three error-related attributes:
 
 You can see the full (short) default dictionary of error messages in `formidable.errors.MESSAGES`. The dictionary uses the error codes as keys and the human-readable messages as values.
 
-/// details | The full list of default messages
+::: note | The full list of default messages
+:open: false
 
 ```python
 MESSAGES = {
@@ -51,8 +52,7 @@ MESSAGES = {
     "invalid_slug": "A valid “slug” can only have a-z letters, numbers, underscores, or hyphens",
 }
 ```
-
-///
+:::
 
 These messages are intentionally generic. For example, the `"required"` error message is simply `"Field is required"` - functional but generic.
 
@@ -95,7 +95,7 @@ form = MyForm(
 )
 ```
 
-/// note
+::: note
 The other way to translate your messages is to ignore the `messages` altogether, and instead use the error codes to do it in your templates. For example:
 
 ```html+jinja {hl_lines="9"}
@@ -107,7 +107,7 @@ The other way to translate your messages is to ignore the `messages` altogether,
   {%- endif %}
 </div>
 ```
-///
+:::
 
 ## Custom field messages
 

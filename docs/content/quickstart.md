@@ -6,25 +6,24 @@ title: Quickstart
 
 Run the following command:
 
-/// tab | Using "**pip**"
+::: tab | Using "**pip**"
 
 ```bash
 pip install formidable
 ```
 
-///
+:::
 
-/// tab | Using "**uv**"
+::: tab | Using "**uv**"
 
 ```bash
 uv add formidable
 ```
 
-///
+:::
 
 
 ## Create a form
-
 
 Create a new file in your project, typically inside a `forms` folder:
 
@@ -60,7 +59,7 @@ def index():
 
 Now let's look at the template side.
 
-/// note | Render helpers
+::: note | Render helpers
 Formidable fields provide helper functions to simplify HTML generation. These helpers are practical but entirely optional. Compare the two approaches:
 
 *Without* helper functions (standard HTML):
@@ -90,8 +89,7 @@ Formidable fields provide helper functions to simplify HTML generation. These he
 ```
 
 You can read more about these render methods in the [Fields page](/docs/fields/#render-methods).
-
-///
+:::
 
 Here is the `teams/new.html` template, which takes advantage of the helpers:
 
