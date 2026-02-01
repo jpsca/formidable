@@ -45,7 +45,7 @@ dev = [
     "tox-uv",
 ]
 doc = [
-    "writeadoc>=0.11.0",
+    "writeadoc>=0.13.0",
 ]
 test = [
     "pytest",
@@ -177,6 +177,3 @@ select = [
 known-first-party = ["formidable"]
 # Use two line after imports.
 lines-after-imports = 2
-
-[tool.uv.sources]
-writeadoc = { path = "../writeadoc", editable = true }
