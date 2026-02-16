@@ -72,7 +72,7 @@ You can read more about error codes and messages in the ["Custom error messages"
 
 ## Render methods {#render-methods}
 
-While you can always write your HTML by hand using the [field attributes](#field-attributes) discussed later, using these methods is the most practical way to render your forms.
+While you can always write your HTML by hand using the [field attributes](#field-attributesproperties) discussed later, using these methods is the most practical way to render your forms.
 
 ### label
 
@@ -207,7 +207,7 @@ While you can always write your HTML by hand using the [field attributes](#field
 :::
 
 
-## Field attributes/properties {#field-attributes}
+## Field attributes/properties
 
 These attributes are the most low-level API of the fields. Use them when you need to write the HTML of your forms manually.
 

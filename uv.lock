@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.12, <4"
 
 [[package]]
@@ -227,7 +227,7 @@ dev = [
     { name = "tox-uv" },
     { name = "ty" },
 ]
-doc = [{ name = "writeadoc", specifier = ">=0.13.0" }]
+doc = [{ name = "writeadoc", specifier = ">=0.15.0" }]
 test = [
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -335,14 +335,14 @@ wheels = [
 
 [[package]]
 name = "jx"
-version = "0.5.1"
+version = "0.8.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jinja2" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0a/ac/00603141020d0fe1494617a14fc4987fdaa22a71f17490a4919470f82b12/jx-0.5.1.tar.gz", hash = "sha256:bb869be5fbad889eb2e0e4a6bafe9ef2bb6a821ea0b2a9680b9b739973c8bd59", size = 25981, upload-time = "2025-11-21T23:03:40.041Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/33/43/4c701ffab46ab9d2af57c92d3b35cbf804eb33672a5d27a585e3913fc5bf/jx-0.8.0.tar.gz", hash = "sha256:7547d7e4a29717bec7bcda259f494151176f5b3dd6bc40ea976a821919f549fd", size = 40210, upload-time = "2026-02-16T16:37:21.473Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f1/62/f1025553eb64bcc48bba42527bb334692de8763e6352aa2b051aaa221a2c/jx-0.5.1-py3-none-any.whl", hash = "sha256:1af0eba80928f783582d8adf8761b2d91998e534a9add27ef96b0996d8428a9d", size = 18258, upload-time = "2025-11-21T23:03:38.847Z" },
+    { url = "https://files.pythonhosted.org/packages/89/f1/0f7d0f2b812bf35cba93fd03717c0b2a8b8358c2d886beb5933a536460d1/jx-0.8.0-py3-none-any.whl", hash = "sha256:2cb24ce327f5baeb65a749da2e998b8dee94d96967c30df367e955c928294511", size = 25620, upload-time = "2026-02-16T16:37:20.276Z" },
 ]
 
 [[package]]
@@ -773,7 +773,7 @@ wheels = [
 
 [[package]]
 name = "writeadoc"
-version = "0.13.0"
+version = "0.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "docstring-parser" },
@@ -786,7 +786,7 @@ dependencies = [
     { name = "ty" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/13/64/9a69b54632a0e14f2bb3297805e95cd0b5c7f9af5af4bc2637ea60b36c5e/writeadoc-0.13.0.tar.gz", hash = "sha256:b8682b32bb3d66a0b62a2a1ee843c9e519b2593fe0ea53cee85bfae4c6657f99", size = 387981, upload-time = "2026-02-01T00:32:49.781Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/ac/277bc84af254cfb5f31eb9a29137df1187c75245b2176b0fa6cfcfcb686a/writeadoc-0.15.0.tar.gz", hash = "sha256:c15285fe3e962c0d9d8da33db7cde538a12c5f4369a7ec1eca391d2104755feb", size = 391853, upload-time = "2026-02-16T20:33:37.328Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/db/bf/590dfe794ffb870a34f1afbcee1a9126025287393448d6bac18b4899da02/writeadoc-0.13.0-py3-none-any.whl", hash = "sha256:84d8b49973b50df81854fdbce5f0feb398f576ddc6d9fe67f7837d68e53d291d", size = 400134, upload-time = "2026-02-01T00:32:51.074Z" },
+    { url = "https://files.pythonhosted.org/packages/70/e5/cfe468a46d31b2c865343b9489cc24ff7923ab1ec8f3f3c98aa055a41dc7/writeadoc-0.15.0-py3-none-any.whl", hash = "sha256:09b837a5f079997e841b2354f300f0ef04f54b3e59e831a374909fc23b254088", size = 402308, upload-time = "2026-02-16T20:33:36.01Z" },
 ]

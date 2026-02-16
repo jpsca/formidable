@@ -154,7 +154,7 @@ These properties have a side effect: they trigger validation of all fields and t
 
 You don't usually need to directly call this method, since the `is_valid`/`is_invalid` properties do it for you if needed.
 
-The method triggers validation of each of its fields and, if there are no errors, it calls the [`after_validate`](#after_validate) method of the form, if one is defined.
+The method triggers validation of each of its fields and, if there are no errors, it calls the [`after_validate`](#form-level-validation) method of the form, if one is defined.
 
 Returns `True` or `False`, whether the form is valid after validation.
 
@@ -192,7 +192,7 @@ print(product.user_id)  # 123
 ```
 
 
-## Form-level validation {id=after_validate}
+## Form-level validation
 
 If you add an `after_validate` method to the form, it will be called at the end of the validation process, after the individual field validations.
 

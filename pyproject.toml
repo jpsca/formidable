@@ -45,7 +45,7 @@ dev = [
     "tox-uv",
 ]
 doc = [
-    "writeadoc>=0.13.0",
+    "writeadoc>=0.15.0",
 ]
 test = [
     "pytest",
