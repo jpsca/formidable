@@ -149,53 +149,50 @@ If the form data contains the key `_destroy` with a non-empty value, the object 
 
 So far, we've shown a fixed number of nested forms, but it's common to allow users to add or remove forms in the browser. This type of client-side manipulation requires JavaScript, but the neat part is you don't have to write it yourself.
 
-Formidable forms use the same (or similar) naming conventions as Ruby on Rails, so there are already JavaScript libraries written for this task.
-
-For this example, we are going to use a modified version of ["Stimulus Rails Nested Form"](https://www.stimulus-components.com/docs/stimulus-rails-nested-form/){target=_blank} script that depends on the [Stimulus JavaScript library](https://stimulus.hotwired.dev/){target=_blank}.
-
-This is the recommended way to do it and, in fact, it's [included within](https://github.com/jpsca/formidable/blob/main/src/formidable/nested-form-controller.js){target=_blank} the Formidable source code repo.
+Formidable [includes within](https://github.com/jpsca/formidable/blob/main/src/formidable/nested-form-controller.js){target=_blank} the Formidable source code repo a small, vanilla JavaScript file to handle dynamic nested forms for you.
 
 We are going to build this simple to-do list you can see here (it's live, try it!):
 
 <form
   id="nested-form-demo"
   method="post"
-  data-controller="nested-form"
+  data-nestedform
   novalidate
 >
   <h2>Nested Forms</h2>
 
-  <div class="nested-form-wrapper">
+  <div class="nestedform">
     <label for="f2732e072d9634fb8bf3195ef7f1d436c">Your todo</label>
     <div class="field">
       <input type="text" id="f2732e072d9634fb8bf3195ef7f1d436c" name="todo[0][description]" value="Pet the cat" required />
-      <button type="button" data-action="nested-form#remove"
+      <button type="button" data-nestedform-remove
         title="Remove todo">&times;</button>
     </div>
     <input type="hidden" name="todo[0][_destroy]" />
   </div>
 
-  <template data-nested-form-target="template">
-    <div class="nested-form-wrapper">
+  <template data-nestedform-template>
+    <div class="nestedform">
       <label for="ftemp1">New Todo</label>
       <div class="field">
         <input type="text" id="ftemp1" name="todo[NEW_RECORD][description]" required />
-        <button type="button" data-action="nested-form#remove"
+        <button type="button" data-nestedform-remove
           title="Remove todo">&times;</button>
       </div>
     </div>
   </template>
 
-  <div id="nested-form-target" data-nested-form-target="target"></div>
+  <div data-nestedform-target></div>
 
   <div class="actions">
-    <button type="button" data-action="nested-form#add">Add todo</button>
+    <button type="button" data-nestedform-add>Add todo</button>
   </div>
 </form>
 
-### 1. Add Stimulus.js to your project
+### 1. Add `nestedform.js` to your project
 
-Download [`stimulus.js` from here](https://unpkg.com/@hotwired/stimulus/dist/stimulus.js) and save it to your project, for example to `static/js/stimulus.js`. Do the same for the [`nested-form-controller.js` file](https://raw.githubusercontent.com/jpsca/formidable/refs/heads/main/src/formidable/nested-form-controller.js).
+Download [`nestedform.js` file](https://raw.githubusercontent.com/jpsca/formidable/refs/heads/main/src/formidable/nestedform.js) to your project,
+for example, to the `static/js/` folder.
 
 Then, add this to the header of your base template:
 
@@ -203,11 +200,7 @@ Then, add this to the header of your base template:
 <html>
   <head>
     ...
-    <script type="module">
-      import { Application } from "/static/js/stimulus.js";
-      window.Stimulus = Application.start();
-    </script>
-    <script type="module" src="/static/js/nested-form-controller.js"></script>
+    <script type="module" src="/static/js/nestedform.js"></script>
   </head>
   ...
 ```
@@ -250,20 +243,20 @@ This is still a static version of the nested forms, so let's add the rest.
 
 ### 3. Connect the form to the Stimulus "controller"
 
-Add `data-controller="nested-form"` to the form tag or to a wrapper tag:
+Add `data-nestedform` to the form tag or to a wrapper tag:
 
 ```html+jinja
 ...
-<form method="post" data-controller="nested-form" novalidate>
+<form method="post" data-nestedform novalidate>
 ...
 
 ```
 
-### 4. Add a `nested-form-wrapper` class to the nested form
+### 4. Add a `nestedform` class to the nested form
 
 ```html+jinja {hl_lines="2"}
 {% macro render_todo(form, label) -%}
-<div class="nested-form-wrapper">
+<div class="nestedform">
   {{ form.description.label(label) }}
   ...
 </div>
@@ -275,12 +268,12 @@ Add `data-controller="nested-form"` to the form tag or to a wrapper tag:
 
 ```html+jinja {hl_lines="6-7"}
 {% macro render_todo(form, label) -%}
-<div class="nested-form-wrapper">
+<div class="nestedform">
   {{ form.description.label(label) }}
   <div class="field">
     {{ form.description.text_input() }}
-    <button type="button" data-action="nested-form#remove"
-      title="Remove todo">&times;</button>
+    <button type="button" title="Remove todo"
+      data-nestedform-remove>&times;</button>
   </div>
   {{ form.description.error_tag() }}
   {{ form.hidden_tags() }}
@@ -295,14 +288,14 @@ The JS script needs something to clone so it can add a new nested form, let's ad
 
 ```html+jinja {hl_lines="9-11"}
 ...
-<form method="post" data-controller="nested-form" novalidate>
+<form method="post" data-nestedform novalidate>
   <h2>Nested Forms</h2>
 
   {% for todo_form in form.todo.forms %}
   {{ render_todo(todo_form, "Your todo") }}
   {% endfor %}
 
-  <template data-nested-form-target="template">
+  <template data-nestedform-template>
     {{ render_todo(form.todo.empty_form, "New Todo") }}
   </template>
 </form>
@@ -310,15 +303,15 @@ The JS script needs something to clone so it can add a new nested form, let's ad
 
 **Note that we call the macro using `form.todo.empty_form`**. This is a special attribute of a `NestedForms` field that generates an empty instance of a nested form, excatly for using it for this cases.
 
-It's important to put it *inside* the element with the `data-controller="nested-form"` attribute (the form tag in our example).
+It's important to put it *inside* the element with the `data-nestedform` attribute (the form tag in our example).
 
 ### 7. Choose where to insert the new nested forms
 
-This must also be *inside* the element with the `data-controller="nested-form"` attribute. Let's add it to the bottom of the form tag.
+This must also be *inside* the element with the `data-nestedform` attribute. Let's add it to the bottom of the form tag.
 
 ```html+jinja {hl_lines="2"}
   ...
-  <div data-nested-form-target="target"></div>
+  <div data-nestedform-target></div>
 </form>
 ```
 
@@ -329,7 +322,7 @@ Finally, we need something to trigger the insertion of a new nested form, let's 
 ```html+jinja {hl_lines="3"}
   ...
   <div class="actions">
-    <button type="button" data-action="nested-form#add">Add todo</button>
+    <button type="button" data-nestedform-add>Add todo</button>
   </div>
 </form>
 ```
@@ -340,11 +333,11 @@ That's it, the final version of the template should look like this:
 
 ```html+jinja
 {% macro render_todo(form, label) -%}
-<div class="nested-form-wrapper">
+<div class="nestedform">
   {{ form.description.label(label) }}
   <div class="field">
     {{ form.description.text_input() }}
-    <button type="button" data-action="nested-form#remove"
+    <button type="button" data-nestedform-remove
       title="Remove todo">&times;</button>
   </div>
   {{ form.description.error_tag() }}
@@ -352,20 +345,20 @@ That's it, the final version of the template should look like this:
 </div>
 {%- endmacro %}
 
-<form method="post" data-controller="nested-form" novalidate>
+<form method="post" data-nestedform novalidate>
   <h2>Nested Forms</h2>
 
   {% for todo_form in form.todo.forms %}
   {{ render_todo(todo_form, "Your todo") }}
   {% endfor %}
 
-  <template data-nested-form-target="template">
+  <template data-nestedform-template>
     {{ render_todo(form.todo.empty_form, "New Todo") }}
   </template>
-  <div data-nested-form-target="target"></div>
+  <div data-nestedform-target></div>
 
   <div class="actions">
-    <button type="button" data-action="nested-form#add">Add todo</button>
+    <button type="button" data-nestedform-add>Add todo</button>
   </div>
 </form>
 ```

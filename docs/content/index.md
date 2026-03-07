@@ -5,37 +5,36 @@ title: Formidable
 <form
   id="nested-form-demo"
   method="post"
-  data-controller="nested-form"
   novalidate
   markdown="0"
+  data-nestedform
 >
   <h2>Nested Forms</h2>
 
-  <div class="nested-form-wrapper">
+  <div class="nestedform">
     <label for="f2732e072d9634fb8bf3195ef7f1d436c">Your todo</label>
     <div class="field">
       <input type="text" id="f2732e072d9634fb8bf3195ef7f1d436c" name="todo[0][description]" value="Pet the cat" required />
-      <button type="button" data-action="nested-form#remove"
-        title="Remove todo">&times;</button>
+      <button type="button" title="Remove todo" data-nestedform-remove>&times;</button>
     </div>
     <input type="hidden" name="todo[0][_destroy]" />
   </div>
 
-  <template data-nested-form-target="template">
-    <div class="nested-form-wrapper">
+  <template data-nestedform-template>
+    <fieldset class="nestedform">
       <label for="ftemp1">New Todo</label>
       <div class="field">
         <input type="text" id="ftemp1" name="todo[NEW_RECORD][description]" required />
-        <button type="button" data-action="nested-form#remove"
+        <button type="button" data-nestedform-remove
           title="Remove todo">&times;</button>
       </div>
-    </div>
+    </fieldset>
   </template>
 
-  <div id="nested-form-target" data-nested-form-target="target"></div>
+  <div data-nestedform-target></div>
 
   <div class="actions">
-    <button type="button" data-action="nested-form#add">Add todo</button>
+    <button type="button" data-nestedform-add>Add todo</button>
   </div>
 </form>
 

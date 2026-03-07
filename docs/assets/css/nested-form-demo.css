@@ -17,7 +17,7 @@
     text-shadow: none;
     font-family: var(--font-family-sans);
   }
-  .nested-form-wrapper {
+  .nestedform {
     margin-top: 1rem;
   }
   label {
@@ -45,7 +45,7 @@
     color: inherit;
     background: var(--color-white);
   }
-  [data-action="nested-form#remove"] {
+  [data-nestedform-remove] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -60,7 +60,7 @@
     border-top-right-radius: .375rem;
     cursor: pointer;
   }
-  [data-action="nested-form#remove"]:hover {
+  [data-nestedform-remove]:hover {
     color: #374151;
   }
   .actions {
