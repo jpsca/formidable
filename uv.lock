@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12, <4"
 
 [[package]]
@@ -227,7 +227,7 @@ dev = [
     { name = "tox-uv" },
     { name = "ty" },
 ]
-doc = [{ name = "writeadoc", specifier = ">=0.15.0" }]
+doc = [{ name = "writeadoc", specifier = ">=0.17" }]
 test = [
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -773,7 +773,7 @@ wheels = [
 
 [[package]]
 name = "writeadoc"
-version = "0.15.0"
+version = "0.17.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "docstring-parser" },
@@ -786,7 +786,7 @@ dependencies = [
     { name = "ty" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/16/ac/277bc84af254cfb5f31eb9a29137df1187c75245b2176b0fa6cfcfcb686a/writeadoc-0.15.0.tar.gz", hash = "sha256:c15285fe3e962c0d9d8da33db7cde538a12c5f4369a7ec1eca391d2104755feb", size = 391853, upload-time = "2026-02-16T20:33:37.328Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/21/4b/b8b4eabbeade5a38e9b44fcbfe2e8400604cb868595925547fceb5444135/writeadoc-0.17.0.tar.gz", hash = "sha256:0029e58de899a4e30b6c3cebcdf5b09f5d4e26ec359c8ee6aa3b6e387b8a2b42", size = 391930, upload-time = "2026-03-08T14:38:25.333Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/70/e5/cfe468a46d31b2c865343b9489cc24ff7923ab1ec8f3f3c98aa055a41dc7/writeadoc-0.15.0-py3-none-any.whl", hash = "sha256:09b837a5f079997e841b2354f300f0ef04f54b3e59e831a374909fc23b254088", size = 402308, upload-time = "2026-02-16T20:33:36.01Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/90/5bb897200fa789c4c0696024537a7c4ead1484a1bcd0733edccc103d6868/writeadoc-0.17.0-py3-none-any.whl", hash = "sha256:1b37a72d07eea92e63df32a8693f787553f82e2afafd76e6e93b286eb9372cd6", size = 402365, upload-time = "2026-03-08T14:38:23.911Z" },
 ]
