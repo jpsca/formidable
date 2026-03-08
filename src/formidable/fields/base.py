@@ -213,7 +213,7 @@ class Field:
     def error_tag(self, **attrs: t.Any) -> str:
         """
         If the field has an error, renders the field's error message as an
-        HTML element..
+        HTML element.
 
         Args:
             **attrs:
@@ -228,7 +228,7 @@ class Field:
             >>> print(field.error_tag())
             <div id="f-123abc-error" class="field-error">This field is required</div>
 
-            >>> print(field.label("My label", class_="text-red-500"))
+            >>> print(field.error_tag(class_="text-red-500"))
             <div id="f-123abc-error" class="text-red-500">This field is required</div>
             ```
 
@@ -562,7 +562,7 @@ class Field:
         Renders the field as an HTML `<input type="date">` element.
 
         This is a control for entering a date (year, month, and day, with no time).
-        Opens a date picker or numeric wheels for year, month, and day when active in supporting browsers.
+        Opens a date picker or numeric wheels for year, month, and day when
         active in supporting browsers.
 
         Args:
@@ -636,7 +636,7 @@ class Field:
         This is a control for entering a number whose exact value is not important.
 
         Displays as a range widget defaulting to the middle value. Used in conjunction
-        `min` and `max` to define the range of acceptable values.
+        with `min` and `max` to define the range of acceptable values.
 
         Args:
             **attrs:
@@ -694,7 +694,7 @@ class Field:
         """
         Renders the field as an HTML `<input type="url">` element.
 
-        This is a control entering a URL. Looks like a text input, but has
+        This is a control for entering a URL. Looks like a text input, but has
         relevant keyboard in supporting browsers and devices with dynamic keyboards.
 
         Args:

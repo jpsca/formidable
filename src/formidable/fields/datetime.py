@@ -16,7 +16,7 @@ class DateTimeField(Field):
 
     Args:
         format:
-            The format of the date string. Defaults to '%Y-%m-%d'.
+            The format of the datetime string. Defaults to '%Y-%m-%dT%H:%M:%S'.
         required:
             Whether the field is required. Defaults to `True`.
         default:
@@ -25,7 +25,7 @@ class DateTimeField(Field):
         after_date:
             A date that the field value must be after. Defaults to `None`.
         before_date:
-            A date that the field value must be before. Defaults to `None`.\
+            A date that the field value must be before. Defaults to `None`.
         past_date:
             Whether the date must be in the past. Defaults to `False`.
         future_date:
@@ -98,7 +98,7 @@ class DateTimeField(Field):
     def filter_value(self, value: str | datetime.datetime | None) -> datetime.datetime | None:
         """
         Convert the value to a Python datetime.
-        The datetime is expected to be in the format `DateField.format`.
+        The datetime is expected to be in the format `DateTimeField.format`.
         """
         if value is None:
             return None
@@ -125,6 +125,7 @@ class DateTimeField(Field):
         now = self._utcnow or datetime.datetime.now(datetime.timezone.utc)
         if self.offset:
             now += datetime.timedelta(hours=self.offset)
+        now = now.replace(tzinfo=None)
 
         if self.past_date and self.value >= now:
             self.error = err.PAST_DATE

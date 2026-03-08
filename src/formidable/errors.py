@@ -39,13 +39,13 @@ MESSAGES = {
     ONE_OF: "Must be one of {one_of}",
 
     GT: "Must be greater than {gt}",
-    GTE: "Must be greater or equal than {gte}",
+    GTE: "Must be greater than or equal to {gte}",
     LT: "Must be less than {lt}",
-    LTE: "Must be less or equal than {lte}",
-    MULTIPLE_OF: "Must multiple of {multiple_of}",
+    LTE: "Must be less than or equal to {lte}",
+    MULTIPLE_OF: "Must be a multiple of {multiple_of}",
 
-    MIN_ITEMS: "Must have at least {min_length} items",
-    MAX_ITEMS: "Must have at most {max_length} items",
+    MIN_ITEMS: "Must have at least {min_items} items",
+    MAX_ITEMS: "Must have at most {max_items} items",
 
     MIN_LENGTH: "Must have at least {min_length} characters",
     MAX_LENGTH: "Must have at most {max_length} characters",

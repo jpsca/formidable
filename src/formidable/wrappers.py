@@ -8,7 +8,7 @@ import typing as t
 class ObjectManager:
     """
     A utility class for wrapping ORM objects and providing a consistent interface
-    for creatimg, accessing atttributes, updating, and deleting objects.
+    for creating, accessing attributes, updating, and deleting objects.
 
     Args:
         object:
@@ -19,7 +19,7 @@ class ObjectManager:
 
     def __init__(self, *, orm_cls: t.Any = None, object: t.Any = None):
         self.orm_cls = orm_cls
-        self.object = None if object is None else object
+        self.object = object
         self.is_dict = (object is not None) and isinstance(object, dict)
 
     def exists(self) -> bool:

@@ -48,13 +48,13 @@ class Form():
             The request data to parse and set the form fields. Defaults to `None`.
         object:
             An object to use as the source of the initial data for the form.
-            Will be updates on `save()`. Defaults to `None`.
+            Will be updated on `save()`. Defaults to `None`.
         name_format:
             A format string for the field names. Defaults to "{name}".
         messages:
             Custom messages for validation errors. Defaults to `None`, which uses the default messages.
             The messages are inherited to the forms of `NestedForms` and `FormField` fields, however,
-            if those forms have their own `messages` defined, those will take precendence over the
+            if those forms have their own `messages` defined, those will take precedence over the
             parent messages.
 
     """
@@ -71,7 +71,7 @@ class Form():
     _deleted: bool = False
 
     # Whether the form allows deletion of objects.
-    # If set to True, the form will delete objects of form when the "_destroy"
+    # If set to True, the form will delete the object when the "_destroy"
     # field is present.
     _allow_delete: bool = False
 
@@ -173,16 +173,16 @@ class Form():
 
         If the form is valid, this method will collect all the field values and:
 
-        a) If the form is not connected to an ORM model and it wasn't instantiate with
+        a) If the form is not connected to an ORM model and it wasn't instantiated with
            an object, it will return the data as a dictionary.
-        b) If it *was* instantiate with an object, it will update and return the object
+        b) If it *was* instantiated with an object, it will update and return the object
            (even if the "object" in question is a dictionary).
-        c) If it *wasn't* instantiate with an object, but it is connected to an ORM model,
+        c) If it *wasn't* instantiated with an object, but it is connected to an ORM model,
            it will create a new object and return it.
 
         Args:
             **extra:
-                Extra data to pass to add to the data before saving. This is useful
+                Extra data to add before saving. This is useful
                 to set fields that are not part of the form (e.g.: foreign keys).
 
         """
@@ -229,7 +229,7 @@ class Form():
         """
         Called after the individual field validations.
 
-        You can use to validate the relation between fields (e.g.: `password1 == password2`)
+        You can use it to validate the relation between fields (e.g.: `password1 == password2`)
         or to modify the field values before saving.
 
         To indicate validation errors, set the `error` attribute of the individual fields.

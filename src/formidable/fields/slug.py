@@ -323,9 +323,9 @@ class SlugField(TextField):
     in a human-readable way. It is usually a simplified version of the page
     title, containing only letters, numbers, hyphens or underscores.
 
-    This field convert its input to a valid slug. It uses a very simple
+    This field converts its input to a valid slug. It uses a very simple
     slugify function that removes most non-latin-based characters (cyrillic,
-    arabic, hebrew, hindi, etc.). You can provided your own slugify function
+    arabic, hebrew, hindi, etc.). You can provide your own slugify function
     with the `slugify` argument.
 
     Args:
@@ -355,6 +355,7 @@ class SlugField(TextField):
         one_of: Iterable[str] | None = None,
         messages: dict[str, str] | None = None,
     ):
+        self.slugify = slugify
         super().__init__(
             required=required,
             default=default,
@@ -369,4 +370,4 @@ class SlugField(TextField):
         """
         if value is None:
             return ""
-        return slugify(value)
+        return self.slugify(value)

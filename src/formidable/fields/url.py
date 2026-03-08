@@ -34,8 +34,6 @@ class URLField(Field):
         schemes:
             URL/URI scheme list to validate against. If not provided,
             the default list is ["http", "https"].
-        pattern:
-            A regex pattern that the string must match. Defaults to `None`.
         one_of:
             List of values that the field value must be one of. Defaults to `None`.
         messages:

@@ -102,9 +102,9 @@ class ListField(Field):
         for item in items:
             try:
                 values.append(self.type(item))
-            except Exception as e:
+            except Exception:
                 if self.strict:
-                    raise e
+                    raise
 
         return values
 

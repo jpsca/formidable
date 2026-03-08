@@ -22,15 +22,15 @@ class NestedForms(Field):
         FormClass:
             The class of the form to be used as a sub-form.
         min_items:
-            Minimum number of form in the set. Defaults to None (no minimum).
+            Minimum number of forms in the set. Defaults to None (no minimum).
         max_items:
-            Maximum number of form in the set. Defaults to None (no maximum).
+            Maximum number of forms in the set. Defaults to None (no maximum).
         default:
             Default value for the field. Defaults to `None`.
         allow_delete:
             Whether the form allows deletion of objects.
-            If set to `True`, the form will delete objects of form when the "_destroy"
-            field is present. Defaults to `True`.
+            If set to `True`, the form will delete objects when the "_destroy"
+            field is present. Defaults to `False`.
 
     """
 

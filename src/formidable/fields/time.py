@@ -24,7 +24,7 @@ class TimeField(Field):
         after_time:
             A time that the field value must be after. Defaults to `None`.
         before_time:
-            A time that the field value must be before. Defaults to `None`.\
+            A time that the field value must be before. Defaults to `None`.
         past_time:
             Whether the time must be in the past. Defaults to `False`.
         future_time:
@@ -69,8 +69,6 @@ class TimeField(Field):
         messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
     ):
-        self.format = format
-
         if after_time and isinstance(after_time, str):
             after_time = self.filter_value(after_time)
         self.after_time = t.cast(datetime.time | None, after_time)

@@ -86,7 +86,7 @@ class NumberField(Field):
         """
         Validate the field value against the defined constraints.
         """
-        if not self.value:
+        if self.value is None:
             return True
 
         if self.gt is not None and self.value <= self.gt:
