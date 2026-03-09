@@ -11,8 +11,7 @@ try:
 except ImportError:
     validate_email = None  # type: ignore
 
-from formidable import errors as err
-
+from .. import errors as err
 from .base import Field
 
 
@@ -110,8 +109,7 @@ class EmailField(Field):
             )
             return validated.normalized
         except (ValueError, TypeError):
-            self.error = err.INVALID_EMAIL
-        return value
+            raise ValueError(err.INVALID_EMAIL) from None
 
     def validate_value(self) -> bool:
         """

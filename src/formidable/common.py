@@ -9,4 +9,4 @@ def get_pk(obj: t.Any, pk: str) -> t.Any:
         value = obj.get(pk, None)
     else:
         value = getattr(obj, pk, None)
-    return str(value) if value else None
+    return str(value) if value is not None else None

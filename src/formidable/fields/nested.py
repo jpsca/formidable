@@ -66,6 +66,13 @@ class NestedForms(Field):
         )
         self.set_name_format(self.name_format)
 
+    def __copy__(self):
+        clone = object.__new__(self.__class__)
+        clone.__dict__.update(self.__dict__)
+        clone.empty_form = self.FormClass()
+        clone.forms = []
+        return clone
+
     def set_name_format(self, name_format: str):
         self.name_format = f"{name_format}[NEW_RECORD]"
         self.sub_name_format = f"{self.name}[{{name}}]"
@@ -85,8 +92,7 @@ class NestedForms(Field):
 
         reqvalue = reqvalue or {}
         assert isinstance(reqvalue, dict), "reqvalue must be a dictionary"
-        objvalue = objvalue or []
-        assert isinstance(objvalue, Iterable), "objvalue must be an iterable"
+        objvalue = list(objvalue) if objvalue else []
         if not (reqvalue or objvalue):
             reqvalue = self.default_value or {}
 
@@ -180,12 +186,14 @@ class NestedForms(Field):
             self.error_args = sub_errors
             return False
 
-        if self.min_items is not None and len(self.forms) < self.min_items:
+        active_count = sum(1 for f in self.forms if not f._deleted)
+
+        if self.min_items is not None and active_count < self.min_items:
             self.error = err.MIN_ITEMS
             self.error_args = {"min_items": self.min_items}
             return False
 
-        if self.max_items is not None and len(self.forms) > self.max_items:
+        if self.max_items is not None and active_count > self.max_items:
             self.error = err.MAX_ITEMS
             self.error_args = {"max_items": self.max_items}
             return False

@@ -34,8 +34,15 @@ class FormField(Field):
         required: bool = True,
         default: t.Any = None,
     ):
+        self.FormClass = FormClass
         self.form = FormClass()
         super().__init__(required=required, default=default)
+
+    def __copy__(self):
+        clone = object.__new__(self.__class__)
+        clone.__dict__.update(self.__dict__)
+        clone.form = self.FormClass()
+        return clone
 
     def set_name_format(self, name_format: str):
         self.name_format = name_format

@@ -126,7 +126,7 @@ When the user submits the form, process the information like this:
 def create():
     form = TeamForm(request.form)
 
-    if form.is_invalid():  # or `if not form.is_valid`
+    if form.is_invalid:  # or `if not form.is_valid`
         # There is an error, so re-render the form
         # with the submitted values and error messages
         return render_template("teams/new.html", form=form)

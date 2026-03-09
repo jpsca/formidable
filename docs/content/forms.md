@@ -162,9 +162,9 @@ Returns `True` or `False`, whether the form is valid after validation.
 
 If the form is valid, this method will collect all the field values and:
 
-a) If the form is not connected to an ORM model and it wasn't instantiate with an object, it will return the data as a dictionary.
-b) If it *was* instantiate with an object, it will update and return the object (even if the "object" in question is a dictionary).
-c) If it *wasn't* instantiate with an object, but it is connected to an ORM model, it will create a new object and return it.
+a) If the form is not connected to an ORM model and it wasn't instantiated with an object, it will return the data as a dictionary.
+b) If it *was* instantiated with an object, it will update and return the object (even if the "object" in question is a dictionary).
+c) If it *wasn't* instantiated with an object, but it is connected to an ORM model, it will create a new object and return it.
 
 ```python
 form = PostForm(
@@ -196,7 +196,7 @@ print(product.user_id)  # 123
 
 If you add an `after_validate` method to the form, it will be called at the end of the validation process, after the individual field validations.
 
-You can use to validate the relation between fields, for example in a update password scenario, or to modify the field values before saving.
+You can use it to validate the relation between fields, for example in a update password scenario, or to modify the field values before saving.
 
 ```python {hl_lines="11"}
 import formidable as f

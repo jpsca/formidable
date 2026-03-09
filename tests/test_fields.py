@@ -60,22 +60,22 @@ def test_invalid(FieldType, value):
 
 
 @pytest.mark.parametrize(
-  "FieldType,objvalue",
+  "FieldType,objvalue,expected",
     [
-        (f.DateField, "2025-05-05"),
-        (f.DateTimeField, "2025-05-05T00:00:00"),
-        (f.EmailField, "test@example.com"),
-        (f.FloatField, "5.0"),
-        (f.IntegerField, "5"),
-        (f.SlugField, "test"),
-        (f.TimeField, "12 PM"),
-        (f.URLField, "http://test.com"),
+        (f.DateField, "2025-05-05", None),
+        (f.DateTimeField, "2025-05-05T00:00:00", None),
+        (f.EmailField, "test@example.com", ""),
+        (f.FloatField, "5.0", None),
+        (f.IntegerField, "5", None),
+        (f.SlugField, "test", ""),
+        (f.TimeField, "12 PM", None),
+        (f.URLField, "http://test.com", ""),
     ]
 )
-def test_reqdata_over_objvalue(FieldType, objvalue):
+def test_reqdata_over_objvalue(FieldType, objvalue, expected):
     field = FieldType(required=False)
     field.set("", objvalue)
-    assert field.value == ""
+    assert field.value == expected
 
 
 @pytest.mark.parametrize(

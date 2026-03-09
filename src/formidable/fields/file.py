@@ -44,7 +44,7 @@ class FileField(Field):
             return
 
         self.value = self.filter_value(value)
-        if self.required and value in [None, ""]:
+        if self.required and self.value in (None, ""):
             self.error = err.REQUIRED
             return
 

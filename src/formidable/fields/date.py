@@ -100,8 +100,10 @@ class DateField(Field):
         Convert the value to a Python date.
         The date is expected to be in the format `DateField.format`.
         """
-        if value is None:
+        if value is None or value == "":
             return None
+        if isinstance(value, datetime.datetime):
+            return value.date()
         if isinstance(value, datetime.date):
             return value
         return datetime.datetime.strptime(value, self.format).date()

@@ -52,6 +52,23 @@ def test_errors():
     assert form.get_errors() == {"name": "required"}
 
 
+def test_all_field_errors_reported():
+    class TestForm(f.Form):
+        name = f.TextField()
+        email = f.TextField()
+        age = f.IntegerField()
+
+    form = TestForm({})
+    form.validate()
+
+    assert form.is_invalid
+    errors = form.get_errors()
+    assert "name" in errors
+    assert "email" in errors
+    assert "age" in errors
+    assert len(errors) == 3
+
+
 def test_save_invalid_form():
     class TestForm(f.Form):
         name = f.TextField()

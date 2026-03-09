@@ -7,6 +7,17 @@ import pytest
 import formidable as f
 
 
+def test_html_attribute_escaping():
+    field = f.TextField(required=False)
+    field.field_name = "test"
+    field.value = 'hello" onclick="alert(1)'
+
+    result = str(field.text_input())
+    # The quote should be escaped, not raw
+    assert 'value="hello&#34; onclick=&#34;alert(1)"' in result
+    assert 'value="hello" onclick="alert(1)"' not in result
+
+
 def test_label():
     field = f.TextField()
     field.field_name = "test"

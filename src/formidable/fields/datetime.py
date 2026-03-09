@@ -61,11 +61,11 @@ class DateTimeField(Field):
 
         if after_date and isinstance(after_date, str):
             after_date = self.filter_value(after_date)
-        self.after_date = t.cast(datetime.date | None, after_date)
+        self.after_date = t.cast(datetime.datetime | None, after_date)
 
         if before_date and isinstance(before_date, str):
             before_date = self.filter_value(before_date)
-        self.before_date = t.cast(datetime.date | None, before_date)
+        self.before_date = t.cast(datetime.datetime | None, before_date)
 
         self.past_date = past_date
         self.future_date = future_date
@@ -100,7 +100,7 @@ class DateTimeField(Field):
         Convert the value to a Python datetime.
         The datetime is expected to be in the format `DateTimeField.format`.
         """
-        if value is None:
+        if value is None or value == "":
             return None
         if isinstance(value, datetime.datetime):
             return value

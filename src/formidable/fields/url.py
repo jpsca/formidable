@@ -91,20 +91,17 @@ class URLField(Field):
             return ""
 
         if not self.rx_url.match(value):
-            self.error = err.INVALID_URL
-            return value
+            raise ValueError(err.INVALID_URL)
 
         scheme, domain, path, query, fragment = urlsplit(value)
 
         if ".." in domain:
-            self.error = err.INVALID_URL
-            return value
+            raise ValueError(err.INVALID_URL)
 
         try:
             domain = idna.uts46_remap(domain, std3_rules=False, transitional=False)
         except idna.IDNAError:  # pragma: no cover
-            self.error = err.INVALID_URL
-            return value
+            raise ValueError(err.INVALID_URL) from None
 
         scheme = scheme.lower()
         return urlunsplit((scheme, domain, path, query, fragment))

@@ -29,6 +29,14 @@ def test_date_field():
     }
 
 
+def test_datetime_value_converted_to_date():
+    field = f.DateField()
+    field.set(datetime.datetime(2024, 6, 15, 10, 30, 0))
+    assert field.value == datetime.date(2024, 6, 15)
+    assert isinstance(field.value, datetime.date)
+    assert not isinstance(field.value, datetime.datetime)
+
+
 def test_callable_default():
     class TestForm(f.Form):
         birthday = f.DateField(default=lambda: datetime.date(2000, 1, 1))

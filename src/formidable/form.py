@@ -175,10 +175,10 @@ class Form():
 
         a) If the form is not connected to an ORM model and it wasn't instantiated with
            an object, it will return the data as a dictionary.
-        b) If it *was* instantiated with an object, it will update and return the object
-           (even if the "object" in question is a dictionary).
-        c) If it *wasn't* instantiated with an object, but it is connected to an ORM model,
-           it will create a new object and return it.
+        b) If it *was* instantiated with an object, it will update and return the
+           object (even if the "object" in question is a dictionary).
+        c) If it *wasn't* instantiated with an object, but it is connected to an ORM
+           model, it will create a new object and return it.
 
         Args:
             **extra:
@@ -197,6 +197,8 @@ class Form():
                 self._object.delete()
                 return None
             else:
+                # Deletion not allowed: log the attempt and fall through to
+                # save the form normally, preserving the existing object.
                 logger.error("Deletion is not allowed for this form %s", self)
 
         data = {}
@@ -220,7 +222,9 @@ class Form():
             field.validate()
             if field.error is not None:
                 self._valid = False
-                return False
+
+        if not self._valid:
+            return False
 
         self._valid = self.after_validate()
         return self._valid
@@ -260,7 +264,11 @@ class Form():
         Sets the Meta class attributes to the form instance.
         This is done to avoid modifying the original Meta class.
         """
-        self.Meta = copy(getattr(self, "Meta", DefaultMeta))
+        base_meta = getattr(self, "Meta", DefaultMeta)
+        self.Meta = type("Meta", (), {
+            k: v for k, v in vars(base_meta).items()
+            if not k.startswith("__")
+        })
 
         orm_cls = getattr(self.Meta, "orm_cls", None)
         if (orm_cls is not None) and not isinstance(orm_cls, type):

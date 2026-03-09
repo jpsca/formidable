@@ -155,7 +155,7 @@ class FloatField(NumberField):
         """
         Convert the value to a Python float type.
         """
-        if value is None:
+        if value is None or value == "":
             return None
         return float(value)
 
@@ -193,6 +193,6 @@ class IntegerField(NumberField):
         """
         Convert the value to a Python integer type.
         """
-        if value is None:
+        if value is None or value == "":
             return None
         return int(value)

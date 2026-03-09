@@ -106,7 +106,7 @@ class TimeField(Field):
         """
         Convert the value to a Python time type.
         """
-        if value is None:
+        if value is None or value == "":
             return None
         if isinstance(value, datetime.time):
             return value

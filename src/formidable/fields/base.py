@@ -113,14 +113,18 @@ class Field:
             return
 
         self.value = value
-        if self.required and value in [None, ""]:
+        if self.required and value in (None, ""):
             self.error = err.REQUIRED
             return
 
         try:
             self.value = self.filter_value(value)
-        except (ValueError, TypeError):
-            self.error = err.INVALID
+        except (ValueError, TypeError) as e:
+            if e.args and e.args[0] in err.MESSAGES:
+                self.error = e.args[0]
+                self.error_args = e.args[1] if len(e.args) > 1 else None
+            else:
+                self.error = err.INVALID
             return
 
     def filter_value(self, value: t.Any) -> t.Any:
@@ -208,7 +212,7 @@ class Field:
         }
         attr_str = self._render_html_attrs(attributes)
         label_text = text if text is not None else self.field_name.capitalize()
-        return Markup(f"<label {attr_str}>{label_text}</label>")
+        return Markup(f"<label {attr_str}>{Markup.escape(label_text)}</label>")
 
     def error_tag(self, **attrs: t.Any) -> str:
         """
@@ -242,7 +246,7 @@ class Field:
             **attrs,
         }
         attr_str = self._render_html_attrs(attributes)
-        return Markup(f"<div {attr_str}>{self.error_message}</div>")
+        return Markup(f"<div {attr_str}>{Markup.escape(self.error_message)}</div>")
 
     def text_input(self, **attrs: t.Any) -> str:
         """
@@ -309,7 +313,7 @@ class Field:
         attributes.update(attrs)
         attr_str = self._render_html_attrs(attributes)
 
-        value_str = "" if self.value is None else str(self.value)
+        value_str = "" if self.value is None else Markup.escape(str(self.value))
         return Markup(f"<textarea {attr_str}>{value_str}</textarea>")
 
     def select(
@@ -373,7 +377,9 @@ class Field:
 
         for value, display in options:
             selected_attr = " selected" if value in values else ""
-            options_html += f'<option value="{value}"{selected_attr}>{display}</option>\n'
+            escaped_value = Markup.escape(value)
+            escaped_display = Markup.escape(display)
+            options_html += f'<option value="{escaped_value}"{selected_attr}>{escaped_display}</option>\n'
 
         return Markup(f"<select {attr_str}>\n{options_html}</select>")
 
@@ -739,6 +745,6 @@ class Field:
             else:
                 clean_attrs[key] = value
 
-        html_attrs = [f'{key}="{value}"' for key, value in clean_attrs.items()]
+        html_attrs = [f'{key}="{Markup.escape(value)}"' for key, value in clean_attrs.items()]
 
         return " ".join(html_attrs + html_props)
