@@ -180,6 +180,11 @@ class Field:
     def _custom_validator(self, value: t.Any) -> t.Any:
         return value
 
+    def _str_value(self) -> str:
+        if hasattr(self.value, "isoformat"):
+            return self.value.isoformat()
+        return str(self.value)
+
     # Helper methods for rendering HTML forms
 
     def label(self, text: str | None = None, **attrs: t.Any) -> str:
@@ -372,16 +377,17 @@ class Field:
         attributes.update(attrs)
         attr_str = self._render_html_attrs(attributes)
 
-        options_html = ""
         values = self.value if self.multiple else [self.value]
 
+        option_tags = []
         for value, display in options:
             selected_attr = " selected" if value in values else ""
             escaped_value = Markup.escape(value)
             escaped_display = Markup.escape(display)
-            options_html += f'<option value="{escaped_value}"{selected_attr}>{escaped_display}</option>\n'
+            option_tags.append(f'<option value="{escaped_value}"{selected_attr}>{escaped_display}</option>')
 
-        return Markup(f"<select {attr_str}>\n{options_html}</select>")
+        options_html = "\n".join(option_tags)
+        return Markup(f"<select {attr_str}>\n{options_html}\n</select>")
 
     def checkbox(self, **attrs: t.Any) -> str:
         """
@@ -491,7 +497,7 @@ class Field:
             "type": input_type,
             "id": self.id,
             "name": self.name,
-            "value": False if self.value is None else str(self.value),
+            "value": False if self.value is None else self._str_value(),
             "required": self.required,
         }
         if self.error:
@@ -529,7 +535,7 @@ class Field:
         attributes = {
             "type": "hidden",
             "name": self.name,
-            "value": False if self.value is None else str(self.value),
+            "value": False if self.value is None else self._str_value(),
             **attrs,
         }
         attr_str = self._render_html_attrs(attributes)

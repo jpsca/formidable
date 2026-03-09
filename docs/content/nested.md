@@ -196,7 +196,7 @@ for example, to the `static/js/` folder.
 
 Then, add this to the header of your base template:
 
-```html {hk_lines="4-8"}
+```html {hl_lines="4-8"}
 <html>
   <head>
     ...
@@ -219,7 +219,7 @@ class TodoListForm(f.Form):
     todo = f.NestedForms(TodoForm, allow_delete=True)
 ```
 
-... and a template. I'm using a macro to render the `TodoForm` (because later we are going to need to render it more than once:
+... and a template. I'm using a macro to render the `TodoForm` (because later we are going to need to render it more than once):
 
 ```html+jinja
 {% macro render_todo(form, label) -%}
@@ -301,7 +301,7 @@ The JS script needs something to clone so it can add a new nested form, let's ad
 </form>
 ```
 
-**Note that we call the macro using `form.todo.empty_form`**. This is a special attribute of a `NestedForms` field that generates an empty instance of a nested form, excatly for using it for this cases.
+**Note that we call the macro using `form.todo.empty_form`**. This is a special attribute of a `NestedForms` field that generates an empty instance of a nested form, exactly for using it for these cases.
 
 It's important to put it *inside* the element with the `data-nestedform` attribute (the form tag in our example).
 

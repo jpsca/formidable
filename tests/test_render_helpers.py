@@ -365,3 +365,15 @@ def test_special_inputs_error(method_name, input_type):
         f' aria-invalid="true" aria-errormessage="{field.id}-error" />'
     )
     assert result == expected
+
+
+def test_isoformat_value_rendering():
+    """Test that fields with isoformat values render correctly."""
+    import datetime
+
+    field = f.DateField(required=False)
+    field.field_name = "birthday"
+    field.value = datetime.date(2025, 3, 9)
+
+    result = field.date_input()
+    assert 'value="2025-03-09"' in result

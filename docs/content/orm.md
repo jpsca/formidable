@@ -31,12 +31,16 @@ After calling `form.save()`, you only need to commit the changes to the database
 
 ### SQLAlchemy and SQLModel
 
-Because these ORMs work with a session pattern, you must add these two methods to a base form:
+Because these ORMs work with a session pattern, Formidable's default `ObjectManager` needs to be extended. There are two ways to do this:
 
-```python {title="forms/base.py"}
-import formidable as f
+#### Option A: Add methods to a model base class
 
-class BaseForm(f.Form):
+Formidable's `ObjectManager` calls `orm_cls.create(**data)` when creating new objects and `object.delete()` when deleting them. You can add these methods to a shared model base class:
+
+```python {title="models/base.py"}
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
     @classmethod
     def create(cls, **kwargs):
         instance = cls(**kwargs)
@@ -49,7 +53,40 @@ class BaseForm(f.Form):
 
 ```
 
-and make all your forms inherit from it:
+Then use `Base` as the base for all your models:
+
+```python {title="models/page.py"}
+class Page(Base):
+    __tablename__ = "pages"
+    title: Mapped[str]
+    content: Mapped[str]
+
+```
+
+#### Option B: Provide a custom ObjectManager
+
+Alternatively, you can subclass `ObjectManager` to handle the session directly:
+
+```python {title="forms/base.py"}
+import formidable as f
+from formidable.wrappers import ObjectManager
+
+class SAObjectManager(ObjectManager):
+    def create(self, data):
+        instance = self.orm_cls(**data)
+        db_session.add(instance)
+        return instance
+
+    # Only needed for NestedForms fields
+    def delete(self):
+        db_session.delete(self.object)
+
+class BaseForm(f.Form):
+    _ObjectManager = SAObjectManager
+
+```
+
+Then make all your forms inherit from it:
 
 ```python {title="forms/page.py", hl_lines="5"}
 import formidable as f

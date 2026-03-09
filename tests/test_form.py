@@ -16,6 +16,14 @@ def test_reserved_words():
             TestForm()
 
 
+@pytest.mark.parametrize("name", ["is_valid", "is_invalid"])
+def test_reserved_property_names(name):
+    with pytest.raises(ValueError, match=f"Form cannot have a field named '{name}'"):
+        attrs = {name: f.TextField()}
+        FormCls = type("TestForm", (f.Form,), attrs)
+        FormCls()
+
+
 def test_contains():
     class TestForm(f.Form):
         a = f.TextField()

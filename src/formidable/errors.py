@@ -63,5 +63,5 @@ MESSAGES = {
 
     INVALID_URL: "Doesn't seem to be a valid URL",
     INVALID_EMAIL: "Doesn't seem to be a valid email address",
-    INVALID_SLUG: "A valid “slug” can only have a-z letters, numbers, underscores, or hyphens"
+    INVALID_SLUG: "A valid 'slug' can only have a-z letters, numbers, underscores, or hyphens"
 }

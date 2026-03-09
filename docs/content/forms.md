@@ -196,7 +196,7 @@ print(product.user_id)  # 123
 
 If you add an `after_validate` method to the form, it will be called at the end of the validation process, after the individual field validations.
 
-You can use it to validate the relation between fields, for example in a update password scenario, or to modify the field values before saving.
+You can use it to validate the relation between fields, for example in an update password scenario, or to modify the field values before saving.
 
 ```python {hl_lines="11"}
 import formidable as f

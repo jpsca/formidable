@@ -26,30 +26,30 @@ You can see the full (short) default dictionary of error messages in `formidable
 
 ```python
 MESSAGES = {
-    "invalid": "Invalid value",
-    "required": "Field is required",
-    "one_of": "Must be one of {one_of}",
-    "gt": "Must be greater than {gt}",
-    "gte": "Must be greater or equal than {gte}",
-    "lt": "Must be less than {lt}",
-    "lte": "Must be less or equal than {lte}",
-    "multiple_of": "Must multiple of {multiple_of}",
-    "min_items": "Must have at least {min_length} items",
-    "max_items": "Must have at most {max_length} items",
-    "min_length": "Must have at least {min_length} characters",
-    "max_length": "Must have at most {max_length} characters",
-    "pattern": "Invalid format",
-    "past_date": "Must be a date in the past",
-    "future_date": "Must be a date in the future",
-    "after_date": "Must be after {after_date}",
-    "before_date": "Must be before {before_date}",
-    "after_time": "Must be after {after_time}",
-    "before_time": "Must be before {before_time}",
-    "past_time": "Must be a time in the past",
-    "future_time": "Must be a time in the future",
-    "invalid_url": "Doesn't seem to be a valid URL",
-    "invalid_email": "Doesn't seem to be a valid email address",
-    "invalid_slug": "A valid “slug” can only have a-z letters, numbers, underscores, or hyphens",
+    “invalid”: “Invalid value”,
+    “required”: “Field is required”,
+    “one_of”: “Must be one of {one_of}”,
+    “gt”: “Must be greater than {gt}”,
+    “gte”: “Must be greater than or equal to {gte}”,
+    “lt”: “Must be less than {lt}”,
+    “lte”: “Must be less than or equal to {lte}”,
+    “multiple_of”: “Must be a multiple of {multiple_of}”,
+    “min_items”: “Must have at least {min_items} items”,
+    “max_items”: “Must have at most {max_items} items”,
+    “min_length”: “Must have at least {min_length} characters”,
+    “max_length”: “Must have at most {max_length} characters”,
+    “pattern”: “Invalid format”,
+    “past_date”: “Must be a date in the past”,
+    “future_date”: “Must be a date in the future”,
+    “after_date”: “Must be after {after_date}”,
+    “before_date”: “Must be before {before_date}”,
+    “after_time”: “Must be after {after_time}”,
+    “before_time”: “Must be before {before_time}”,
+    “past_time”: “Must be a time in the past”,
+    “future_time”: “Must be a time in the future”,
+    “invalid_url”: “Doesn't seem to be a valid URL”,
+    “invalid_email”: “Doesn't seem to be a valid email address”,
+    “invalid_slug”: “A valid 'slug' can only have a-z letters, numbers, underscores, or hyphens”,
 }
 ```
 :::
@@ -142,7 +142,7 @@ class NewPasswordForm(f.Form):
 
     def validate_password(self, value):
         if "&" not in value:
-            raise ValueError("must_contain", char="&")
+            raise ValueError("must_contain", {"char": "&"})
         return value
 
 

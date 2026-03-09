@@ -11,6 +11,10 @@ lint:
 	uv run ruff check src tests
 	uv run ty check
 
+.PHONY: lintfix
+lintfix:
+	uv run ruff check src tests --fix
+
 .PHONY: coverage
 coverage:
 	uv run pytest --cov=formidable --cov-config=pyproject.toml --cov-report=html tests

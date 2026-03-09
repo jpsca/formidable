@@ -87,7 +87,15 @@ class Form():
 
         # Instead of regular dir(), that sorts by name
         for name in self.__dir__():
-            if name.startswith("_") or name in ("is_valid", "is_invalid"):
+            if name.startswith("_"):
+                continue
+
+            # Skip is_valid/is_invalid to avoid triggering the property,
+            # but check if someone defined a Field with these names.
+            if name in ("is_valid", "is_invalid"):
+                for cls in type(self).__mro__:
+                    if name in cls.__dict__ and isinstance(cls.__dict__[name], Field):
+                        raise ValueError(f"Form cannot have a field named '{name}'")
                 continue
 
             field = getattr(self, name)
@@ -197,9 +205,10 @@ class Form():
                 self._object.delete()
                 return None
             else:
-                # Deletion not allowed: log the attempt and fall through to
-                # save the form normally, preserving the existing object.
+                # Deletion not allowed: log the attempt and return the
+                # existing object unchanged.
                 logger.error("Deletion is not allowed for this form %s", self)
+                return self._object.object
 
         data = {}
         for name, field in self._fields.items():

@@ -159,7 +159,7 @@ class TimeField(Field):
         """
         Validate the field value against the defined constraints.
         """
-        if not self.value:
+        if self.value is None:
             return True
 
         if self.after_time and self.value <= self.after_time:

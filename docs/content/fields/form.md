@@ -5,6 +5,7 @@ title: FormField
 ::: api formidable.FormField
 :show_members: false
 :::
+
 ----
 
 This is a form field that contains another form as its value. For example:
@@ -28,7 +29,7 @@ class Profile(f.Form):
 
 To the user, this will probably look as part of the same form, why bother then? Well, this field isn't about showing the form, it's about how the data is saved.
 
-When saving a form with a `FormField`, the contents of it comes encapsulated in their own object or dictionary:
+When saving a form with a `FormField`, the contents of it come encapsulated in their own object or dictionary:
 
 ```python
 print(form.save())
@@ -36,14 +37,14 @@ print(form.save())
 {
   "name": "My name",
   "settings": {
-    "locale": "en_us"
+    "locale": "en_us",
     "timezone": "utc",
     "email_notifications": True,
   },
 }
 ```
 
-This field is useful when you want to store those group of fields separated, for example:
+This field is useful when you want to store that group of fields separated, for example:
 
 In a different model with a one-to-one relationship to the main model
 

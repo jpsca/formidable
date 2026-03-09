@@ -13,7 +13,7 @@ re_key = rf"{re_name}|\[{re_name}\]|\[[0-9]+\]|\[\]"
 rx_key = re.compile(re_key)
 
 
-def parse_key(key: str) -> list[str | int | None]:
+def parse_key(key: str) -> list[str | None]:
     key = key.strip()
     if not key or key.startswith("["):
         return []
@@ -33,7 +33,7 @@ def parse_key(key: str) -> list[str | int | None]:
 
 
 def insert(
-    parsed_key: list[str | int | None], value: t.Any, target: dict[str, t.Any]
+    parsed_key: list[str | None], value: t.Any, target: dict[str, t.Any]
 ) -> None:
     last_index = len(parsed_key) - 1
     ref: dict[str, t.Any] | list[t.Any] = target
@@ -54,11 +54,11 @@ def insert(
         else:  # dict key
             if is_last:
                 assert isinstance(ref, dict)
-                ref[part] = value  # type: ignore
+                ref[part] = value
             else:
-                if part not in ref or not isinstance(ref[part], (dict, list)):  # type: ignore
-                    ref[part] = {} if isinstance(next_part, str) else []  # type: ignore
-                ref = ref[part]  # type: ignore
+                if part not in ref or not isinstance(ref[part], (dict, list)):
+                    ref[part] = {} if isinstance(next_part, str) else []
+                ref = ref[part]
 
 
 def get_items(reqdata: t.Any):  #  pragma: no cover
