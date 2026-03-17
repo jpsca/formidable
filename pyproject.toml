@@ -92,6 +92,7 @@ env_list =
     3.12
     3.13
     3.14
+    py314t
 
 [testenv]
 runner = uv-venv-lock-runner
