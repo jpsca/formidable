@@ -2,9 +2,9 @@
 Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
+import itertools
 import typing as t
 from collections.abc import Iterable
-from uuid import uuid4
 
 from markupsafe import Markup
 
@@ -13,6 +13,9 @@ from .. import errors as err
 
 if t.TYPE_CHECKING:
     from ..form import Form
+
+
+_field_counter = itertools.count()
 
 
 class Field:
@@ -55,7 +58,12 @@ class Field:
         self.default = default
         self.value = self.default_value
         self.messages = messages if messages is not None else {}
-        self.id = f"f{uuid4().hex}"
+        self.id = f"f{next(_field_counter)}"
+
+    def __copy__(self):
+        clone = object.__new__(self.__class__)
+        clone.__dict__ = self.__dict__.copy()
+        return clone
 
     def __repr__(self):
         attrs = [
@@ -742,9 +750,7 @@ class Field:
         html_props = []
         clean_attrs = {}
         for key, value in attrs.items():
-            if key == "class_":
-                key = "class"
-            key = key.replace("_", "-")
+            key = "class" if key == "class_" else key.replace("_", "-")
             if isinstance(value, bool):
                 if value:
                     html_props.append(key)

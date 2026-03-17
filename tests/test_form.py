@@ -24,6 +24,32 @@ def test_reserved_property_names(name):
         FormCls()
 
 
+def test_field_inherited_from_grandparent():
+    """MRO walk skips base classes that don't define the field."""
+    class GrandParent(f.Form):
+        name = f.TextField()
+
+    class Parent(GrandParent):
+        pass
+
+    class Child(Parent):
+        extra = f.TextField()
+
+    form = Child({"name": "Alice", "extra": "val"})
+    assert form.name.value == "Alice"
+    assert form.extra.value == "val"
+
+
+def test_non_field_attribute_set_to_none():
+    """Attribute set to None in class dict is skipped (not a Field)."""
+    class MyForm(f.Form):
+        phantom = None
+        name = f.TextField()
+
+    assert "name" in MyForm._field_names
+    assert "phantom" not in MyForm._field_names
+
+
 def test_contains():
     class TestForm(f.Form):
         a = f.TextField()
@@ -88,36 +114,30 @@ def test_save_invalid_form():
 
 
 def test_invalid_orm_cls():
-    class TestForm(f.Form):
-        class Meta:
-            orm_cls = "lol"
-
-        name = f.TextField()
-
     with pytest.raises(ValueError):
-        TestForm()
+        class TestForm(f.Form):
+            class Meta:
+                orm_cls = "lol"
+
+            name = f.TextField()
 
 
 def test_invalid_custom_messages():
-    class TestForm(f.Form):
-        class Meta:
-            messages = "lol"
-
-        name = f.TextField()
-
     with pytest.raises(ValueError):
-        TestForm()
+        class TestForm(f.Form):
+            class Meta:
+                messages = "lol"
+
+            name = f.TextField()
 
 
 def test_invalid_custom_pk():
-    class TestForm(f.Form):
-        class Meta:
-            pk = None
-
-        name = f.TextField()
-
     with pytest.raises(ValueError):
-        TestForm()
+        class TestForm(f.Form):
+            class Meta:
+                pk = None
+
+            name = f.TextField()
 
 
 def test_custom_messages():

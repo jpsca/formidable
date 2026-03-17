@@ -302,19 +302,29 @@ CHAR_MAP = {
 }
 
 
+_rx_non_word = re.compile(r"[^\w\s-]")
+_rx_sep = re.compile(r"[-\s]+")
+
+# Pre-built translation table for str.translate() — much faster than
+# iterating char-by-char with CHAR_MAP.get() in Python.
+_TRANSLATE_TABLE = str.maketrans(
+    {ord(k): v for k, v in CHAR_MAP.items()}
+)
+
+
 def slugify(value: str) -> str:
     """
     A very simple function to convert a string to a slug.
     """
     value = unicodedata.normalize("NFKC", value).lower()
     # Replace some non-ASCII characters
-    value = "".join(CHAR_MAP.get(c, c) for c in value)
+    value = value.translate(_TRANSLATE_TABLE)
     # Remove any remaining non-ASCII characters
     value = value.encode("ascii", "ignore").decode("ascii")
     # Replace non-word characters with hyphens
-    value = re.sub(r"[^\w\s-]", "", value)
+    value = _rx_non_word.sub("", value)
     # Replace whitespace and hyphens with a single hyphen
-    return re.sub(r"[-\s]+", "-", value).strip("-_")
+    return _rx_sep.sub("-", value).strip("-_")
 
 
 class SlugField(TextField):

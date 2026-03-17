@@ -130,3 +130,42 @@ def test_parse_list_of_dicts():
         ]
     }
     assert parse(flat) == expected
+
+
+def test_parse_key_malformed_unclosed_bracket():
+    """Malformed key with unclosed bracket treats rest as part name."""
+    assert parse_key("a[b") == ["a", "b"]
+    assert parse_key("a[") == ["a", None]
+    assert parse_key("a[b][c") == ["a", "b", "c"]
+
+
+class DictLike(dict):
+    """A dict subclass so that `type(x) is dict` is False."""
+    pass
+
+
+def test_parse_empty():
+    assert parse({}) == {}
+
+
+def test_parse_plain_dict_scalar_values():
+    """Plain dict fast path with non-list values."""
+    assert parse({"name": "Alice"}) == {"name": "Alice"}
+
+
+def test_parse_non_plain_dict_with_list_values():
+    """Non-plain dict path: values that are lists get iterated."""
+    data = DictLike({"items[]": ["a", "b"]})
+    assert parse(data) == {"items": ["a", "b"]}
+
+
+def test_parse_non_plain_dict_with_scalar_values():
+    """Non-plain dict path: scalar values get wrapped in a list."""
+    data = DictLike({"name": "Alice", "age": 30})
+    assert parse(data) == {"name": "Alice", "age": 30}
+
+
+def test_parse_non_plain_dict_with_empty_list():
+    """Non-plain dict path: empty list values get wrapped."""
+    data = DictLike({"x": []})
+    assert parse(data) == {"x": []}

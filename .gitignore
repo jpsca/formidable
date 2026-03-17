@@ -17,3 +17,4 @@ dist/
 pip-wheel-metadata
 coverage.xml
 
+profile_results.prof

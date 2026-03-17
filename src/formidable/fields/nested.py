@@ -68,7 +68,7 @@ class NestedForms(Field):
 
     def __copy__(self):
         clone = object.__new__(self.__class__)
-        clone.__dict__.update(self.__dict__)
+        clone.__dict__ = self.__dict__.copy()
         clone.empty_form = self.FormClass()
         clone.forms = []
         return clone

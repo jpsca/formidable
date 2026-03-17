@@ -4,7 +4,6 @@ Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 
 import logging
 import typing as t
-from copy import copy
 
 from markupsafe import Markup
 
@@ -62,6 +61,7 @@ class Form():
     # The class to use for wrapping objects in the form.
     _ObjectManager: type[ObjectManager] = ObjectManager
 
+    Meta: t.Any
     _messages: dict[str, str]
     _name_format: str = "{name}"
     _fields: dict[str, Field]
@@ -75,6 +75,71 @@ class Form():
     # field is present.
     _allow_delete: bool = False
 
+    # Populated by __init_subclass__
+    _field_names: list[str]
+    _custom_filters: set[str]
+    _custom_validators: set[str]
+    _ProcessedMeta: t.Any
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        # Discover field names once at class creation time
+        field_names = []
+        for name in dir(cls):
+            if name.startswith("_"):
+                continue
+            if name in ("is_valid", "is_invalid"):
+                if name in cls.__dict__ and isinstance(
+                    cls.__dict__[name], Field
+                ):
+                    raise ValueError(
+                        f"Form cannot have a field named '{name}'"
+                    )
+                continue
+
+            obj = cls.__dict__.get(name)
+            if obj is None:
+                for base in cls.__mro__[1:]:
+                    if name in base.__dict__:
+                        obj = base.__dict__[name]
+                        break
+            if isinstance(obj, Field):
+                if name in RESERVED_NAMES:
+                    raise ValueError(
+                        f"Form cannot have a field named '{name}'"
+                    )
+                field_names.append(name)
+
+        cls._field_names = field_names
+        cls._custom_filters = {
+            n for n in field_names if callable(getattr(cls, f"filter_{n}", None))
+        }
+        cls._custom_validators = {
+            n for n in field_names
+            if callable(getattr(cls, f"validate_{n}", None))
+        }
+
+        # Process Meta once per class
+        base_meta = cls.__dict__.get("Meta", DefaultMeta)
+        processed = type("Meta", (), {
+            k: v for k, v in vars(base_meta).items()
+            if not k.startswith("__")
+        })
+        orm_cls = getattr(processed, "orm_cls", None)
+        if orm_cls is not None and not isinstance(orm_cls, type):
+            raise ValueError("Meta.orm_cls must be a class, not an instance.")
+        processed.orm_cls = orm_cls
+        messages = getattr(processed, "messages", {})
+        if not isinstance(messages, dict):
+            raise ValueError("Meta.messages must be a dictionary.")
+        processed.messages = messages
+        pk = getattr(processed, "pk", "id")
+        if not isinstance(pk, str):
+            raise ValueError("Meta.pk must be a string.")
+        processed.pk = pk
+        cls._ProcessedMeta = processed
+
     def __init__(
         self,
         reqdata: t.Any = None,
@@ -84,50 +149,33 @@ class Form():
         messages: dict[str, str] | None = None,
     ):
         self._fields = {}
+        self.Meta = self._ProcessedMeta
 
-        # Instead of regular dir(), that sorts by name
-        for name in self.__dir__():
-            if name.startswith("_"):
-                continue
+        merged_messages = {**self.Meta.messages, **(messages or {})}
+        self._messages = merged_messages
+        self._name_format = name_format
 
-            # Skip is_valid/is_invalid to avoid triggering the property,
-            # but check if someone defined a Field with these names.
-            if name in ("is_valid", "is_invalid"):
-                for cls in type(self).__mro__:
-                    if name in cls.__dict__ and isinstance(cls.__dict__[name], Field):
-                        raise ValueError(f"Form cannot have a field named '{name}'")
-                continue
-
-            field = getattr(self, name)
-            if not isinstance(field, Field):
-                continue
-
-            if name in RESERVED_NAMES:
-                raise ValueError(f"Form cannot have a field named '{name}'")
-
-            # Clone the field to avoid modifying the original class attribute
-            field = copy(field)
+        for name in self._field_names:
+            field = getattr(type(self), name).__copy__()
             field.parent = self
             field.field_name = name
 
-            custom_filter = getattr(self, f"filter_{name}", None)
-            if callable(custom_filter):
-                field._custom_filter = custom_filter
+            if name in self._custom_filters:
+                field._custom_filter = getattr(self, f"filter_{name}")
+            if name in self._custom_validators:
+                field._custom_validator = getattr(self, f"validate_{name}")
 
-            custom_validator = getattr(self, f"validate_{name}", None)
-            if callable(custom_validator):
-                field._custom_validator = custom_validator
+            # Inline set_messages + set_name_format to avoid extra iterations
+            field.set_messages(merged_messages)
+            field.set_name_format(name_format)
 
             self._fields[name] = field
             setattr(self, name, field)
 
-        self._set_meta()
-        self._object = self._ObjectManager(orm_cls=self.Meta.orm_cls)
-        self._set_messages(messages or {})
-        self._set_name_format(name_format)
-
         if reqdata is not None or object is not None:
             self._set(reqdata, object)
+        else:
+            self._object = self._ObjectManager(orm_cls=self.Meta.orm_cls)
 
     def __repr__(self) -> str:
         attrs = []
@@ -267,32 +315,6 @@ class Form():
         return Markup("\n".join(tags))
 
     # Private methods
-
-    def _set_meta(self):
-        """
-        Sets the Meta class attributes to the form instance.
-        This is done to avoid modifying the original Meta class.
-        """
-        base_meta = getattr(self, "Meta", DefaultMeta)
-        self.Meta = type("Meta", (), {
-            k: v for k, v in vars(base_meta).items()
-            if not k.startswith("__")
-        })
-
-        orm_cls = getattr(self.Meta, "orm_cls", None)
-        if (orm_cls is not None) and not isinstance(orm_cls, type):
-            raise ValueError("Meta.orm_cls must be a class, not an instance.")
-        self.Meta.orm_cls = orm_cls
-
-        messages = getattr(self.Meta, "messages", {})
-        if not isinstance(messages, dict):
-            raise ValueError("Meta.messages must be a dictionary.")
-        self.Meta.messages = messages
-
-        pk = getattr(self.Meta, "pk", "id")
-        if not isinstance(pk, str):
-            raise ValueError("Meta.pk must be a string.")
-        self.Meta.pk = pk
 
     def _set_messages(self, messages: dict[str, str]):
         self._messages = {**self.Meta.messages, **messages}

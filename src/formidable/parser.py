@@ -2,34 +2,49 @@
 Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 """
 
-import re
 import typing as t
 
 
-# Regex pattern for valid Python variable names with Unicode support
-# (but NOT supplementary planes, like emojis).
-re_name = r"[_a-zA-Z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][_a-zA-Z0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\.]*"
-re_key = rf"{re_name}|\[{re_name}\]|\[[0-9]+\]|\[\]"
-rx_key = re.compile(re_key)
+_parse_key_cache: dict[str, list[str | None]] = {}
 
 
 def parse_key(key: str) -> list[str | None]:
-    key = key.strip()
-    if not key or key.startswith("["):
+    cached = _parse_key_cache.get(key)
+    if cached is not None:
+        return cached
+
+    result = _parse_key_impl(key)
+    _parse_key_cache[key] = result
+    return result
+
+
+def _parse_key_impl(key: str) -> list[str | None]:
+    # Single-pass parser: avoids split + rstrip + strip per segment
+    s = key.strip()
+    if not s or s[0] == "[":
         return []
 
-    parts = rx_key.findall(key)
-    parsed = []
-    for part in parts:
-        if part.startswith("[") and part.endswith("]"):
-            inner = part[1:-1].strip()
-            if not inner:  # empty brackets
-                parsed.append(None)
-            else:
-                parsed.append(inner)
-        else:
-            parsed.append(part)
-    return parsed
+    bracket = s.find("[")
+    if bracket == -1:
+        return [s]
+
+    parts: list[str | None] = [s[:bracket]]
+    pos = bracket
+    end = len(s)
+
+    while pos < end:
+        # pos should be at '['
+        close = s.find("]", pos + 1)
+        if close == -1:
+            # Malformed: treat rest as part name
+            inner = s[pos + 1:]
+            parts.append(inner if inner else None)
+            break
+        inner = s[pos + 1:close]
+        parts.append(inner if inner else None)
+        pos = close + 1
+
+    return parts
 
 
 def insert(
@@ -39,26 +54,21 @@ def insert(
     ref: dict[str, t.Any] | list[t.Any] = target
 
     for i, part in enumerate(parsed_key):
-        is_last = i == last_index
-        next_part = parsed_key[i + 1] if not is_last else None
-
-        if part is None:  # append a list element
-            assert isinstance(ref, list)
-            if is_last:
-                ref.append(value)
+        if i == last_index:
+            if part is None:
+                ref.append(value)  # type: ignore
             else:
-                new_elem = {} if isinstance(next_part, str) else []
-                ref.append(new_elem)
-                ref = new_elem
-
-        else:  # dict key
-            if is_last:
-                assert isinstance(ref, dict)
                 ref[part] = value
-            else:
-                if part not in ref or not isinstance(ref[part], (dict, list)):
-                    ref[part] = {} if isinstance(next_part, str) else []
-                ref = ref[part]
+        elif part is None:
+            new_elem = {} if parsed_key[i + 1] is not None else []
+            ref.append(new_elem)  # type: ignore
+            ref = new_elem
+        else:
+            child = ref.get(part)
+            if type(child) is not dict and type(child) is not list:
+                child = {} if parsed_key[i + 1] is not None else []
+                ref[part] = child
+            ref = child
 
 
 def get_items(reqdata: t.Any):  #  pragma: no cover
@@ -105,12 +115,24 @@ def parse(reqdata: t.Any) -> dict[str, t.Any]:
     if not reqdata:
         return {}
 
-    result = {}
-    for key, values in get_items(reqdata):
-        if not isinstance(values, list) or not values:
-            values = [values]
-        parsed_key = parse_key(key)
-        for value in values:
-            insert(parsed_key, value, result)
+    result: dict[str, t.Any] = {}
+
+    # Fast path for plain dicts (most common case)
+    if type(reqdata) is dict:
+        for key, value in reqdata.items():
+            parsed_key = parse_key(key)
+            if type(value) is list:
+                for v in value:
+                    insert(parsed_key, v, result)
+            else:
+                insert(parsed_key, value, result)
+    else:
+        items = get_items(reqdata)
+        for key, values in items:
+            if not isinstance(values, list) or not values:
+                values = [values]
+            parsed_key = parse_key(key)
+            for value in values:
+                insert(parsed_key, value, result)
 
     return result
