@@ -58,16 +58,16 @@ def insert(
             if part is None:
                 ref.append(value)  # type: ignore
             else:
-                ref[part] = value
+                ref[part] = value  # type: ignore
         elif part is None:
             new_elem = {} if parsed_key[i + 1] is not None else []
             ref.append(new_elem)  # type: ignore
             ref = new_elem
         else:
-            child = ref.get(part)
+            child = ref.get(part)  # type: ignore
             if type(child) is not dict and type(child) is not list:
                 child = {} if parsed_key[i + 1] is not None else []
-                ref[part] = child
+                ref[part] = child  # type: ignore
             ref = child
 
 
