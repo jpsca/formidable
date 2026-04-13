@@ -55,6 +55,8 @@ class BooleanField(Field):
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):
         self.error = None
         self.error_args = None
+        self._error = None
+        self._error_args = None
 
         value = objvalue if reqvalue is None else reqvalue
         if value is None:
@@ -63,14 +65,14 @@ class BooleanField(Field):
         try:
             value = self._custom_filter(value)
         except ValueError as e:
-            self.error = e.args[0] if e.args else err.INVALID
-            self.error_args = e.args[1] if len(e.args) > 1 else None
+            self._error = e.args[0] if e.args else err.INVALID
+            self._error_args = e.args[1] if len(e.args) > 1 else None
             return
 
         self.value = self.filter_value(value)
 
         if self.required and not self.value:
-            self.error = err.REQUIRED
+            self._error = err.REQUIRED
 
     def filter_value(self, value: str | bool | None) -> bool:
         """

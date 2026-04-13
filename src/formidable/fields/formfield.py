@@ -55,6 +55,8 @@ class FormField(Field):
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):
         self.error = None
         self.error_args = None
+        self._error = None
+        self._error_args = None
 
         reqvalue, objvalue = self._custom_filter(reqvalue or {}, objvalue or {})
 
@@ -62,7 +64,7 @@ class FormField(Field):
             if self.default_value is not None:
                 reqvalue = self.default_value
             if not reqvalue and self.required:
-                self.error = err.REQUIRED
+                self._error = err.REQUIRED
 
         self.form._set(reqvalue, objvalue)
 

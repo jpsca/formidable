@@ -89,6 +89,8 @@ class NestedForms(Field):
     ):
         self.error = None
         self.error_args = None
+        self._error = None
+        self._error_args = None
 
         reqvalue = reqvalue or {}
         assert isinstance(reqvalue, dict), "reqvalue must be a dictionary"

@@ -73,6 +73,7 @@ def test_not_an_url():
     field = f.URLField()
 
     field.set("not a url")
+    field.validate()
     assert field.error == err.INVALID_URL
 
 
@@ -80,9 +81,11 @@ def test_space_in_url():
     field = f.URLField()
 
     field.set("http://ex ample.com/path")
+    field.validate()
     assert field.error == err.INVALID_URL
 
     field.set("http://example.com/some path")
+    field.validate()
     assert field.error is None
 
 
@@ -90,12 +93,14 @@ def test_two_dots_in_domain():
     field = f.URLField()
 
     field.set("http://example..com")
+    field.validate()
     assert field.error == err.INVALID_URL
 
 
 def test_invalid_character():
     field = f.URLField()
     field.set("http://exampl⒈e.com/abcdef")
+    field.validate()
     assert field.error == err.INVALID_URL
 
 
@@ -103,6 +108,7 @@ def test_invalid_scheme():
     field = f.URLField(schemes=["http", "https"])
 
     field.set("ftp://example.com")
+    field.validate()
     assert field.error == err.INVALID_URL
 
 

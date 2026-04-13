@@ -52,6 +52,7 @@ def test_boolean_required():
         agree = f.BooleanField(required=True)
 
     form = TestForm({})
+    assert form.is_invalid
     assert form.agree.error == f.errors.REQUIRED
     assert form.agree.value is False
 

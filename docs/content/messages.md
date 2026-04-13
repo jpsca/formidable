@@ -19,6 +19,8 @@ When a form field has an error, it exposes three error-related attributes:
 - `field.error_args`: An optional dictionary of extra information related to the error (explained in detail below)
 - `field.error_message`: A *property* that uses the error code to retrieve a human-readable message from the form's `messages` dictionary
 
+These attributes are only populated after the form has been validated — that is, after you call `form.validate()` or access `form.is_valid` / `form.is_invalid`. Simply instantiating a form with request data (e.g. `MyForm(reqdata)`) will *not* set `field.error`, which lets you render the form on first display without showing errors the user hasn't triggered yet.
+
 You can see the full (short) default dictionary of error messages in `formidable.errors.MESSAGES`. The dictionary uses the error codes as keys and the human-readable messages as values.
 
 ::: note | The full list of default messages
@@ -145,6 +147,9 @@ class NewPasswordForm(f.Form):
             raise ValueError("must_contain", {"char": "&"})
         return value
 
+
+form = NewPasswordForm({"password": "weakpass"})
+form.validate()  # required to populate field.error
 
 print(form.password.error)  # "must_contain"
 print(form.password.error_args)  # {"char": "&"}

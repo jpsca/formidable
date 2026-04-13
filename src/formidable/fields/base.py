@@ -42,6 +42,9 @@ class Field:
     value: t.Any = None
     error: str | dict[str, t.Any] | None = None
     error_args: dict[str, t.Any] | None = None
+    # Pending error recorded by `set()`; promoted to `error` on `validate()`.
+    _error: str | dict[str, t.Any] | None = None
+    _error_args: dict[str, t.Any] | None = None
     messages: dict[str, str]
 
     # Whether the value of this field is a list of values.
@@ -108,6 +111,8 @@ class Field:
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):
         self.error = None
         self.error_args = None
+        self._error = None
+        self._error_args = None
 
         value = objvalue if reqvalue is None else reqvalue
         if value is None:
@@ -116,23 +121,23 @@ class Field:
         try:
             value = self._custom_filter(value)
         except ValueError as e:
-            self.error = e.args[0] if e.args else err.INVALID
-            self.error_args = e.args[1] if len(e.args) > 1 else None
+            self._error = e.args[0] if e.args else err.INVALID
+            self._error_args = e.args[1] if len(e.args) > 1 else None
             return
 
         self.value = value
         if self.required and value in (None, ""):
-            self.error = err.REQUIRED
+            self._error = err.REQUIRED
             return
 
         try:
             self.value = self.filter_value(value)
         except (ValueError, TypeError) as e:
             if e.args and e.args[0] in err.MESSAGES:
-                self.error = e.args[0]
-                self.error_args = e.args[1] if len(e.args) > 1 else None
+                self._error = e.args[0]
+                self._error_args = e.args[1] if len(e.args) > 1 else None
             else:
-                self.error = err.INVALID
+                self._error = err.INVALID
             return
 
     def filter_value(self, value: t.Any) -> t.Any:
@@ -151,6 +156,11 @@ class Field:
             bool: True if validation passes, False if any validation fails.
 
         """
+        if self._error is not None:
+            self.error = self._error
+            self.error_args = self._error_args
+            return False
+
         if self.error is not None:
             return False
 

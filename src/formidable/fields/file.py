@@ -24,6 +24,8 @@ class FileField(Field):
     def set(self, reqvalue: t.Any, objvalue: t.Any = None):
         self.error = None
         self.error_args = None
+        self._error = None
+        self._error_args = None
 
         # Not sent
         if reqvalue is None:
@@ -39,13 +41,13 @@ class FileField(Field):
         try:
             value = self._custom_filter(value)
         except ValueError as e:
-            self.error = e.args[0] if e.args else err.INVALID
-            self.error_args = e.args[1] if len(e.args) > 1 else None
+            self._error = e.args[0] if e.args else err.INVALID
+            self._error_args = e.args[1] if len(e.args) > 1 else None
             return
 
         self.value = self.filter_value(value)
         if self.required and self.value in (None, ""):
-            self.error = err.REQUIRED
+            self._error = err.REQUIRED
             return
 
     def filter_value(self, value: t.Any) -> t.Any:

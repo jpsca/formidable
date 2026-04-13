@@ -158,6 +158,8 @@ The method triggers validation of each of its fields and, if there are no errors
 
 Returns `True` or `False`, whether the form is valid after validation.
 
+Field errors (`field.error`, `field.error_args`) are only exposed after validation runs. This means you can instantiate a form with partial or missing data and render it without errors being shown on the first display — they only appear once you trigger validation (typically after the user submits the form).
+
 ### `save(**extra)`
 
 If the form is valid, this method will collect all the field values and:
