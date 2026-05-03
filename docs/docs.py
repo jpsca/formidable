@@ -5,8 +5,6 @@
 - `python docs.py build` to build the documentation for deployment.
 
 """
-from pathlib import Path
-
 from writeadoc import Docs
 
 
