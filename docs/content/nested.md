@@ -85,7 +85,6 @@ Will output the following HTML:
     <legend>Addresses</legend>
 
     <div>
-      <input type="hidden" name="addresses[0][_destroy]" />
       <div class="field">
         <label for="f7f7...">Kind</label>
         <input type="text" id="f7f7..." name="addresses[0][kind]" required />
@@ -97,7 +96,6 @@ Will output the following HTML:
     </div>
 
     <div>
-      <input type="hidden" name="addresses[1][_destroy]" />
       <div class="field">
         <label for="f725...">Kind</label>
         <input type="text" id="f725..." name="addresses[1][kind]" required />
@@ -149,7 +147,7 @@ If the form data contains the key `_destroy` with a non-empty value, the object 
 
 So far, we've shown a fixed number of nested forms, but it's common to allow users to add or remove forms in the browser. This type of client-side manipulation requires JavaScript, but the neat part is you don't have to write it yourself.
 
-Formidable [includes within](https://github.com/jpsca/formidable/blob/main/src/formidable/nested-form-controller.js){target=_blank} the Formidable source code repo a small, vanilla JavaScript file to handle dynamic nested forms for you.
+Formidable [includes within](https://github.com/jpsca/formidable/blob/main/src/formidable/nestedform.js){target=_blank} the Formidable source code repo a small, vanilla JavaScript file to handle dynamic nested forms for you.
 
 We are going to build this simple to-do list you can see here (it's live, try it!):
 
@@ -241,9 +239,9 @@ class TodoListForm(f.Form):
 
 This is still a static version of the nested forms, so let's add the rest.
 
-### 3. Connect the form to the Stimulus "controller"
+### 3. Connect the form to the script
 
-Add `data-nestedform` to the form tag or to a wrapper tag:
+Add `data-nestedform` to the form tag or to a wrapper tag — the script auto-initializes any element with this attribute:
 
 ```html+jinja
 ...

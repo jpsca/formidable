@@ -213,7 +213,7 @@ class IngredientForm(f.Form):
 
 Only nested forms can delete objects. A nested form will be marked for deletion when its request data includes a hidden field named `_destroy`. For more details about this feature, see the [Nested Forms](/docs/nested/) section.
 
-You can, however, disable the deletion of nested forms by using `allow_delete=False` when instantiating a `NestedForms` field:
+Deletion is **disabled by default**. To enable it, pass `allow_delete=True` when instantiating a `NestedForms` field:
 
 ```python {hl_lines="14"}
 class IngredientForm(f.Form):
@@ -229,5 +229,5 @@ class RecipeForm(f.Form):
 
     title = f.TextField()
     instructions = f.TextField()
-    ingredients = f.NestedForms(IngredientForm, allow_delete=False)
+    ingredients = f.NestedForms(IngredientForm, allow_delete=True)
 ```
