@@ -36,7 +36,10 @@ def test_label():
 
 
 def test_error_tag():
-    field = f.TextField(messages={"test_error": "This is a test error"})
+    field = f.TextField(messages={
+        "test_error": "This is a test error",
+        "html_error": "This is an<br> error with HTML",
+    })
 
     # Test with no error
     result = field.error_tag()
@@ -51,6 +54,11 @@ def test_error_tag():
     result = field.error_tag(class_="custom-error", test=True)
     expected = f'<div id="{field.id}-error" class="custom-error" test>This is a test error</div>'
     assert result == expected
+
+    # Test with HTML
+    field.error = "html_error"
+    result = field.error_tag()
+    assert result == f'<div id="{field.id}-error" class="field-error">This is an<br> error with HTML</div>'
 
 
 def test_text_input():

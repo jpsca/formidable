@@ -269,7 +269,7 @@ class Field:
             **attrs,
         }
         attr_str = self._render_html_attrs(attributes)
-        return Markup(f"<div {attr_str}>{Markup.escape(self.error_message)}</div>")
+        return Markup(f"<div {attr_str}>{self.error_message}</div>")
 
     def text_input(self, **attrs: t.Any) -> str:
         """
