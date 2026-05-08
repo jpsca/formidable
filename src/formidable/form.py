@@ -4,6 +4,7 @@ Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 
 import logging
 import typing as t
+from contextlib import nullcontext
 
 from markupsafe import Markup
 
@@ -236,6 +237,11 @@ class Form():
         c) If it *wasn't* instantiated with an object, but it is connected to an ORM
            model, it will create a new object and return it.
 
+        For ORM-bound forms, the field-save loop and the object save run inside
+        a single transaction (see `_persistence_context`). This ensures that
+        side-effecting fields (e.g. an `AttachmentField` that uploads + INSERTs
+        a child row) and the parent save commit or roll back together.
+
         Args:
             **extra:
                 Extra data to add before saving. This is useful
@@ -258,12 +264,37 @@ class Form():
                 logger.error("Deletion is not allowed for this form %s", self)
                 return self._object.object
 
-        data = {}
-        for name, field in self._fields.items():
-            data[name] = field.save()
+        with self._persistence_context():
+            data = {}
+            for name, field in self._fields.items():
+                data[name] = field.save()
 
-        data.update(extra)
-        return self._object.save(data)
+            data.update(extra)
+            return self._object.save(data)
+
+    def _persistence_context(self) -> t.ContextManager:
+        """Return a context manager wrapping the persistence operations of
+        `save()` in a transaction.
+
+        The default duck-types peewee's database handle: if the form's
+        `Meta.orm_cls` exposes `_meta.database.atomic()` (peewee's pattern),
+        all field saves and the final object save run inside a single
+        transaction (a savepoint when nested in an outer atomic block).
+
+        For ORMs that don't expose that shape (SQLAlchemy, Django, plain
+        dicts), this returns `nullcontext` and behavior is unchanged —
+        transaction management stays the consumer's responsibility.
+
+        Override this method to plug in a different transaction primitive
+        (e.g. SQLAlchemy's `session.begin()`).
+        """
+        orm_cls = self.Meta.orm_cls
+        if orm_cls is None:
+            return nullcontext()
+        meta = getattr(orm_cls, "_meta", None)
+        db = getattr(meta, "database", None) if meta else None
+        atomic = getattr(db, "atomic", None) if db is not None else None
+        return atomic() if callable(atomic) else nullcontext()
 
     def validate(self) -> bool:
         """

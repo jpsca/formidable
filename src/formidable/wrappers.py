@@ -37,15 +37,22 @@ class ObjectManager:
         """
         Save the provided data to the wrapped object.
 
+        For ORM-bound forms (whether creating a new instance or updating an
+        existing one) the returned object is fully persisted: `create()`
+        relies on the ORM's own `create` classmethod (which inserts) or
+        falls back to `Model(**data); obj.save()`; `update()` does setattrs
+        and then calls `obj.save()`. Consumers don't need a follow-up
+        `instance.save()` call.
+
         Args:
             data:
                 A dictionary containing the data to save to the object.
 
         Returns:
             - If there is no wrapped object, and `orm_cls` is set, it creates
-              a new instance and returns it.
+              and persists a new instance and returns it.
             - If the wrapped object is an ORM model, calls `self.update()` to
-              update its attributes and returns the updated object.
+              update its attributes, persists, and returns the updated object.
             - If the wrapped object is a dictionary, it updates the dictionary
               with the new data and returns the updated dictionary.
             - Otherwise, it just returns the new data.
@@ -63,36 +70,55 @@ class ObjectManager:
 
     def create(self, data: dict[str, t.Any]) -> t.Any:
         """
-        Create a new instance of the model class with the provided data.
+        Create and persist a new instance of the model class with the
+        provided data.
+
+        Uses the ORM's `create` classmethod when available (the peewee
+        idiom — instantiates and INSERTs in one call). Otherwise falls
+        back to `Model(**data)` and then calls `obj.save()` if the
+        instance has one, so the contract "create returns a persisted
+        instance" holds across ORMs that separate construction from
+        persistence (e.g. SQLAlchemy detached instances).
 
         Args:
             data:
                 A dictionary containing the data to initialize the model.
 
         Returns:
-            An instance of the model class initialized with the provided data.
+            A persisted instance of the model class initialized with the
+            provided data.
 
         """
         assert self.orm_cls is not None
         if hasattr(self.orm_cls, "create"):
             return self.orm_cls.create(**data)
-        return self.orm_cls(**data)
+        obj = self.orm_cls(**data)
+        if hasattr(obj, "save"):
+            obj.save()
+        return obj
 
     def update(self, data: dict[str, t.Any]) -> t.Any:
         """
-        Update an existing object with the provided data.
+        Update an existing object with the provided data and persist it.
+
+        Setattrs each entry of `data` onto `self.object`, then calls
+        `obj.save()` if available. The `hasattr` guard mirrors the pattern
+        used in `delete()` so non-ORM objects (which lack a `save` method)
+        flow through unchanged.
 
         Args:
             data:
                 A dictionary containing the data to update the object with.
 
         Returns:
-            The updated object.
+            The persisted, updated object.
 
         """
         assert self.object is not None
         for key, value in data.items():
             setattr(self.object, key, value)
+        if hasattr(self.object, "save"):
+            self.object.save()
         return self.object
 
     def delete(self) -> t.Any:

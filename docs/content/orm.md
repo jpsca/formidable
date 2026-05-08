@@ -21,21 +21,44 @@ class PageForm(f.Form):
 
 ```
 
+### What `form.save()` does
+
+For ORM-bound forms, `form.save()` returns a **fully persisted** object — no follow-up `obj.save()` or `session.commit()` is needed in the consumer:
+
+- **No bound `object`** (a "create" form): calls `orm_cls.create(**data)` if available (the Peewee idiom — instantiates and INSERTs in one call); otherwise falls back to `orm_cls(**data); obj.save()` so detached SQLAlchemy / SQLModel instances are persisted too.
+- **With a bound `object`** (an "update" form): setattrs the form data onto the object and then calls `object.save()` if the method exists. Plain dict objects get a `{**object, **data}` merge and are returned as-is.
+
+### Transactional by default
+
+When the form's `Meta.orm_cls` exposes Peewee's `_meta.database.atomic()` shape, the field-save loop and the object save run inside a single transaction. If a side-effecting field (e.g. an upload-then-INSERT field) succeeds but the parent's INSERT/UPDATE then fails, the prior INSERT is rolled back automatically — no orphans land in the database.
+
+ORMs that don't expose that shape (SQLAlchemy session-flow, plain dicts) flow through unchanged; transaction management stays the consumer's responsibility for those.
+
+To plug in a different transaction primitive (e.g. SQLAlchemy's `session.begin()`), override `Form._persistence_context()`:
+
+```python {title="forms/base.py"}
+import formidable as f
+from contextlib import nullcontext
+from .db import db_session
+
+class BaseForm(f.Form):
+    def _persistence_context(self):
+        if self.Meta.orm_cls is None:
+            return nullcontext()
+        return db_session.begin()
+```
+
 ### Peewee, Pony, and Tortoise ORM
 
-For these ORMs, the integration is automatic.
-
-After calling `form.save()`, you only need to commit the changes to the database:
-- For Pony ORM, use `db_session.commit()`
-- For Peewee and Tortoise ORM, use `myobject.save()`
+These ORMs are zero-config: their models expose `create(**kwargs)` and `save()` methods, which is exactly the API `Form.save()` calls into. For Peewee specifically, the transactional-default kicks in automatically because Peewee models expose `_meta.database.atomic()`.
 
 ### SQLAlchemy and SQLModel
 
-Because these ORMs work with a session pattern, Formidable's default `ObjectManager` needs to be extended. There are two ways to do this:
+SQLAlchemy uses a session pattern rather than per-instance persistence, so the default `Form.save()` flow doesn't quite cover the "session.add + session.commit" handshake out of the box. Two ways to bridge:
 
 #### Option A: Add methods to a model base class
 
-Formidable's `ObjectManager` calls `orm_cls.create(**data)` when creating new objects and `object.delete()` when deleting them. You can add these methods to a shared model base class:
+Formidable's `ObjectManager` looks for `orm_cls.create(**data)` on construction and `object.delete()` when removing nested entries. Add them to a shared base:
 
 ```python {title="models/base.py"}
 from sqlalchemy.orm import DeclarativeBase
@@ -63,9 +86,11 @@ class Page(Base):
 
 ```
 
+You'll typically commit the session at request-end (e.g. via a middleware) rather than per-form.
+
 #### Option B: Provide a custom ObjectManager
 
-Alternatively, you can subclass `ObjectManager` to handle the session directly:
+Alternatively, subclass `ObjectManager` to handle the session directly:
 
 ```python {title="forms/base.py"}
 import formidable as f

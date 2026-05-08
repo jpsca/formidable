@@ -14,6 +14,7 @@ class PeeweeObject:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.delete_instance = MagicMock(return_value=None)
+        self.save = MagicMock(return_value=None)
 
     @classmethod
     def create(cls, **kwargs):
@@ -25,6 +26,15 @@ class OtherObject:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.delete = MagicMock(return_value=None)
+
+
+class SaveOnlyObject:
+    """A mock ORM-like object with `save()` but no `create` classmethod —
+    exercises the `Model(**data); obj.save()` fallback in ObjectManager.create.
+    """
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self.save = MagicMock(return_value=None)
 
 
 @pytest.mark.parametrize("Object", [PeeweeObject, OtherObject])
@@ -73,6 +83,64 @@ def test_update_object():
     assert updated_obj is existing_obj
     assert updated_obj.name == "Updated Product"
     assert updated_obj.price == 15.0
+    # Persistence is part of the contract: form.save() returns a fully-saved
+    # object, not one waiting on a follow-up .save() call.
+    existing_obj.save.assert_called_once()
+
+
+def test_update_calls_save_when_available():
+    """Regression: `form.save()` on an existing ORM object must invoke that
+    object's `.save()` method so the consumer doesn't have to. Mirrors the
+    behavior of `delete()` calling `delete_instance()` / `delete()`.
+    """
+    class ProductForm(f.Form):
+        name = f.TextField()
+
+    existing = PeeweeObject(name="Old")
+    form = ProductForm({"name": ["New"]}, object=existing)
+    assert form.is_valid
+
+    form.save()
+
+    existing.save.assert_called_once()
+
+
+def test_update_skips_save_when_not_available():
+    """An object without a `.save()` method (non-ORM dict-likes, mocks of
+    custom domain objects) must still flow through update without errors.
+    """
+    class ProductForm(f.Form):
+        name = f.TextField()
+
+    existing = OtherObject(name="Old")  # no .save attribute
+    form = ProductForm({"name": ["New"]}, object=existing)
+    assert form.is_valid
+
+    # Must not raise even though OtherObject doesn't have .save
+    result = form.save()
+    assert result is existing
+    assert result.name == "New"
+
+
+def test_create_fallback_persists_when_no_create_classmethod():
+    """When the ORM class has no `create` classmethod, ObjectManager falls
+    back to `Model(**data)` and then calls `obj.save()` if available, so
+    the "create returns persisted instance" contract holds across ORMs that
+    separate construction from persistence (SQLAlchemy detached, etc.).
+    """
+    class ProductForm(f.Form):
+        class Meta:
+            orm_cls = SaveOnlyObject
+        name = f.TextField()
+
+    form = ProductForm({"name": ["X"]})
+    assert form.is_valid
+
+    obj = form.save()
+
+    assert isinstance(obj, SaveOnlyObject)
+    assert obj.name == "X"
+    obj.save.assert_called_once()
 
 
 @pytest.mark.parametrize("Object", [PeeweeObject, OtherObject])

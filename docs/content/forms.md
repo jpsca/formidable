@@ -165,8 +165,10 @@ Field errors (`field.error`, `field.error_args`) are only exposed after validati
 If the form is valid, this method will collect all the field values and:
 
 a) If the form is not connected to an ORM model and it wasn't instantiated with an object, it will return the data as a dictionary.
-b) If it *was* instantiated with an object, it will update and return the object (even if the "object" in question is a dictionary).
-c) If it *wasn't* instantiated with an object, but it is connected to an ORM model, it will create a new object and return it.
+b) If it *was* instantiated with an object, it setattrs the data onto it, calls `object.save()` if available, and returns the **persisted** object. Plain dict objects get a `{**object, **data}` merge.
+c) If it *wasn't* instantiated with an object but it is connected to an ORM model (`Meta.orm_cls`), it creates and **persists** a new instance — using `orm_cls.create(**data)` if available, otherwise `orm_cls(**data); obj.save()`.
+
+In every ORM-bound path the returned object is already saved; no follow-up `obj.save()` is needed.
 
 ```python
 form = PostForm(
@@ -186,12 +188,14 @@ print(data)
 # }
 ```
 
-In any case, this method can also take extra data that will be added before saving. This is useful to add things that should be included in a new object - like a `user_id` - but that you definitely don't want as an editable form field.
+In any case, this method can also take extra data that will be added before saving. This is useful to add things that should be included in a new object — like a `user_id` — but that you definitely don't want as an editable form field.
 
 ```python
 product = form.save(user_id=123)
 print(product.user_id)  # 123
 ```
+
+For ORM-bound forms whose models expose Peewee's `_meta.database.atomic()` shape, the field-save loop and the object save run inside a single transaction — see the [ORM integration](/docs/orm/) page for details, including how to plug in a different transaction primitive via `Form._persistence_context()`.
 
 
 ## Form-level validation

@@ -410,3 +410,137 @@ def test_hidden_tags_full():
         '<input type="hidden" name="_id" value="42" />'
     )
     assert str(form.hidden_tags()) == expected
+
+
+# ── Form._persistence_context ──────────────────────────────────────────────
+
+
+class _FakeAtomic:
+    """Mimics the peewee `db.atomic()` interface enough to verify wiring:
+    enter/exit are recorded, and exceptions propagate (mirroring peewee's
+    actual behavior of rolling back on __exit__ when exc is non-None).
+    """
+
+    def __init__(self):
+        self.enter_count = 0
+        self.exit_count = 0
+        self.last_exc_type = None
+
+    def __call__(self):
+        return self
+
+    def __enter__(self):
+        self.enter_count += 1
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        self.exit_count += 1
+        self.last_exc_type = exc_type
+        return False  # propagate exceptions
+
+
+class _FakeMeta:
+    def __init__(self, atomic):
+        self.database = type("DB", (), {"atomic": atomic})()
+
+
+class _FakeOrmCls:
+    """ORM-class shim: exposes peewee's `_meta.database.atomic()` shape but
+    keeps `create()` so ObjectManager.save can take its create branch.
+    """
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    @classmethod
+    def _bind(cls, atomic):
+        cls._meta = _FakeMeta(atomic)
+        return cls
+
+    @classmethod
+    def create(cls, **kwargs):
+        return cls(**kwargs)
+
+
+def test_persistence_context_wraps_save_when_orm_exposes_atomic():
+    """For ORMs that expose peewee's `_meta.database.atomic()` shape, the
+    field-save loop and the object save run inside that context manager.
+    """
+    atomic = _FakeAtomic()
+    OrmCls = type("Orm", (_FakeOrmCls,), {})._bind(atomic)
+
+    class ProductForm(f.Form):
+        class Meta:
+            orm_cls = OrmCls
+
+        name = f.TextField()
+
+    form = ProductForm({"name": ["test"]})
+    form.save()
+
+    assert atomic.enter_count == 1
+    assert atomic.exit_count == 1
+    assert atomic.last_exc_type is None  # clean exit
+
+
+def test_persistence_context_rolls_back_on_failure():
+    """An exception raised during the field-save loop or object save must
+    propagate through the context manager so peewee's atomic() rolls back.
+    """
+    atomic = _FakeAtomic()
+    OrmCls = type("Orm", (_FakeOrmCls,), {})._bind(atomic)
+
+    class ExplodingField(f.TextField):
+        def save(self):
+            raise RuntimeError("boom")
+
+    class ProductForm(f.Form):
+        class Meta:
+            orm_cls = OrmCls
+
+        name = ExplodingField()
+
+    form = ProductForm({"name": ["test"]})
+    with pytest.raises(RuntimeError, match="boom"):
+        form.save()
+
+    assert atomic.enter_count == 1
+    assert atomic.exit_count == 1
+    assert atomic.last_exc_type is RuntimeError
+
+
+def test_persistence_context_is_noop_for_non_peewee_orm():
+    """ORMs that don't expose `_meta.database.atomic()` (SQLAlchemy, plain
+    classes) must flow through unchanged — no transaction wrapping.
+    """
+    class PlainOrm:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+        @classmethod
+        def create(cls, **kwargs):
+            return cls(**kwargs)
+
+    class ProductForm(f.Form):
+        class Meta:
+            orm_cls = PlainOrm
+
+        name = f.TextField()
+
+    # Should not raise even though PlainOrm has no _meta/database/atomic.
+    form = ProductForm({"name": ["test"]})
+    obj = form.save()
+    assert isinstance(obj, PlainOrm)
+    assert obj.name == "test"
+
+
+def test_persistence_context_is_noop_for_dict_form():
+    """Forms with no orm_cls (returning a data dict) must not attempt any
+    transaction wrapping — `nullcontext` keeps the path side-effect free.
+    """
+
+    class DataForm(f.Form):
+        name = f.TextField()
+
+    data = DataForm({"name": ["x"]}).save()
+    assert data == {"name": "x"}

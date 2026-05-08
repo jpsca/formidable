@@ -137,10 +137,14 @@ class PageForm(f.Form):
 
 Behavior of `form.save()`:
 - **No `orm_cls` and no `object`:** returns a `dict`.
-- **With `object`:** updates and returns it (works for dicts too).
-- **With `orm_cls` and no `object`:** creates and returns a new instance (via `orm_cls.create(**data)`).
+- **With `object`:** setattrs the form data onto it, calls `object.save()` if available, and returns it. Plain dicts get a `{**object, **data}` merge.
+- **With `orm_cls` and no `object`:** creates and persists a new instance — uses `orm_cls.create(**data)` if available (the peewee idiom — instantiates and INSERTs in one call), otherwise falls back to `orm_cls(**data); obj.save()` so SQLAlchemy / Django / SQLModel detached instances are persisted too.
 
-Peewee / Pony / Tortoise work out of the box (you still commit via your ORM). **SQLAlchemy / SQLModel** need you to either add a `create` classmethod to a shared `Base` class, or subclass `ObjectManager` and set `_ObjectManager` on a base form.
+In all ORM-bound paths the returned object is **already saved** — no follow-up `obj.save()` is needed.
+
+**Transactional by default.** When the form's `Meta.orm_cls` exposes peewee's `_meta.database.atomic()` shape, the field-save loop and the object save run inside a single transaction. If a side-effecting field's save (e.g. an upload-then-INSERT field) succeeds but the parent's INSERT/UPDATE fails, the prior INSERT rolls back automatically. ORMs that don't expose that shape (SQLAlchemy session-flow, plain dicts) fall through unchanged — transaction management stays the consumer's responsibility for those.
+
+Override `Form._persistence_context()` to plug in a different transaction primitive (e.g. `session.begin()` for SQLAlchemy).
 
 `form.save(**extra)` merges extra kwargs before persisting — great for attaching `user_id=request.user.id` without exposing it as a form field.
 
@@ -214,8 +218,7 @@ form.ingredients.build(1)  # optional: show one empty subform
 form = RecipeForm(request.form)
 if form.is_invalid:
     return render_template(...)
-recipe = form.save(user_id=current_user.id)
-db.session.commit()  # whatever your ORM needs
+recipe = form.save(user_id=current_user.id)  # already persisted
 ```
 
 **Edit:**
@@ -228,7 +231,7 @@ form = RecipeForm({}, object=recipe)
 form = RecipeForm(request.form, object=recipe)
 if form.is_invalid:
     return render_template(...)
-form.save()
+form.save()  # setattr + obj.save() under one transaction
 ```
 
 **Translating errors in templates:**
@@ -243,5 +246,5 @@ form.save()
 - **`BooleanField` defaults to `required=False`** because browsers don't send unchecked checkboxes. Set `required=True` only when you want to enforce "must be checked" (e.g. ToS agreement).
 - **`FileField` does not upload** — wire that up in your framework layer.
 - **Deep form inheritance is discouraged.** Prefer composition (mixins, `FormField`).
-- **SQLAlchemy/SQLModel require a `create` method** on the model or a custom `ObjectManager` — otherwise `form.save()` fails on insert.
+- **SQLAlchemy/SQLModel detached instances** are now handled by the `Model(**data); obj.save()` fallback in `ObjectManager.create`. Session-attached patterns (e.g. needing `session.add()`) still want a custom `ObjectManager` or an override of `Form._persistence_context()` for transaction wiring.
 - **Reserved names** on forms: redefining `validate`, `save`, `is_valid`, etc. as fields raises at class-creation time.
