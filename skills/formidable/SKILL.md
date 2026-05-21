@@ -118,7 +118,7 @@ When `field.error` is set, the input helpers automatically add `aria-invalid="tr
 
 Field errors are short *codes* (e.g. `"required"`, `"min_length"`). The `error_message` property resolves them against a messages dict (placeholders use `error_args`):
 
-- **Global defaults:** `formidable.errors.MESSAGES`.
+- **Global defaults:** `formidable.MESSAGES`.
 - **Per-form override:** `class Meta: messages = {"required": "..."}`. Extends, doesn't replace.
 - **Per-field override:** `f.TextField(messages={"required": "..."})`.
 - **Per-instance (i18n):** `MyForm(reqdata, messages=MESSAGES[user.locale])`.

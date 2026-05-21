@@ -80,7 +80,7 @@ def test_invalid_list_type_strict():
 
     field.set(["no", "not an int", "nope"])
     field.validate()
-    assert field.error == err.INVALID
+    assert field.error is err.INVALID
 
 
 def test_validate_min_items():

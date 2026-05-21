@@ -82,7 +82,7 @@ def test_required():
     field.set(None)
     field.validate()
     assert field.error == err.REQUIRED
-    assert field.error_message == err.MESSAGES[err.REQUIRED]
+    assert field.error_message == f.MESSAGES[err.REQUIRED]
 
     field = f.FormField(AddressForm)
     field.set("")

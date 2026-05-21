@@ -5,6 +5,7 @@ from .datetime import DateTimeField  # noqa
 from .email import EmailField  # noqa
 from .file import FileField  # noqa
 from .formfield import FormField  # noqa
+from .json import JSONField  # noqa
 from .list import ListField  # noqa
 from .nested import NestedForms  # noqa
 from .number import FloatField, IntegerField  # noqa

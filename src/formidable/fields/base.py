@@ -34,6 +34,41 @@ class Field:
             Example: {"required": "This field cannot be empty"}.
 
     """
+    MESSAGES = {
+        err.INVALID: "Invalid value",
+        err.REQUIRED: "Field is required",
+        err.ONE_OF: "Must be one of {one_of}",
+
+        err.GT: "Must be greater than {gt}",
+        err.GTE: "Must be greater than or equal to {gte}",
+        err.LT: "Must be less than {lt}",
+        err.LTE: "Must be less than or equal to {lte}",
+        err.MULTIPLE_OF: "Must be a multiple of {multiple_of}",
+
+        err.MIN_ITEMS: "Must have at least {min_items} items",
+        err.MAX_ITEMS: "Must have at most {max_items} items",
+
+        err.MIN_LENGTH: "Must have at least {min_length} characters",
+        err.MAX_LENGTH: "Must have at most {max_length} characters",
+
+        err.PATTERN: "Invalid format",
+
+        err.PAST_DATE: "Must be a date in the past",
+        err.FUTURE_DATE: "Must be a date in the future",
+        err.AFTER_DATE: "Must be after {after_date}",
+        err.BEFORE_DATE: "Must be before {before_date}",
+
+        err.AFTER_TIME: "Must be after {after_time}",
+        err.BEFORE_TIME: "Must be before {before_time}",
+        err.PAST_TIME: "Must be a time in the past",
+        err.FUTURE_TIME: "Must be a time in the future",
+
+        err.INVALID_URL: "Doesn't seem to be a valid URL",
+        err.INVALID_EMAIL: "Doesn't seem to be a valid email address",
+        err.INVALID_SLUG: "A valid 'slug' can only have a-z letters, numbers, underscores, or hyphens",
+
+        err.INVALID_JSON: "Invalid JSON format",
+    }
 
     parent: "Form | None" = None
     name_format: str = "{name}"
@@ -89,7 +124,7 @@ class Field:
         """
         if self.error is None or not isinstance(self.error, str):
             return ""
-        tmpl = self.messages.get(self.error, err.MESSAGES.get(self.error, self.error))
+        tmpl = self.messages.get(self.error, self.MESSAGES.get(self.error, self.error))
         args = self.error_args or {}
         return tmpl.format(**args)
 
@@ -133,7 +168,9 @@ class Field:
         try:
             self.value = self.filter_value(value)
         except (ValueError, TypeError) as e:
-            if e.args and e.args[0] in err.MESSAGES:
+            # Treat the error message as an error code if it looks like one
+            # (a single word with no spaces)
+            if e.args and " " not in e.args[0]:
                 self._error = e.args[0]
                 self._error_args = e.args[1] if len(e.args) > 1 else None
             else:
@@ -201,7 +238,7 @@ class Field:
     def _str_value(self) -> str:
         if hasattr(self.value, "isoformat"):
             return self.value.isoformat()
-        return str(self.value)
+        return str(self.value or "")
 
     # Helper methods for rendering HTML forms
 
@@ -336,8 +373,8 @@ class Field:
         attributes.update(attrs)
         attr_str = self._render_html_attrs(attributes)
 
-        value_str = "" if self.value is None else Markup.escape(str(self.value))
-        return Markup(f"<textarea {attr_str}>{value_str}</textarea>")
+        escaped_value = Markup.escape(self._str_value())
+        return Markup(f"<textarea {attr_str}>{escaped_value}</textarea>")
 
     def select(
         self,

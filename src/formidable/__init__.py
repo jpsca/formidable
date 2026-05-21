@@ -4,6 +4,7 @@ Formidable | Copyright (c) 2025 Juan-Pablo Scaletti
 
 from . import errors  # noqa
 from .fields import (
+  Field,  # noqa
   BooleanField,  # noqa
   BoolField,  # noqa
   DateField,  # noqa
@@ -14,6 +15,7 @@ from .fields import (
   FloatField,  # noqa
   FormField,  # noqa
   IntegerField,  # noqa
+  JSONField,  # noqa
   ListField,  # noqa
   NestedForms,  # noqa
   SlugField,  # noqa
@@ -22,3 +24,6 @@ from .fields import (
   URLField,  # noqa
 )
 from .form import RESERVED_NAMES, Form  # noqa
+
+
+MESSAGES = {**Field.MESSAGES}

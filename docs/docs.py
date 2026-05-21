@@ -17,7 +17,7 @@ pages = [
     "messages.md",
     {
         "title": "Included fields",
-        "closed": True,
+        # "closed": True,
         "pages": [
             {
                 "title": "Basic fields",
@@ -44,6 +44,7 @@ pages = [
                     "fields/email.md",
                     "fields/url.md",
                     "fields/slug.md",
+                    "fields/json.md",
                 ]
             },
             {

@@ -21,37 +21,45 @@ When a form field has an error, it exposes three error-related attributes:
 
 These attributes are only populated after the form has been validated — that is, after you call `form.validate()` or access `form.is_valid` / `form.is_invalid`. Simply instantiating a form with request data (e.g. `MyForm(reqdata)`) will *not* set `field.error`, which lets you render the form on first display without showing errors the user hasn't triggered yet.
 
-You can see the full (short) default dictionary of error messages in `formidable.errors.MESSAGES`. The dictionary uses the error codes as keys and the human-readable messages as values.
+You can see the full (short) default dictionary of error messages in `formidable.MESSAGES`. The dictionary uses the error codes as keys and the human-readable messages as values.
 
 ::: note | The full list of default messages
 :open: false
 
 ```python
 MESSAGES = {
-    “invalid”: “Invalid value”,
-    “required”: “Field is required”,
-    “one_of”: “Must be one of {one_of}”,
-    “gt”: “Must be greater than {gt}”,
-    “gte”: “Must be greater than or equal to {gte}”,
-    “lt”: “Must be less than {lt}”,
-    “lte”: “Must be less than or equal to {lte}”,
-    “multiple_of”: “Must be a multiple of {multiple_of}”,
-    “min_items”: “Must have at least {min_items} items”,
-    “max_items”: “Must have at most {max_items} items”,
-    “min_length”: “Must have at least {min_length} characters”,
-    “max_length”: “Must have at most {max_length} characters”,
-    “pattern”: “Invalid format”,
-    “past_date”: “Must be a date in the past”,
-    “future_date”: “Must be a date in the future”,
-    “after_date”: “Must be after {after_date}”,
-    “before_date”: “Must be before {before_date}”,
-    “after_time”: “Must be after {after_time}”,
-    “before_time”: “Must be before {before_time}”,
-    “past_time”: “Must be a time in the past”,
-    “future_time”: “Must be a time in the future”,
-    “invalid_url”: “Doesn't seem to be a valid URL”,
-    “invalid_email”: “Doesn't seem to be a valid email address”,
-    “invalid_slug”: “A valid 'slug' can only have a-z letters, numbers, underscores, or hyphens”,
+    "invalid": "Invalid value",
+    "required": "Field is required",
+    "one_of": "Must be one of {one_of}",
+
+    "gt": "Must be greater than {gt}",
+    "gte": "Must be greater than or equal to {gte}",
+    "lt": "Must be less than {lt}",
+    "lte": "Must be less than or equal to {lte}",
+    "multiple_of": "Must be a multiple of {multiple_of}",
+
+    "min_items": "Must have at least {min_items} items",
+    "max_items": "Must have at most {max_items} items",
+    
+    "min_length": "Must have at least {min_length} characters",
+    "max_length": "Must have at most {max_length} characters",
+
+    "pattern": "Invalid format",
+    
+    "past_date": "Must be a date in the past",
+    "future_date": "Must be a date in the future",
+    "after_date": "Must be after {after_date}",
+    "before_date": "Must be before {before_date}",
+    
+    "after_time": "Must be after {after_time}",
+    "before_time": "Must be before {before_time}",
+    "past_time": "Must be a time in the past",
+    "future_time": "Must be a time in the future",
+    
+    "invalid_url": "Doesn't seem to be a valid URL",
+    "invalid_email": "Doesn't seem to be a valid email address",
+    "invalid_slug": "A valid 'slug' can only have a-z letters, numbers, underscores, or hyphens",
+    "invalid_json": "Invalid JSON format",
 }
 ```
 :::
@@ -90,10 +98,12 @@ The custom messages dictionary extends rather than replaces the default one. In 
 The custom messages dictionary can also be set when instantiating the form inside the view. You can, for example, translate the messages and use the translation that matches the user's language:
 
 ```python {hl_lines="4"}
+import formidable as f
+
 form = MyForm(
   reqdata,
   objdata,
-  messages=MESSAGES[user.locale]
+  messages=f.MESSAGES[user.locale]
 )
 ```
 
@@ -132,7 +142,9 @@ class PasswordChangeForm(f.Form):
 
 To raise an error in a filter or validator, you must use `raise ValueError(...)`.
 
-The first argument will be the error code (`field.error`). Any other arguments will be collected in the `field.error_args` dictionary.
+If the first argument is **a string with no spaces**, it will be treated as the error code (`field.error`). Any other arguments will be collected in the `field.error_args` dictionary.
+
+If the first argument has spaces in it (e.g.: a regular error message like "invalid literal for int()"), `field.error` will be just "invalid".
 
 ```python {hl_lines="5 10"}
 import formidable as f

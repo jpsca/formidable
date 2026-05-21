@@ -27,7 +27,7 @@ def test_required(FieldType):
     field.set(None)
     field.validate()
     assert field.error == err.REQUIRED
-    assert field.error_message == err.MESSAGES[err.REQUIRED]
+    assert field.error_message == f.MESSAGES[err.REQUIRED]
 
     field = FieldType()
     field.set("")
@@ -56,7 +56,7 @@ def test_invalid(FieldType, value):
     field.set(value)
     field.validate()
     assert field.error == err.INVALID
-    assert field.error_message == err.MESSAGES[err.INVALID]
+    assert field.error_message == f.MESSAGES[err.INVALID]
 
 
 @pytest.mark.parametrize(
@@ -117,3 +117,31 @@ def test_is_multiple():
 
     field = f.ListField()
     assert field.multiple
+
+
+def test_double_validate():
+    """
+    Test that validating a field twice doesn't cause issues.
+    """
+    field = f.TextField(min_length=3)
+
+    field.set("test")
+    field.validate()
+    assert field.error is None
+
+    field.validate()
+    assert field.error is None
+
+
+def test_double_validate_with_error():
+    """
+    Test that validating a field twice with an error doesn't cause issues.
+    """
+    field = f.TextField(min_length=3)
+
+    field.set("a")
+    field.validate()
+    assert field.error == err.MIN_LENGTH
+
+    field.validate()
+    assert field.error == err.MIN_LENGTH

@@ -33,35 +33,4 @@ INVALID_URL = "invalid_url"
 INVALID_EMAIL = "invalid_email"
 INVALID_SLUG = "invalid_slug"
 
-MESSAGES = {
-    INVALID: "Invalid value",
-    REQUIRED: "Field is required",
-    ONE_OF: "Must be one of {one_of}",
-
-    GT: "Must be greater than {gt}",
-    GTE: "Must be greater than or equal to {gte}",
-    LT: "Must be less than {lt}",
-    LTE: "Must be less than or equal to {lte}",
-    MULTIPLE_OF: "Must be a multiple of {multiple_of}",
-
-    MIN_ITEMS: "Must have at least {min_items} items",
-    MAX_ITEMS: "Must have at most {max_items} items",
-
-    MIN_LENGTH: "Must have at least {min_length} characters",
-    MAX_LENGTH: "Must have at most {max_length} characters",
-    PATTERN: "Invalid format",
-
-    PAST_DATE: "Must be a date in the past",
-    FUTURE_DATE: "Must be a date in the future",
-    AFTER_DATE: "Must be after {after_date}",
-    BEFORE_DATE: "Must be before {before_date}",
-
-    AFTER_TIME: "Must be after {after_time}",
-    BEFORE_TIME: "Must be before {before_time}",
-    PAST_TIME: "Must be a time in the past",
-    FUTURE_TIME: "Must be a time in the future",
-
-    INVALID_URL: "Doesn't seem to be a valid URL",
-    INVALID_EMAIL: "Doesn't seem to be a valid email address",
-    INVALID_SLUG: "A valid 'slug' can only have a-z letters, numbers, underscores, or hyphens"
-}
+INVALID_JSON = "invalid_json"
