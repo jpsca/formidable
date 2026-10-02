@@ -56,3 +56,38 @@ def test_boolean_required():
     assert form.agree.error == f.errors.REQUIRED
     assert form.agree.value is False
 
+
+class _Settings:
+    def __init__(self, notify):
+        self.notify = notify
+
+
+def test_checkbox_of_an_object_can_be_unchecked():
+    class TestForm(f.Form):
+        notify = f.BooleanField()
+
+    # What a browser sends for the output of `checkbox()`: the hidden input
+    # and, only if it is checked, the checkbox.
+    unchecked = {"notify": ["0"]}
+    checked = {"notify": ["0", "on"]}
+
+    form = TestForm(unchecked, _Settings(notify=True))
+    assert form.notify.value is False
+    assert form.save().notify is False
+
+    form = TestForm(checked, _Settings(notify=False))
+    assert form.notify.value is True
+    assert form.save().notify is True
+
+
+def test_missing_field_keeps_the_value_of_the_object():
+    """e.g. an API client that only sends the fields it wants to change."""
+    class TestForm(f.Form):
+        name = f.TextField(required=False)
+        notify = f.BooleanField()
+
+    form = TestForm({"name": ["x"]}, _Settings(notify=True))
+    assert form.notify.value is True
+
+    form = TestForm({"name": ["x"]}, _Settings(notify=False))
+    assert form.notify.value is False

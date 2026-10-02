@@ -201,16 +201,52 @@ def test_checkbox():
     field = f.BooleanField()
     field.field_name = "test"
 
+    hidden = '<input type="hidden" name="test" value="0" />'
+
     # Test unchecked
     field.value = False
     result = field.checkbox()
-    expected = f'<input type="checkbox" id="{field.id}" name="test" />'
+    expected = f'{hidden}<input type="checkbox" id="{field.id}" name="test" />'
     assert result == expected
 
     # Test checked
     field.value = True
     result = field.checkbox()
+    expected = f'{hidden}<input type="checkbox" id="{field.id}" name="test" checked />'
+    assert result == expected
+    assert field.checkbox_input() == expected
+
+
+def test_checkbox_of_a_field_that_is_not_boolean():
+    field = f.TextField()
+    field.field_name = "test"
+    field.value = "x"
+
+    result = field.checkbox()
     expected = f'<input type="checkbox" id="{field.id}" name="test" checked />'
+    assert result == expected
+
+
+def test_checkbox_disabled():
+    """A disabled checkbox sends nothing, and its value must not change."""
+    field = f.BooleanField()
+    field.field_name = "test"
+    field.value = True
+
+    result = field.checkbox(disabled=True)
+    expected = f'<input type="checkbox" id="{field.id}" name="test" checked disabled />'
+    assert result == expected
+
+
+def test_checkbox_of_another_form():
+    field = f.BooleanField()
+    field.field_name = "test"
+
+    result = field.checkbox(form="other")
+    expected = (
+        '<input type="hidden" name="test" value="0" form="other" />'
+        f'<input type="checkbox" id="{field.id}" name="test" form="other" />'
+    )
     assert result == expected
 
 
@@ -221,6 +257,7 @@ def test_checkbox_error():
 
     result = field.checkbox()
     expected = (
+        '<input type="hidden" name="test" value="0" />'
         f'<input type="checkbox" id="{field.id}" name="test"'
         f' aria-invalid="true" aria-errormessage="{field.id}-error" />'
     )

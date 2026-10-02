@@ -451,6 +451,10 @@ class Field:
         A check box allowing single values to be selected/deselected.
         If the field's value is truthy, the checkbox will be rendered as checked.
 
+        For a `BooleanField`, a hidden input with the same name and the value
+        `"0"` is rendered before the checkbox, so unchecking it is sent as a
+        false value instead of as nothing. The examples below leave it out.
+
         Args:
             **attrs:
                 Additional HTML attributes to include in the checkbox input element.
