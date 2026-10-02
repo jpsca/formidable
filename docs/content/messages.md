@@ -92,6 +92,17 @@ class MyForm(BaseForm):
 
 The custom messages dictionary extends rather than replaces the default one. In this example, the default "required" message is overwritten and a new "lorem-ipsum" error is added, while all other default messages remain unchanged.
 
+A form inherits the `Meta` of its parent form. If it declares its own `Meta`, its messages are added to the inherited ones, replacing those with the same code, and its other options (`orm_cls`, `pk`) replace the inherited ones only if they are declared:
+
+```python
+class UserForm(BaseForm):
+  class Meta:
+    orm_cls = User
+    messages = {"taken": "This name is already in use"}
+
+  # Has the three messages: "required", "lorem-ipsum" and "taken"
+```
+
 
 ## Custom form messages
 

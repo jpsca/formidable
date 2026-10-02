@@ -121,20 +121,39 @@ class Form():
             if callable(getattr(cls, f"validate_{n}", None))
         }
 
-        # Process Meta once per class
-        base_meta = cls.__dict__.get("Meta", DefaultMeta)
-        processed = type("Meta", (), {
-            k: v for k, v in vars(base_meta).items()
+        # Process Meta once per class. A form inherits the Meta of its parent
+        # form. What it declares in its own Meta replaces what it inherits,
+        # option by option, except for the messages: those are merged.
+        inherited = next(
+            (
+                vars(base)["_ProcessedMeta"]
+                for base in cls.__mro__[1:]
+                if "_ProcessedMeta" in vars(base)
+            ),
+            DefaultMeta,
+        )
+        options = {
+            k: v for k, v in vars(inherited).items()
             if not k.startswith("__")
-        })
+        }
+        own_meta = cls.__dict__.get("Meta")
+        own_options = {
+            # `dir` so a Meta that inherits from another Meta works too
+            k: getattr(own_meta, k) for k in dir(own_meta)
+            if not k.startswith("__")
+        } if own_meta is not None else {}
+        own_messages = own_options.get("messages", {})
+        if not isinstance(own_messages, dict):
+            raise ValueError("Meta.messages must be a dictionary.")
+        inherited_messages = options.get("messages", {})
+        options.update(own_options)
+        processed = type("Meta", (), options)
+
         orm_cls = getattr(processed, "orm_cls", None)
         if orm_cls is not None and not isinstance(orm_cls, type):
             raise ValueError("Meta.orm_cls must be a class, not an instance.")
         processed.orm_cls = orm_cls
-        messages = getattr(processed, "messages", {})
-        if not isinstance(messages, dict):
-            raise ValueError("Meta.messages must be a dictionary.")
-        processed.messages = messages
+        processed.messages = {**inherited_messages, **own_messages}
         pk = getattr(processed, "pk", "id")
         if not isinstance(pk, str):
             raise ValueError("Meta.pk must be a string.")

@@ -156,6 +156,133 @@ def test_custom_messages():
     assert form.name.error_message == MSG
 
 
+def test_meta_is_inherited():
+    class Model:
+        pass
+
+    class BaseForm(f.Form):
+        class Meta:
+            orm_cls = Model
+            pk = "code"
+            messages = {"required": "Give me the value!"}
+
+    class TestForm(BaseForm):
+        name = f.TextField()
+
+    form = TestForm({})
+    form.validate()
+
+    assert form.Meta.orm_cls is Model
+    assert form.Meta.pk == "code"
+    assert form.name.error_message == "Give me the value!"
+
+
+def test_own_meta_extends_the_inherited_one():
+    class Model:
+        pass
+
+    class BaseForm(f.Form):
+        class Meta:
+            pk = "code"
+            messages = {"required": "Base required", "invalid": "Base invalid"}
+
+    class TestForm(BaseForm):
+        class Meta:
+            orm_cls = Model
+            messages = {"required": "Own required", "taken": "Already taken"}
+
+        name = f.TextField()
+
+    form = TestForm({})
+    form.validate()
+
+    assert form.Meta.orm_cls is Model
+    assert form.Meta.pk == "code"
+    assert form.Meta.messages == {
+        "required": "Own required",
+        "invalid": "Base invalid",
+        "taken": "Already taken",
+    }
+    assert form.name.error_message == "Own required"
+    # The parent form is not changed
+    assert BaseForm().Meta.orm_cls is None
+    assert BaseForm().Meta.messages == {
+        "required": "Base required",
+        "invalid": "Base invalid",
+    }
+
+
+def test_own_meta_can_replace_the_inherited_options():
+    class Model:
+        pass
+
+    class BaseForm(f.Form):
+        class Meta:
+            orm_cls = Model
+            pk = "code"
+
+    class TestForm(BaseForm):
+        class Meta:
+            orm_cls = None
+            pk = "id"
+
+    assert TestForm().Meta.orm_cls is None
+    assert TestForm().Meta.pk == "id"
+
+
+def test_meta_is_inherited_from_grandparent():
+    class GrandParentForm(f.Form):
+        class Meta:
+            messages = {"required": "From the grandparent"}
+
+    class ParentForm(GrandParentForm):
+        pass
+
+    class TestForm(ParentForm):
+        class Meta:
+            pk = "code"
+
+        name = f.TextField()
+
+    form = TestForm({})
+    form.validate()
+
+    assert form.Meta.pk == "code"
+    assert form.name.error_message == "From the grandparent"
+
+
+def test_meta_class_can_inherit_from_another_meta():
+    class Model:
+        pass
+
+    class BaseForm(f.Form):
+        class Meta:
+            messages = {"required": "Give me the value!"}
+
+    class TestForm(BaseForm):
+        class Meta(BaseForm.Meta):
+            orm_cls = Model
+
+        name = f.TextField()
+
+    form = TestForm({})
+    form.validate()
+
+    assert form.Meta.orm_cls is Model
+    assert form.name.error_message == "Give me the value!"
+
+
+def test_invalid_custom_messages_in_a_child_form():
+    class BaseForm(f.Form):
+        class Meta:
+            messages = {"required": "Give me the value!"}
+
+    with pytest.raises(ValueError):
+        class TestForm(BaseForm):
+            class Meta:
+                messages = "lol"
+
+
 def test_field_messages():
     MSG = "Custom required message in field"
 
