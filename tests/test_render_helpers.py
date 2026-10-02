@@ -35,6 +35,81 @@ def test_label():
     assert result == f'<label for="{field.id}" class="custom-class">Label</label>'
 
 
+def test_label_default_text_replaces_underscores():
+    field = f.TextField()
+    field.field_name = "first_name"
+
+    assert field.label() == f'<label for="{field.id}">First name</label>'
+
+
+def test_label_text_from_field_definition():
+    field = f.TextField(label="My input")
+    field.field_name = "test"
+
+    assert field.label_text == "My input"
+    assert field.label() == f'<label for="{field.id}">My input</label>'
+
+    # An explicit text takes precedence
+    result = field.label("Custom Label")
+    assert result == f'<label for="{field.id}">Custom Label</label>'
+
+    # An empty text is not replaced by the generated one
+    field = f.TextField(label="")
+    field.field_name = "test"
+    assert field.label() == f'<label for="{field.id}"></label>'
+
+
+def test_label_text_is_escaped():
+    field = f.TextField(label="<b>Name</b>")
+
+    assert field.label() == f'<label for="{field.id}">&lt;b&gt;Name&lt;/b&gt;</label>'
+
+
+def test_label_text_is_none_by_default():
+    assert f.TextField().label_text is None
+
+
+def test_label_text_in_form():
+    class MyForm(f.Form):
+        my_input = f.TextField(label="My input", required=False)
+        other = f.TextField(required=False)
+
+    form = MyForm()
+
+    assert form.my_input.label_text == "My input"
+    assert form.my_input.label() == f'<label for="{form.my_input.id}">My input</label>'
+    assert form.other.label_text is None
+
+
+class ChildForm(f.Form):
+    name = f.TextField(required=False)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        f.BooleanField(label="Lorem"),
+        f.DateField(label="Lorem"),
+        f.DateTimeField(label="Lorem"),
+        f.EmailField(label="Lorem"),
+        f.FileField(label="Lorem"),
+        f.FloatField(label="Lorem"),
+        f.FormField(ChildForm, label="Lorem"),
+        f.IntegerField(label="Lorem"),
+        f.JSONField(label="Lorem"),
+        f.ListField(label="Lorem"),
+        f.NestedForms(ChildForm, label="Lorem"),
+        f.SlugField(label="Lorem"),
+        f.TextField(label="Lorem"),
+        f.TimeField(label="Lorem"),
+        f.URLField(label="Lorem"),
+    ],
+    ids=lambda field: field.__class__.__name__,
+)
+def test_all_fields_accept_label(field):
+    assert field.label_text == "Lorem"
+
+
 def test_error_tag():
     field = f.TextField(messages={
         "test_error": "This is a test error",

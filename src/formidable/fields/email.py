@@ -52,6 +52,10 @@ class EmailField(Field):
             64 characters long.
         one_of:
             List of values that the field value must be one of. Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.
@@ -68,6 +72,7 @@ class EmailField(Field):
         allow_smtputf8: bool = False,
         strict: bool = True,
         one_of: Iterable[str] | None = None,
+        label: str | None = None,
         messages: dict[str, str] | None = None,
     ):
         self.check_dns = check_dns
@@ -84,6 +89,7 @@ class EmailField(Field):
         super().__init__(
             required=required,
             default=default,
+            label=label,
             messages=messages,
         )
 

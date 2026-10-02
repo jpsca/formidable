@@ -31,6 +31,10 @@ class NumberField(Field):
             Value must be a multiple of this. Defaults to `None`.
         one_of:
             List of values that the field value must be one of. Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.
@@ -49,6 +53,7 @@ class NumberField(Field):
         lte: int | float | None = None,
         multiple_of: int | float | None = None,
         one_of: Iterable[t.Any] | None = None,
+        label: str | None = None,
         messages: dict[str, str] | None = None,
     ):
         if gt is not None and not isinstance(gt, (int, float)):
@@ -79,6 +84,7 @@ class NumberField(Field):
         super().__init__(
             required=required,
             default=default,
+            label=label,
             messages=messages,
         )
 
@@ -144,6 +150,10 @@ class FloatField(NumberField):
             Value must be a multiple of this. Defaults to `None`.
         one_of:
             List of values that the field value must be one of. Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.
@@ -182,6 +192,10 @@ class IntegerField(NumberField):
             Value must be a multiple of this. Defaults to `None`.
         one_of:
             List of values that the field value must be one of. Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.

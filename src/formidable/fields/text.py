@@ -33,6 +33,10 @@ class TextField(Field):
         one_of:
             List of allowed values that the field value must match exactly.
             Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.
@@ -49,6 +53,7 @@ class TextField(Field):
         max_length: int | None = None,
         pattern: str | None = None,
         one_of: Iterable[str] | None = None,
+        label: str | None = None,
         messages: dict[str, str] | None = None,
     ):
         self.strip = strip
@@ -78,6 +83,7 @@ class TextField(Field):
         super().__init__(
             required=required,
             default=default,
+            label=label,
             messages=messages,
         )
 

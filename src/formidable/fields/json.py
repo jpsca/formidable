@@ -22,6 +22,10 @@ class JSONField(Field):
         default:
             Default value for the field. Can be a static value or a callable.
             Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.
@@ -32,11 +36,17 @@ class JSONField(Field):
         *,
         required: bool = True,
         default: dict | str | None = None,
+        label: str | None = None,
         messages: dict[str, str] | None = None,
     ):
         if isinstance(default, str):
             default = self.filter_value(default)
-        super().__init__(required=required, default=default, messages=messages)
+        super().__init__(
+            required=required,
+            default=default,
+            label=label,
+            messages=messages,
+        )
 
     def filter_value(self, value: str | None) -> dict | None:
         """

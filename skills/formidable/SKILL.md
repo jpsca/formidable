@@ -42,7 +42,7 @@ Re-validate by calling `form.validate()` explicitly — the `is_valid` result is
 
 ## Fields
 
-All live on `formidable` and accept at least `required=True`, `default=None`, `messages={}`. Common ones:
+All live on `formidable` and accept at least `required=True`, `default=None`, `messages={}`. All of them also accept `label="..."`, stored as `field.label_text`. Common ones:
 
 | Field | Key extras |
 |---|---|
@@ -107,13 +107,13 @@ Fields expose render helpers that produce `Markup` (safe HTML). Chain them in te
 All render helpers accept arbitrary kwargs as HTML attributes (`class_="..."` becomes `class="..."`, `data_foo` becomes `data-foo`, booleans render as valueless attributes).
 
 Helper families:
-- **Label/error:** `label(text=None, **attrs)`, `error_tag(**attrs)`
+- **Label/error:** `label(text=None, **attrs)`, `error_tag(**attrs)`. Without `text`, `label()` uses the field's `label_text` (set with `f.TextField(label="...")`), and if there is none, a text generated from the field name (`first_name` → "First name").
 - **Text-ish inputs:** `text_input`, `textarea`, `password_input`, `email_input`, `url_input`, `search_input`, `tel_input`, `color_input`, `number_input`, `range_input`, `date_input`, `datetime_input`, `time_input`, `month_input`, `week_input`, `file_input`, `hidden_input`
 - **Choice inputs:** `select(options)` (auto-adds `multiple` when field is `multiple=True`), `checkbox()`, `radio(radio_value)`
 
 For a `BooleanField`, `checkbox()` also renders a hidden `<input type="hidden" name="..." value="0">` *before* the checkbox, so unchecking it submits `"0"` instead of nothing (checked submits both values and the last one wins). It is left out when the checkbox is `disabled`.
 
-Low-level attributes for hand-rolled HTML: `field.id`, `field.name`, `field.value`, `field.error`, `field.error_args`, `field.error_message`.
+Low-level attributes for hand-rolled HTML: `field.id`, `field.name`, `field.label_text`, `field.value`, `field.error`, `field.error_args`, `field.error_message`.
 
 When `field.error` is set, the input helpers automatically add `aria-invalid="true"` and `aria-errormessage="{id}-error"` — pair them with `error_tag()` for accessible forms.
 

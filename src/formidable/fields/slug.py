@@ -349,6 +349,10 @@ class SlugField(TextField):
             It should take a string and return a slugified version of it.
         one_of:
             List of values that the field value must be one of. Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.
@@ -363,6 +367,7 @@ class SlugField(TextField):
         default: t.Any = None,
         slugify: Callable[[str], str] = slugify,
         one_of: Iterable[str] | None = None,
+        label: str | None = None,
         messages: dict[str, str] | None = None,
     ):
         self.slugify = slugify
@@ -371,6 +376,7 @@ class SlugField(TextField):
             default=default,
             strip=True,
             one_of=one_of,
+            label=label,
             messages=messages,
         )
 

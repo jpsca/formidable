@@ -27,6 +27,10 @@ class NestedForms(Field):
             Maximum number of forms in the set. Defaults to None (no maximum).
         default:
             Default value for the field. Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         allow_delete:
             Whether the form allows deletion of objects.
             If set to `True`, the form will delete objects when the "_destroy"
@@ -41,6 +45,7 @@ class NestedForms(Field):
         min_items: int | None = None,
         max_items: int | None = None,
         default: t.Any = None,
+        label: str | None = None,
         allow_delete: bool = False,
     ):
         self.FormClass = FormClass
@@ -62,6 +67,7 @@ class NestedForms(Field):
         super().__init__(
             required=bool(min_items),
             default=default,
+            label=label,
             messages={**self.empty_form._messages},
         )
         self.set_name_format(self.name_format)

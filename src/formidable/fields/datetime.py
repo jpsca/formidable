@@ -35,6 +35,10 @@ class DateTimeField(Field):
             `past_date` or `future_date` are used. Defaults to `0` (UTC timezone).
         one_of:
             List of values that the field value must be one of. Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.
@@ -54,6 +58,7 @@ class DateTimeField(Field):
         future_date: bool = False,
         offset: int | float = 0,
         one_of: Iterable[t.Any] | None = None,
+        label: str | None = None,
         messages: dict[str, str] | None = None,
         _utcnow: datetime.datetime | None = None,
     ):
@@ -92,6 +97,7 @@ class DateTimeField(Field):
         super().__init__(
             required=required,
             default=default,
+            label=label,
             messages=messages,
         )
 

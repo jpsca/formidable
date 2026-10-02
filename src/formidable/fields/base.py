@@ -28,6 +28,10 @@ class Field:
         default:
             Default value for the field. Can be a static value or a callable.
             Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.
@@ -74,6 +78,7 @@ class Field:
     name_format: str = "{name}"
     field_name: str = ""
     default: t.Any = None
+    label_text: str | None = None
     value: t.Any = None
     error: str | dict[str, t.Any] | None = None
     error_args: dict[str, t.Any] | None = None
@@ -90,10 +95,12 @@ class Field:
         *,
         required: bool = True,
         default: t.Any = None,
+        label: str | None = None,
         messages: dict[str, str] | None = None,
     ):
         self.required = required
         self.default = default
+        self.label_text = label
         self.value = self.default_value
         self.messages = messages if messages is not None else {}
         self.id = f"f{next(_field_counter)}"
@@ -249,7 +256,9 @@ class Field:
 
         Args:
             text:
-                The text to display inside the label. If `None`, uses the field's name.
+                The text to display inside the label. If `None`, uses the field's
+                `label_text` and, if that is not set either, a text generated from
+                the field's name (`first_name` becomes "First name").
             **attrs:
                 Additional HTML attributes to include in the label element.
 
@@ -263,6 +272,11 @@ class Field:
 
             >>> print(field.label("My label", class_="text-sm"))
             <label for="f-123abc" class="text-sm">My label</label>
+
+            # With the text declared in the field
+            >>> field = f.TextField(label="My label")
+            >>> print(field.label())
+            <label for="f-123abc">My label</label>
             ```
 
         """
@@ -271,7 +285,12 @@ class Field:
             **attrs,
         }
         attr_str = self._render_html_attrs(attributes)
-        label_text = text if text is not None else self.field_name.capitalize()
+        if text is not None:
+            label_text = text
+        elif self.label_text is not None:
+            label_text = self.label_text
+        else:
+            label_text = self.field_name.replace("_", " ").capitalize()
         return Markup(f"<label {attr_str}>{Markup.escape(label_text)}</label>")
 
     def error_tag(self, **attrs: t.Any) -> str:

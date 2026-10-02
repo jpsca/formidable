@@ -24,6 +24,10 @@ class FormField(Field):
         default:
             Default value for the field. Can be a static value or a callable.
             Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
 
     """
 
@@ -33,10 +37,11 @@ class FormField(Field):
         *,
         required: bool = True,
         default: t.Any = None,
+        label: str | None = None,
     ):
         self.FormClass = FormClass
         self.form = FormClass()
-        super().__init__(required=required, default=default)
+        super().__init__(required=required, default=default, label=label)
 
     def __copy__(self):
         clone = object.__new__(self.__class__)

@@ -39,6 +39,10 @@ class ListField(Field):
             Maximum number of items in the list. Defaults to None (no maximum).
         one_of:
             List of values that the field value must be one of. Defaults to `None`.
+        label:
+            Text of the field's label, stored as `label_text`. Used by the
+            `label()` render method when it is called without a text.
+            Defaults to `None`.
         messages:
             Dictionary of error codes to custom error message templates.
             These override the default error messages for this specific field.
@@ -59,6 +63,7 @@ class ListField(Field):
         min_items: int | None = None,
         max_items: int | None = None,
         one_of: Iterable[t.Any] | None = None,
+        label: str | None = None,
         messages: dict[str, str] | None = None,
     ):
         self.type = type
@@ -82,6 +87,7 @@ class ListField(Field):
         super().__init__(
             required=required,
             default=default,
+            label=label,
             messages=messages,
         )
 
