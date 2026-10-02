@@ -11,7 +11,10 @@ from .base import Field
 class JSONField(Field):
     """
     A JSON field for forms.
-    This field is used to capture JSON input from users.
+
+    This field is used to capture _unstructured_ JSON input from users.
+    Use a `FormField` instead if the structure of the JSON is known and
+    can be represented as a form.
 
     Args:
         required:

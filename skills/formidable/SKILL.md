@@ -51,11 +51,12 @@ All live on `formidable` and accept at least `required=True`, `default=None`, `m
 | `URLField` | `schemes`, `one_of` |
 | `SlugField` | |
 | `IntegerField` / `FloatField` / `NumberField` | `gt`, `gte`, `lt`, `lte`, `multiple_of`, `one_of` |
-| `BooleanField` | `required` defaults to `False`; truthy unless value is in `("false", "0", "no")` |
+| `BooleanField` | `required` defaults to `False`; truthy unless value is in `("false", "0", "no")`. A missing value keeps the object's value (or the default). |
 | `DateField` / `DateTimeField` / `TimeField` | `after_*`, `before_*`, `past_*`, `future_*`, `one_of` |
 | `ListField(type=..., strict=False)` | `min_items`, `max_items`, `one_of`. Default is `[]`. |
 | `FileField` | Does **not** handle uploads — only renders the input and tracks the filename. |
-| `FormField(OtherForm)` | Embeds a single subform (one-to-one / JSON-like grouping). |
+| `JSONField` | Stores a `dict`. Accepts a JSON string (parsed via `json.loads`) or a `dict`; empty/whitespace → `None`. Bad JSON raises the `invalid_json` error code. `default=` accepts a string too — it's parsed at field-construction time. Render with `textarea()`; the value is re-serialized via `json.dumps`. Use this for unstructured/freeform JSON columns; reach for `FormField` instead when the JSON has a known schema. |
+| `FormField(OtherForm)` | Embeds a single subform (one-to-one / structured JSON grouping). |
 | `NestedForms(OtherForm, min_items=, max_items=, allow_delete=False)` | Dynamic list of subforms (one-to-many). |
 
 Reserved field names that will raise at class creation: `is_valid`, `is_invalid`, `hidden_tags`, `get_errors`, `save`, `validate`, `after_validate`. Field names can't start with `_`.
@@ -110,6 +111,8 @@ Helper families:
 - **Text-ish inputs:** `text_input`, `textarea`, `password_input`, `email_input`, `url_input`, `search_input`, `tel_input`, `color_input`, `number_input`, `range_input`, `date_input`, `datetime_input`, `time_input`, `month_input`, `week_input`, `file_input`, `hidden_input`
 - **Choice inputs:** `select(options)` (auto-adds `multiple` when field is `multiple=True`), `checkbox()`, `radio(radio_value)`
 
+For a `BooleanField`, `checkbox()` also renders a hidden `<input type="hidden" name="..." value="0">` *before* the checkbox, so unchecking it submits `"0"` instead of nothing (checked submits both values and the last one wins). It is left out when the checkbox is `disabled`.
+
 Low-level attributes for hand-rolled HTML: `field.id`, `field.name`, `field.value`, `field.error`, `field.error_args`, `field.error_message`.
 
 When `field.error` is set, the input helpers automatically add `aria-invalid="true"` and `aria-errormessage="{id}-error"` — pair them with `error_tag()` for accessible forms.
@@ -120,6 +123,7 @@ Field errors are short *codes* (e.g. `"required"`, `"min_length"`). The `error_m
 
 - **Global defaults:** `formidable.MESSAGES`.
 - **Per-form override:** `class Meta: messages = {"required": "..."}`. Extends, doesn't replace.
+- **Shared by a base form:** a form inherits the `Meta` of its parent form, so put the messages in the `Meta` of a base form. A child's own `Meta.messages` are merged on top of the inherited ones.
 - **Per-field override:** `f.TextField(messages={"required": "..."})`.
 - **Per-instance (i18n):** `MyForm(reqdata, messages=MESSAGES[user.locale])`.
 - **Template-side i18n:** skip `messages` and use `{{ _(field.error) }}` with your own translation function.
@@ -149,6 +153,8 @@ Override `Form._persistence_context()` to plug in a different transaction primit
 `form.save(**extra)` merges extra kwargs before persisting — great for attaching `user_id=request.user.id` without exposing it as a form field.
 
 Custom primary key: `class Meta: pk = "code"` (default `"id"`).
+
+`Meta` is inherited: a form that subclasses another starts with its parent's `orm_cls`, `pk` and `messages`. What the child declares in its own `Meta` replaces the inherited options one by one (messages are merged). A child of an ORM form that must *not* persist declares `orm_cls = None`.
 
 ## Subforms — `FormField`
 
@@ -244,6 +250,7 @@ form.save()  # setattr + obj.save() under one transaction
 - **Don't check `field.error` before validation.** It will be `None` until `validate()` runs. Use `form.is_invalid` as the gate.
 - **`hidden_tags()` is easy to forget** on `NestedForms` subforms; without it, edits will create new rows instead of updating existing ones.
 - **`BooleanField` defaults to `required=False`** because browsers don't send unchecked checkboxes. Set `required=True` only when you want to enforce "must be checked" (e.g. ToS agreement).
+- **Hand-written checkbox HTML needs the hidden input.** A missing boolean keeps the object's value, so with an object that is `True`, a bare `<input type="checkbox">` can never be unchecked. Use `field.checkbox()`, or add `<input type="hidden" name="{{ field.name }}" value="0">` before your own checkbox.
 - **`FileField` does not upload** — wire that up in your framework layer.
 - **Deep form inheritance is discouraged.** Prefer composition (mixins, `FormField`).
 - **SQLAlchemy/SQLModel detached instances** are now handled by the `Model(**data); obj.save()` fallback in `ObjectManager.create`. Session-attached patterns (e.g. needing `session.add()`) still want a custom `ObjectManager` or an override of `Form._persistence_context()` for transaction wiring.
